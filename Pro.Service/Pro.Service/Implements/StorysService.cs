@@ -43,12 +43,12 @@ namespace Pro.Service.Implements
 
                     foreach (var topStory in topStorys)
                     {
-                        var chapInfos = new List<ChapInfo>();
+                        var chapInfos = new List<ChapInfoForHome>();
 
                         var chap = allChaps.Where(ac => ac.StoryId == topStory.StoryId).OrderByDescending(ac => ac.ChapId).FirstOrDefault();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
                         if (chap != null)
                         {
-                            chapInfos.Add(new ChapInfo()
+                            chapInfos.Add(new ChapInfoForHome()
                             {
                                 ChapName = chap.ChapName,
                                 ChapLink = chap.ChapLink,
@@ -103,10 +103,10 @@ namespace Pro.Service.Implements
 
                         foreach (var storyId in listIdStory)
                         {
-                            var chapInfos = new List<ChapInfo>();
+                            var chapInfos = new List<ChapInfoForHome>();
 
-                            allChaps.Where(ac => ac.StoryId == storyId).OrderByDescending(ac => ac.ChapId).Take(3).ToList()
-                                .ForEach(c => chapInfos.Add(new ChapInfo()
+                            _chapRepository.GetAll().Where(ac => ac.StoryId == storyId).OrderByDescending(ac => ac.ChapId).Take(3).ToList()
+                                .ForEach(c => chapInfos.Add(new ChapInfoForHome()
                                 {
                                     ChapID = c.ChapId,
                                     ChapName = c.ChapName,
@@ -158,11 +158,11 @@ namespace Pro.Service.Implements
                         StoryName = storyInfor.StoryName,
                         StoryPictureLink = storyInfor.StoryPicture,
                         StoryNameShow = storyInfor.StoryNameShow,
-                        Chaps = new List<ChapInfo>(),
+                        Chaps = new List<ChapInfoForHome>(),
                     };
                     foreach (var chap in chaps)
                     {
-                        imageStoryInfo.Chaps.Add(new ChapInfo()
+                        imageStoryInfo.Chaps.Add(new ChapInfoForHome()
                         {
                             ChapID = chap.ChapId,
                             ChapLink = chap.ChapLink,

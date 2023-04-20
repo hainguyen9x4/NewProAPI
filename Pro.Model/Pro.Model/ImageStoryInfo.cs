@@ -7,7 +7,7 @@
         public string StoryNameShow { get; set; }
         public string StoryLink { get; set; }
         public string StoryPictureLink { get; set; }
-        public List<ChapInfo> Chaps { get; set; }
+        public List<ChapInfoForHome> Chaps { get; set; }
     }
     public class HomePageInfo
     {
@@ -25,6 +25,13 @@
         public int ChapId { get; set; }
         public string ChapName { get; set; }
     }
+    public class ChapInfoForHome
+    {
+        public int ChapID { get; set; }
+        public string ChapName { get; set; }
+        public string ChapLink { get; set; }
+        public DateTime? LastModifyDatetime { get; set; }
+    }
     public class ChapInfo
     {
         public int ChapID { get; set; }
@@ -34,7 +41,6 @@
         public string StoryNameShow { get; set; }
         public DateTime? LastModifyDatetime { get; set; }
         public List<ImagesChap> ImageStoryLinks { get; set; }
-        public string Updated { get; set; }
         public List<ShortStoryInfo> StoryShortInfos { get; set; }
     }
 }
