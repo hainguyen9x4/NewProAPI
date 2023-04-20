@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.20.0" />
+    <PackageReference Include="MongoDB.Bson" Version="2.19.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Pro.Commons\Pro.Common\Pro.Common.csproj" />
+    <ProjectReference Include="..\..\Pro.Commons\Pro.FileManager\Pro.FileManager.csproj" />
+    <ProjectReference Include="..\..\Pro.Data\Pro.Data\Pro.Data.csproj" />
+    <ProjectReference Include="..\..\Pro.Model\Pro.Model\Pro.Model.csproj" />
+  </ItemGroup>
+
+</Project>
