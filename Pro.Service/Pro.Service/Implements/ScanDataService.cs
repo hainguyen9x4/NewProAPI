@@ -78,7 +78,7 @@ namespace Pro.Service.Implements
             {
                 rs_eachChaps = UpdateDeleteHomePage(rs_eachChaps);
                 newestChapModel[0].ChapLinks = rs_eachChaps;
-                var chapPerFile = 10;
+                var chapPerFile = 100;
 
                 if (rs_eachChaps.Count > chapPerFile)
                 {

@@ -5,47 +5,34 @@ namespace Pro.Data.Repositorys.Implements
 {
     public class HotStoryRepository : IHotStoryRepository
     {
-        private readonly IMongoCollection<HotStory> _storys;
+        private readonly IMongoCollection<HotStory> _hotStorys;
         public HotStoryRepository(IAppSettingData settings)
         {
-            var client = new MongoClient(settings.ConnectionString);
+            var client = new MongoClient(settings.ConnectionStringAppSetting);
             var database = client.GetDatabase(settings.DatabaseName);
-            _storys = database.GetCollection<HotStory>(settings.XStorysCollectionStory);
+            _hotStorys = database.GetCollection<HotStory>(settings.XStorysCollectionStory);
         }
-        public IQueryable<HotStory> GetAll() => _storys.AsQueryable().Where(hotStory => true);
+        public IQueryable<HotStory> GetAll() => _hotStorys.AsQueryable().Where(hotStory => true);
 
-        public HotStory GetById(string id) => _storys.Find(hotStory => hotStory.Id == id).FirstOrDefault();
+        public HotStory GetById(int id) => _hotStorys.Find(hotStory => hotStory.Id == id).FirstOrDefault();
 
         public HotStory Create(HotStory hotStory)
         {
-            _storys.InsertOne(hotStory);
+            var id = 1 + _hotStorys.AsQueryable().Count();
+            hotStory.Id = id;
+            _hotStorys.InsertOne(hotStory);
             return hotStory;
         }
 
         public List<HotStory> Creates(List<HotStory> storys)
         {
-            _storys.InsertMany(storys);
+            _hotStorys.InsertMany(storys);
             return storys;
         }
-        public void Update(string id, HotStory updatedStory) => _storys.ReplaceOne(hotStory => hotStory.Id == id, updatedStory);
+        public void Update(int id, HotStory updatedStory) => _hotStorys.ReplaceOne(hotStory => hotStory.Id == id, updatedStory);
 
-        public void Delete(HotStory storyForDeletion) => _storys.DeleteOne(hotStory => hotStory.Id == storyForDeletion.Id);
+        public void Delete(HotStory storyForDeletion) => _hotStorys.DeleteOne(hotStory => hotStory.Id == storyForDeletion.Id);
 
-        public void Delete(string id) => _storys.DeleteOne(hotStory => hotStory.Id == id);
-
-        public HotStory GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Update(int id, HotStory updatedentity)
-        {
-            throw new NotImplementedException();
-        }
+        public void Delete(int id) => _hotStorys.DeleteOne(hotStory => hotStory.Id == id);
     }
 }

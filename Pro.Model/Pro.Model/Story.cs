@@ -7,6 +7,7 @@ namespace Pro.Model
     {
         [BsonId]
         public int StoryId { get; set; }
+
         [BsonElement("StoryName")]
         public string StoryName { get; set; }
 
@@ -28,7 +29,6 @@ namespace Pro.Model
         [BsonElement("Author")]
         public string Author { get; set; }
 
-        public Story() { }
         public Story(string storyName, int? storyStatusId = 1, int? storyTypeID = 0,
             string storyLink = "", string author = "", string storyPictureLink = "", string storyNameShow = "")
         {

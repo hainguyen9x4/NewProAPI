@@ -17,18 +17,15 @@ namespace Pro.Model
         [BsonElement("StoryId")]
         public int StoryId { get; set; }
 
-        [BsonElement("ChapIdx")]
-        public int ChapIdx { get; set; }
-
         [BsonElement("ChapStatusID")]
         public int? ChapStatusID { get; set; }
 
         [BsonElement("LastModifyDatetime")]
         public DateTime? LastModifyDatetime { get; set; }
+
         [BsonElement("Images")]
         public List<ImagesChap> Images { get; set; }
 
-        public Chap() { }
         public Chap(int storyID, int chapIdx, string chapName, List<ImagesChap> images = null, int? chapStatusID = 1, string chapLink = "")
         {
             StoryId = storyID;
@@ -37,7 +34,6 @@ namespace Pro.Model
             ChapLink = chapLink;
             Images = images;
             LastModifyDatetime = DateTime.Now;
-            ChapIdx = chapIdx;
         }
 
     }

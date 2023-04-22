@@ -8,9 +8,6 @@ namespace Pro.Model
     public class ApplicationSetting
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; }
-
         public int AppSettingId { get; set; }
 
         [BsonElement("AppSettingName")]
@@ -21,6 +18,7 @@ namespace Pro.Model
 
         [BsonElement("AppSettingIsActive")]
         public bool AppSettingIsActive { get; set; }
+
         [BsonElement("Descriptions")]
         public string Descriptions { get; set; }
     }

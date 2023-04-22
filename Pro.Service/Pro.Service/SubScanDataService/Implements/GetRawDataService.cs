@@ -66,7 +66,7 @@ namespace Pro.Service.SubScanDataService.Implements
                 }
 
             }
-            listStorys.Distinct();
+            listStorys = listStorys.Distinct().ToList();
 
             var tempLists = new List<string>();
             listStorys.ForEach(link =>
@@ -85,7 +85,7 @@ namespace Pro.Service.SubScanDataService.Implements
                 if (newStorys.Any())
                 {
                     lstStoryFollows.AddRange(newStorys);
-                    lstStoryFollows.Distinct();
+                    lstStoryFollows = lstStoryFollows.Distinct().ToList(); ;
                     FileReader.WriteDataToFile(fileStoryFollowPath, lstStoryFollows, 300);
                 }
             }

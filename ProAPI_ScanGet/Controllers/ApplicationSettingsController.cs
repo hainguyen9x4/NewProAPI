@@ -20,7 +20,7 @@ namespace xAppSetting.Controllers
         public ActionResult<List<ApplicationSetting>> Get() =>
             _applicationSettingService.Get();
 
-        [HttpGet("{id:length(24)}", Name = "GetAppSetting")]
+        [HttpGet("{id}", Name = "GetAppSetting")]
         public ActionResult<ApplicationSetting> Get(int id)
         {
             var applicationSetting = _applicationSettingService.Get(id);
@@ -38,10 +38,10 @@ namespace xAppSetting.Controllers
         {
             _applicationSettingService.Create(applicationSetting);
 
-            return CreatedAtRoute("GetAppSetting", new { id = applicationSetting.AppSettingId.ToString() }, applicationSetting);
+            return CreatedAtRoute("GetAppSetting", new { id = applicationSetting.AppSettingId }, applicationSetting);
         }
 
-        [HttpPut("{id:length(24)}")]
+        [HttpPut("{id}")]
         public IActionResult Update(int id, ApplicationSetting appSetting)
         {
             var applicationSetting = _applicationSettingService.Get(id);
@@ -56,7 +56,7 @@ namespace xAppSetting.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
+        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var applicationSetting = _applicationSettingService.Get(id);

@@ -8,7 +8,7 @@ namespace Pro.Data.Repositorys.Implements
         private readonly IMongoCollection<ApplicationSetting> _applicationSettings;
         public ApplicationSettingRepository(IAppSettingData settings)
         {
-            var client = new MongoClient(settings.ConnectionString);
+            var client = new MongoClient(settings.ConnectionStringAppSetting);
             var database = client.GetDatabase(settings.DatabaseName);
             _applicationSettings = database.GetCollection<ApplicationSetting>(settings.XStorysCollectionAppSetting);
         }
@@ -21,6 +21,8 @@ namespace Pro.Data.Repositorys.Implements
 
         public ApplicationSetting Create(ApplicationSetting applicationSetting)
         {
+            var settingId = 1 + _applicationSettings.AsQueryable().Count();
+            applicationSetting.AppSettingId = settingId;
             _applicationSettings.InsertOne(applicationSetting);
             return applicationSetting;
         }
