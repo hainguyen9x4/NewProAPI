@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Pro.Model;
 using Pro.Service;
 using System.Collections.Generic;
+using System.IO;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
@@ -37,6 +38,6 @@ namespace xStory.Controllers
         [Route("api/[controller]/GetAllStoryForSearch")]
         [HttpGet]
         public ActionResult<List<ImageStoryInfo>> GetAllStoryForSearch() =>
-    _storyService.GetAllStoryForSearch();
+            _storyService.GetAllStoryForSearch();
     }
 }
