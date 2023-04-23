@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProAPI_ScanGet", "ProAPI_Sc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pro.APIScanGet", "ProAPI_ScanGet\Pro.APIScanGet.csproj", "{26E7B122-2B14-4B97-91DF-843C4A68CE04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test AsynAwait", "TestPro\Test AsynAwait\Test AsynAwait.csproj", "{D09D5FF0-FAC2-4471-BE27-A56157C4D874}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{26E7B122-2B14-4B97-91DF-843C4A68CE04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26E7B122-2B14-4B97-91DF-843C4A68CE04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26E7B122-2B14-4B97-91DF-843C4A68CE04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D09D5FF0-FAC2-4471-BE27-A56157C4D874}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D09D5FF0-FAC2-4471-BE27-A56157C4D874}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D09D5FF0-FAC2-4471-BE27-A56157C4D874}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D09D5FF0-FAC2-4471-BE27-A56157C4D874}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

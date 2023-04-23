@@ -1,5 +1,6 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using MongoDB.Bson.Serialization.Serializers;
 using Pro.Common;
 using Pro.Common.Const;
 using System.Net;
@@ -220,6 +221,135 @@ namespace Pro.Service.Implement
                 }
             }
             dataStory.StoryPictureLink = MakeStoryPictureLinkForNewStory(dataStory.StoryPictureLink) ?? dataStory.StoryPictureLink;
+            return dataStory;
+        }
+        public async void UploadLink2StoreWith3Threads(DataStoryForSave dataStory)
+        {
+            var dataThread1 = new DataStoryForSave();
+            dataThread1.StoryName = dataStory.StoryName;
+            dataThread1.StoryNameShow = dataStory.StoryNameShow;
+            dataThread1.StoryLink = dataStory.StoryLink;
+            dataThread1.StoryPictureLink = dataStory.StoryPictureLink;
+            dataThread1.Author = dataStory.Author;
+
+            var dataThread2 = new DataStoryForSave();
+            dataThread2.StoryName = dataStory.StoryName;
+            dataThread2.StoryNameShow = dataStory.StoryNameShow;
+            dataThread2.StoryLink = dataStory.StoryLink;
+            dataThread2.StoryPictureLink = dataStory.StoryPictureLink;
+            dataThread2.Author = dataStory.Author;
+
+            var dataThread3 = new DataStoryForSave();
+            dataThread3.StoryName = dataStory.StoryName;
+            dataThread3.StoryNameShow = dataStory.StoryNameShow;
+            dataThread3.StoryLink = dataStory.StoryLink;
+            dataThread3.StoryPictureLink = dataStory.StoryPictureLink;
+            dataThread3.Author = dataStory.Author;
+
+            var dataThread4 = new DataStoryForSave();
+            dataThread4.StoryName = dataStory.StoryName;
+            dataThread4.StoryNameShow = dataStory.StoryNameShow;
+            dataThread4.StoryLink = dataStory.StoryLink;
+            dataThread4.StoryPictureLink = dataStory.StoryPictureLink;
+            dataThread4.Author = dataStory.Author;
+
+            var dataThread5 = new DataStoryForSave();
+            dataThread5.StoryName = dataStory.StoryName;
+            dataThread5.StoryNameShow = dataStory.StoryNameShow;
+            dataThread5.StoryLink = dataStory.StoryLink;
+            dataThread5.StoryPictureLink = dataStory.StoryPictureLink;
+            dataThread5.Author = dataStory.Author;
+
+            var total = dataStory.ChapDataForSaves.Count();
+            var value = (total / 20);
+            if (value > 4)
+            {
+                dataThread1.ChapDataForSaves = dataStory.ChapDataForSaves.Take(20).ToList();
+                dataThread2.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20).Take(20).ToList();
+                dataThread3.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 2).Take(20).ToList();
+                dataThread4.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 3).Take(20).ToList();
+                dataThread5.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 4).Take(total - 20 * 4).ToList();
+
+            }
+            else if (value > 3)
+            {
+                dataThread1.ChapDataForSaves = dataStory.ChapDataForSaves.Take(20).ToList();
+                dataThread2.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20).Take(20).ToList();
+                dataThread3.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 2).Take(20).ToList();
+                dataThread4.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 3).Take(20).ToList();
+                dataThread5.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 4).Take(total - 20 * 4).ToList();
+            }
+            else if (value > 2)
+            {
+                dataThread1.ChapDataForSaves = dataStory.ChapDataForSaves.Take(20).ToList();
+                dataThread2.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20).Take(20).ToList();
+                dataThread3.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 2).Take(20).ToList();
+                dataThread4.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 3).Take(total - 20 * 3).ToList();
+            }
+            else if (value > 1)
+            {
+                dataThread1.ChapDataForSaves = dataStory.ChapDataForSaves.Take(20).ToList();
+                dataThread2.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20).Take(20).ToList();
+                dataThread3.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20 * 2).Take(total - 20 * 2).ToList();
+            }
+            else if (value > 0)
+            {
+                dataThread1.ChapDataForSaves = dataStory.ChapDataForSaves.Take(20).ToList();
+                dataThread2.ChapDataForSaves = dataStory.ChapDataForSaves.Skip(20).Take(total - 20 * 1).ToList();
+            }
+
+            //Create 3 thread
+            var loadDataTasks = new Task[]
+            {
+                Task.Run(async () => dataThread1 = await UpLoadDataAsync(dataThread1)),
+                Task.Run(async () => dataThread2 = await UpLoadDataAsync(dataThread2)),
+                Task.Run(async () => dataThread3 = await UpLoadDataAsync(dataThread3)),
+                Task.Run(async () => dataThread4 = await UpLoadDataAsync(dataThread4)),
+                Task.Run(async () => dataThread5 = await UpLoadDataAsync(dataThread5))
+            };
+
+            try
+            {
+                var t = Task.WhenAll(loadDataTasks);
+                t.Wait();
+            }
+            catch (Exception ex)
+            {
+                // handle exception
+                var x = 12;
+            }
+
+            dataStory.ChapDataForSaves.Clear();
+            dataStory.ChapDataForSaves.AddRange(dataThread1.ChapDataForSaves);
+            dataStory.ChapDataForSaves.AddRange(dataThread2.ChapDataForSaves);
+            dataStory.ChapDataForSaves.AddRange(dataThread3.ChapDataForSaves);
+            dataStory.ChapDataForSaves.AddRange(dataThread4.ChapDataForSaves);
+            dataStory.ChapDataForSaves.AddRange(dataThread5.ChapDataForSaves);
+
+            dataStory.StoryPictureLink = MakeStoryPictureLinkForNewStory(dataStory.StoryPictureLink) ?? dataStory.StoryPictureLink;
+            //return dataStory;
+        }
+
+        private async Task<DataStoryForSave> UpLoadDataAsync(DataStoryForSave dataStory)
+        {
+            foreach (var chapSave in dataStory.ChapDataForSaves)
+            {
+                var savePath = $"/Truyen-tranh2/{dataStory.StoryName}/{chapSave.ChapName}/";//Folder save on clound
+                foreach (var link in chapSave.ImageDatas)
+                {
+                    var rsUp = UploadImage("0", link.ImageLinkFromWeb, savePath, true);
+
+                    if (rsUp.ResultStatus > 0)//Success
+                    {
+                        link.ImageLinkNeedSaveDB = rsUp.Url;
+                    }
+                    else
+                    {
+                        LogHelper.Error($"Error DownLoadLinks- cannot get cloud link{link.ImageLinkFromWeb},ErrorMes:{rsUp.ErrorMessage}");
+                    }
+                }
+            }
+
             return dataStory;
         }
 

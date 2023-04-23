@@ -40,10 +40,12 @@ namespace Pro.Service.Implements
                     if (newestChapDatas.ChapLinks.Any())
                     {
                         var rawData = _getRawDataService.GetRawDatas(newestChapDatas);
+                        //Save to file
+
                         if (rawData.ChapDataForSaves.Any())
                         {
-                            var needDowloadDatas = _uploadImageService.UploadLink2Store(rawData);
-                            _upData2DBService.UpData2DB(needDowloadDatas);
+                            _uploadImageService.UploadLink2StoreWith3Threads(rawData);
+                            _upData2DBService.UpData2DB(rawData);
                             //Delete file
                             try
                             {
