@@ -33,7 +33,7 @@ namespace Pro.Model
             ChapStatusID = chapStatusID;
             ChapLink = chapLink;
             Images = images;
-            LastModifyDatetime = DateTime.Now;
+            LastModifyDatetime = DateTime.UtcNow;
         }
 
     }

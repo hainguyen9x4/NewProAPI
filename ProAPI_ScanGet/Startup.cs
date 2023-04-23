@@ -31,31 +31,31 @@ namespace xStory
         {
             services.Configure<AppSettingData>(Configuration.GetSection(nameof(AppSettingData)));
 
-            services.AddSingleton<IAppSettingData>(sp => sp.GetRequiredService<IOptions<AppSettingData>>().Value);
+            services.AddScoped<IAppSettingData>(sp => sp.GetRequiredService<IOptions<AppSettingData>>().Value);
 
-            services.AddSingleton<IStoryRepository, StoryRepository>();
-            services.AddSingleton<IChapRepository, ChapRepository>();
-            services.AddSingleton<IApplicationSettingRepository, ApplicationSettingRepository>();
-            services.AddSingleton<ICacheProvider, InMemoryCacheProvider>();
+            services.AddScoped<IStoryRepository, StoryRepository>();
+            services.AddScoped<IChapRepository, ChapRepository>();
+            services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
+            services.AddScoped<ICacheProvider, InMemoryCacheProvider>();
 
-            services.AddSingleton<IScanDataService, ScanDataService>();
-            services.AddSingleton<IGetDataService, GetDataService>();
-            services.AddSingleton<IUploadImageService, UpFile2CloudinaryService>();
-            services.AddSingleton<IApplicationSettingService, ApplicationSettingService>();
-            services.AddSingleton<IPrepareService, PrepareService>();
-            services.AddSingleton<IGetRawDataService, GetRawDataService>();
-            services.AddSingleton<IUpData2DBService, UpData2DBService>();
+            services.AddScoped<IScanDataService, ScanDataService>();
+            services.AddScoped<IGetDataService, GetDataService>();
+            services.AddScoped<IUploadImageService, UpFile2CloudinaryService>();
+            services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
+            services.AddScoped<IPrepareService, PrepareService>();
+            services.AddScoped<IGetRawDataService, GetRawDataService>();
+            services.AddScoped<IUpData2DBService, UpData2DBService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "xStory", Version = "v1" });
             });
-#if DEBUG
+//#if DEBUG
             LogHelper.InitLogHelper(@"C:\Logs\XStory\");
-#else
-            LogHelper.InitLogHelper();
-#endif
+//#else
+//            LogHelper.InitLogHelper();
+//#endif
             LogHelper.Info("App Started!");
 
         }
