@@ -23,59 +23,110 @@ namespace Pro.Model
         [BsonElement("StatusID")]
         public int StatusID { get; set; }
 
-        [BsonElement("UpdatedTime")]
-        public DateTime UpdatedTime { get; set; }
-
         [BsonElement("Chaps")]
         public List<Chap> Chaps { get; set; }
 
-        public NewStory(string name, int statusId = 1/*Actived*/,
-            string link = "", string picture = "", string nameShow = "", List<Chap> chaps = default(List<Chap>))
+        [BsonElement("OtherInfo")]
+        public OtherInfo OtherInfo { get; set; }
+
+        [BsonElement("UpdatedTime")]
+        public DateTime UpdatedTime { get; set; }
+
+        public NewStory(string name, List<Chap> chaps, OtherInfo otherInfo, int statusId = 1/*Actived*/, string link = "", string picture = "", string nameShow = "")
         {
             Name = name;
             NameShow = nameShow;
             Picture = picture;
             Link = link;
             StatusID = statusId;
-            UpdatedTime = DateTime.UtcNow;
             Chaps = chaps;
+            OtherInfo = otherInfo;
+            UpdatedTime = DateTime.UtcNow;
         }
     }
     public class OtherInfo
     {
-        public OtherInfo()
+        public OtherInfo(Star star, List<StoryType> types, string author = "", string des = "", int viewTotal = 0)
         {
-            Star = new Star();
-            Author = "";
-            Des = "";
+            Star = star;
+            Author = author;
+            Des = des;
+            Types = types;
+            ViewTotal = viewTotal;
         }
         public string Author { get; set; }
         public string Des { get; set; }
-        public int TypeID { get; set; }
+        public List<StoryType> Types { get; set; }
         public Star Star { get; set; }
         public int ViewTotal { get; set; }
     }
     public class Star
     {
+        public Star(int avgStar, int totalRate)
+        {
+            AvgStar = avgStar;
+            TotalRate = totalRate;
+        }
+
         public int AvgStar { get; set; }
         public int TotalRate { get; set; }
     }
 
     public class Chap
     {
+        public Chap(int id, string name, string link, List<Image> images, int statusID = 1)
+        {
+            ID = id;
+            Name = name;
+            Link = link;
+            Images = images;
+            StatusID = statusID;
+        }
+
         public Chap()
         {
             Name = "";
-            Images = new List<Images>();
+            Link = "";
+            Images = new List<Image>();
         }
         public int ID { get; set; }
         public string Name { get; set; }
-        public List<Images> Images { get; set; }
+        public string Link { get; set; }
+        public int StatusID { get; set; }
+        public List<Image> Images { get; set; }
     }
 
-    public class Images
+    public class Image
     {
+        public Image(int statusID = 1, string link = "", string originLink = "")
+        {
+            StatusID = statusID;
+            Link = link;
+            OriginLink = originLink;
+        }
+        public Image()
+        {
+            StatusID = 1;
+            Link = "";
+            OriginLink = "";
+        }
+        public int StatusID { get; set; }
         public string Link { get; set; }
         public string OriginLink { get; set; }
+    }
+
+    public class StoryType
+    {
+        public StoryType(int typeID, string typeName)
+        {
+            TypeID = typeID;
+            TypeName = typeName;
+        }
+        public StoryType()
+        {
+            TypeName = "";
+        }
+        public int TypeID { get; set; }
+        public string TypeName { get; set; }
     }
 }
