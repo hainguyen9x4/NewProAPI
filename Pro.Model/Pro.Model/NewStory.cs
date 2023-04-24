@@ -62,13 +62,13 @@ namespace Pro.Model
     }
     public class Star
     {
-        public Star(int avgStar = 0, int totalRate = 0)
+        public Star(double avgStar = 0, int totalRate = 0)
         {
             AvgStar = avgStar;
             TotalRate = totalRate;
         }
 
-        public int AvgStar { get; set; }
+        public double AvgStar { get; set; }
         public int TotalRate { get; set; }
     }
 

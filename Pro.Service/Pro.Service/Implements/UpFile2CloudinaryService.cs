@@ -1,9 +1,12 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using FileManager;
 using MongoDB.Bson.Serialization.Serializers;
 using Pro.Common;
 using Pro.Common.Const;
+using Pro.Model;
 using System.Net;
+using static MongoDB.Bson.Serialization.Serializers.SerializerHelper;
 
 namespace Pro.Service.Implement
 {
@@ -196,9 +199,29 @@ namespace Pro.Service.Implement
         Cloudinary GetCloundaryRandom()
         {
             var random = new Random();
-            var number = random.Next(0, _cloudinarys.Count());
-            var rs = _cloudinarys[number];
-            return rs;
+            var totalCloud = _cloudinarys.Count();
+            var number = random.Next(0, totalCloud);
+
+            if (number >= totalCloud)
+            {
+                while (number >= totalCloud)
+                {
+                    number = number - 1;
+                }
+            }
+
+            if (number < 0)
+                number = 0;
+            try
+            {
+
+                return _cloudinarys[number];
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"GetCloundaryRandom: number = {number}, total={_cloudinarys.Count}");
+                return _cloudinarys[0];
+            }
         }
         public DataStoryForSave UploadLink2Store(DataStoryForSave dataStory)
         {
@@ -330,6 +353,30 @@ namespace Pro.Service.Implement
             //return dataStory;
         }
 
+        private async Task<NewStory> UpLoadDataAsyncForNew(NewStory dataStory)
+        {
+            foreach (var chapSave in dataStory.Chaps)
+            {
+                var savePath = $"/Truyen-tranh2/{dataStory.Name}/{chapSave.Name}/";//Folder save on clound
+                foreach (var link in chapSave.Images)
+                {
+                    var rsUp = UploadImage("0", link.OriginLink, savePath, true);
+
+                    if (rsUp.ResultStatus > 0)//Success
+                    {
+                        link.Link = rsUp.Url;
+                        link.OriginLink = "";
+                    }
+                    else
+                    {
+                        LogHelper.Error($"Error DownLoadLinks- cannot get cloud link:{link.OriginLink};{dataStory.Name}/{chapSave.Name},ErrorMes:{rsUp.ErrorMessage}");
+                    }
+                }
+                chapSave.Link = FileReader.DeleteHomePage(chapSave.Link);
+            }
+            return dataStory;
+        }
+
         private async Task<DataStoryForSave> UpLoadDataAsync(DataStoryForSave dataStory)
         {
             foreach (var chapSave in dataStory.ChapDataForSaves)
@@ -361,6 +408,121 @@ namespace Pro.Service.Implement
                 return linkCloundary.Url;
             }
             return null;
+        }
+
+        public void UploadLink2StoreWith3ThreadsForNew(NewStory dataStory)
+        {
+            var dataThread1 = new NewStory();
+            dataThread1.Name = dataStory.Name;
+            dataThread1.NameShow = dataStory.NameShow;
+            dataThread1.Link = dataStory.Link;
+            dataThread1.Picture = dataStory.Picture;
+            dataThread1.OtherInfo = dataStory.OtherInfo;
+            dataThread1.Chaps = new List<Chap>();
+
+            var dataThread2 = new NewStory();
+            dataThread2.Name = dataStory.Name;
+            dataThread2.NameShow = dataStory.NameShow;
+            dataThread2.Link = dataStory.Link;
+            dataThread2.Picture = dataStory.Picture;
+            dataThread2.OtherInfo = dataStory.OtherInfo;
+            dataThread2.Chaps = new List<Chap>();
+
+            var dataThread3 = new NewStory();
+            dataThread3.Name = dataStory.Name;
+            dataThread3.NameShow = dataStory.NameShow;
+            dataThread3.Link = dataStory.Link;
+            dataThread3.Picture = dataStory.Picture;
+            dataThread3.OtherInfo = dataStory.OtherInfo;
+            dataThread3.Chaps = new List<Chap>();
+
+            var dataThread4 = new NewStory();
+            dataThread4.Name = dataStory.Name;
+            dataThread4.NameShow = dataStory.NameShow;
+            dataThread4.Link = dataStory.Link;
+            dataThread4.Picture = dataStory.Picture;
+            dataThread4.OtherInfo = dataStory.OtherInfo;
+            dataThread4.Chaps = new List<Chap>();
+
+            var dataThread5 = new NewStory();
+            dataThread5.Name = dataStory.Name;
+            dataThread5.NameShow = dataStory.NameShow;
+            dataThread5.Link = dataStory.Link;
+            dataThread5.Picture = dataStory.Picture;
+            dataThread5.OtherInfo = dataStory.OtherInfo;
+            dataThread5.Chaps = new List<Chap>();
+
+            var total = dataStory.Chaps.Count();
+            var value = (total / 20);
+            if (value > 4)
+            {
+                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
+                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(20).ToList();
+                dataThread3.Chaps = dataStory.Chaps.Skip(20 * 2).Take(20).ToList();
+                dataThread4.Chaps = dataStory.Chaps.Skip(20 * 3).Take(20).ToList();
+                dataThread5.Chaps = dataStory.Chaps.Skip(20 * 4).Take(total - 20 * 4).ToList();
+
+            }
+            else if (value > 3)
+            {
+                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
+                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(20).ToList();
+                dataThread3.Chaps = dataStory.Chaps.Skip(20 * 2).Take(20).ToList();
+                dataThread4.Chaps = dataStory.Chaps.Skip(20 * 3).Take(20).ToList();
+                dataThread5.Chaps = dataStory.Chaps.Skip(20 * 4).Take(total - 20 * 4).ToList();
+            }
+            else if (value > 2)
+            {
+                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
+                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(20).ToList();
+                dataThread3.Chaps = dataStory.Chaps.Skip(20 * 2).Take(20).ToList();
+                dataThread4.Chaps = dataStory.Chaps.Skip(20 * 3).Take(total - 20 * 3).ToList();
+            }
+            else if (value > 1)
+            {
+                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
+                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(20).ToList();
+                dataThread3.Chaps = dataStory.Chaps.Skip(20 * 2).Take(total - 20 * 2).ToList();
+            }
+            else if (value > 0)
+            {
+                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
+                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(total - 20 * 1).ToList();
+            }
+            else
+            {
+                dataThread1.Chaps = dataStory.Chaps.ToList();
+            }
+
+            //Create 3 thread
+            var loadDataTasks = new Task[]
+            {
+                Task.Run(async () => dataThread1 = await UpLoadDataAsyncForNew(dataThread1)),
+                Task.Run(async () => dataThread2 = await UpLoadDataAsyncForNew(dataThread2)),
+                Task.Run(async () => dataThread3 = await UpLoadDataAsyncForNew(dataThread3)),
+                Task.Run(async () => dataThread4 = await UpLoadDataAsyncForNew(dataThread4)),
+                Task.Run(async () => dataThread5 = await UpLoadDataAsyncForNew(dataThread5))
+            };
+
+            try
+            {
+                var t = Task.WhenAll(loadDataTasks);
+                t.Wait();
+            }
+            catch (Exception ex)
+            {
+                // handle exception
+                var x = 12;
+            }
+
+            dataStory.Chaps.Clear();
+            dataStory.Chaps.AddRange(dataThread1.Chaps);
+            dataStory.Chaps.AddRange(dataThread2.Chaps);
+            dataStory.Chaps.AddRange(dataThread3.Chaps);
+            dataStory.Chaps.AddRange(dataThread4.Chaps);
+            dataStory.Chaps.AddRange(dataThread5.Chaps);
+
+            dataStory.Picture = MakeStoryPictureLinkForNewStory(dataStory.Picture) ?? dataStory.Picture;
         }
     }
     public class CloudinarySettings

@@ -1,6 +1,7 @@
 ﻿using FileManager;
 using Pro.Common;
 using Pro.Data.Repositorys;
+using Pro.Data.Repositorys.Implements;
 using Pro.Model;
 
 namespace Pro.Service.SubScanDataService.Implements
@@ -9,12 +10,15 @@ namespace Pro.Service.SubScanDataService.Implements
     {
         private readonly IStoryRepository _storyRepository;
         private readonly IChapRepository _chapRepository;
+        private readonly INewStoryRepository _newStoryRepository;
 
         public UpData2DBService(IStoryRepository storys
-            , IChapRepository chaps)
+            , IChapRepository chaps
+            , INewStoryRepository newStoryRepository)
         {
             _storyRepository = storys;
             _chapRepository = chaps;
+            _newStoryRepository = newStoryRepository;
         }
 
         private int GetStoryIdFromStoryName(DataStoryForSave dataStoryForSave)
@@ -42,6 +46,27 @@ namespace Pro.Service.SubScanDataService.Implements
             }
         }
 
+        private NewStory GetStoryIdFromStoryNameForNew(NewStory dataStoryForSave)
+        {
+            try
+            {
+                var story = _newStoryRepository.GetAll().Where(s => s.Name.Equals(dataStoryForSave.Name)).FirstOrDefault();
+                if (story != null)
+                {
+                    return story;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"GetStoryIdFromStoryName {dataStoryForSave.Name}" + ex);
+                return null;
+            }
+        }
+
         public void UpData2DB(DataStoryForSave dataStory)
         {
             var storyId = GetStoryIdFromStoryName(dataStory);
@@ -63,24 +88,44 @@ namespace Pro.Service.SubScanDataService.Implements
             }
         }
 
-        public void UpData2DBForNew(DataStoryForSave dataStory)
+        public void UpData2DBForNew(NewStory dataStory)
         {
-            var storyId = GetStoryIdFromStoryName(dataStory);
-            if (storyId > 0)
+            var story = GetStoryIdFromStoryNameForNew(dataStory);
+
+            dataStory.Link = FileReader.DeleteHomePage(dataStory.Link);
+            if (story.ID > 0)
             {
-                foreach (var chapSaveData in dataStory.ChapDataForSaves)
-                {
-                    var chap = _chapRepository.GetAll().Where(c => c.ChapName == chapSaveData.ChapName && c.StoryId == storyId).FirstOrDefault();
-                    if (chap == null)
-                    {
-                        //Create chap with all info
-                        var chapId = CreateChapWithAllInfo(storyId, storyId, chapSaveData);
-                    }
-                }
+                //Old story
+                UpdateChapId(dataStory, story.Chaps.Count + 1);
+                story.Chaps.AddRange(dataStory.Chaps);
+                _newStoryRepository.Update(story.ID, story);
             }
             else
             {
-                LogHelper.Error($"UpData2DB: Can't get storyId, StoryLink:{dataStory.StoryLink}");
+                //new Story
+                FakeDataOtherInfo(dataStory);
+                UpdateChapId(dataStory);
+                _newStoryRepository.Create(dataStory);
+            }
+        }
+
+        private void FakeDataOtherInfo(NewStory dataStory)
+        {
+            dataStory.OtherInfo = new OtherInfo(new Star(4.5, RandomRate(3000, 9000)), new List<StoryType>() { }, "", "", RandomRate(80000, 99000));
+
+            int RandomRate(int start, int end)
+            {
+                var random = new Random();
+                return random.Next(start, end);
+            }
+        }
+
+        private void UpdateChapId(NewStory dataStory, int startId = 1)
+        {
+            foreach (var chap in dataStory.Chaps)
+            {
+                chap.ID = startId;
+                startId++;
             }
         }
 

@@ -50,35 +50,23 @@ namespace Pro.Service.SubScanDataService.Implements
             return resultDatas;
         }
 
-        public DataStoryForSave GetRawDatasForNew(NewStory newestData)
+        public void GetRawDatasForNew(NewStory newestData)
         {
             var resultDatas = new DataStoryForSave();
 
             string nameTruyen, chapName = "";
-            foreach (var urlChap in newestData.Chaps)
+            foreach (var chap in newestData.Chaps)
             {
-                var pairLinks = new List<ImagePairLink>();
-                var chapSave = new ChapDataForSave();
-                var dataLinks = GetImageDatasFromWeb(urlChap);
-                dataLinks.ForEach(link => pairLinks.Add(new ImagePairLink()
+                var dataLinks = GetImageDatasFromWeb(chap.Link);
+                dataLinks.ForEach(link => chap.Images.Add(new Image()
                 {
-                    ImageLinkFromWeb = link
+                    OriginLink = link
                 }));
-                FileReader.GetChapInfo(urlChap, out nameTruyen, out chapName);
-                chapSave.ChapName = chapName;
-                chapSave.ImageDatas = pairLinks;
-                chapSave.ChapName = chapName;
-                chapSave.ChapLink = urlChap;
-                resultDatas.ChapDataForSaves.Add(chapSave);
+                FileReader.GetChapInfo(chap.Link, out nameTruyen, out chapName);
+                chap.Name = chapName;
             }
-            resultDatas.FileDataNewestPathLocal = newestData.FileDataNewestPathLocal;
-            resultDatas.StoryName = newestData.StoryName;
-            resultDatas.StoryNameShow = newestData.StoryNameShow;
-            resultDatas.StoryLink = newestData.StoryLink;
-            resultDatas.Author = newestData.Author;
-            resultDatas.StoryPictureLink = GetPictureLinkFormStoryLinkByAPI(newestData.StoryLink);// newestData.StoryPictureLink;
+            newestData.Picture = GetPictureLinkFormStoryLinkByAPI(newestData.Link);
 
-            return resultDatas;
         }
 
         public bool FindNewStory(int numberPage, string homeUrl)

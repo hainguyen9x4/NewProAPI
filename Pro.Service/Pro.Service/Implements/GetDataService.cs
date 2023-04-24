@@ -96,21 +96,21 @@ namespace Pro.Service.Implements
                     var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew();
                     if (newestChapDatas.Chaps.Any())
                     {
-                        var rawData = _getRawDataService.GetRawDatasForNew(newestChapDatas);
+                        _getRawDataService.GetRawDatasForNew(newestChapDatas);
                         //Save to file
 
-                        if (rawData.ChapDataForSaves.Any())
+                        if (newestChapDatas.Chaps.Any())
                         {
-                            _uploadImageService.UploadLink2StoreWith3ThreadsForNew(rawData);
-                            _upData2DBService.UpData2DBForNew(rawData);
+                            _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
+                            _upData2DBService.UpData2DBForNew(newestChapDatas);
                             //Delete file
                             try
                             {
-                                FileReader.DeleteFile(newestChapDatas.FileDataNewestPathLocal.FullName);
+                                //FileReader.DeleteFile(newestChapDatas.FileDataNewestPathLocal.FullName);
                             }
                             catch (Exception ex)
                             {
-                                LogHelper.Error($"DeleteFile/Move {newestChapDatas.FileDataNewestPathLocal.FullName}" + ex);
+                                //LogHelper.Error($"DeleteFile/Move {newestChapDatas.FileDataNewestPathLocal.FullName}" + ex);
                             }
                         }
                     }

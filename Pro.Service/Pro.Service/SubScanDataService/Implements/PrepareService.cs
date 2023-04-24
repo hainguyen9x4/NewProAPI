@@ -85,28 +85,13 @@ namespace Pro.Service.SubScanDataService.Implements
                     var chaps = new List<Chap>();
                     foreach (var chapLink in dataNewstList.ChapLinks)
                     {
-                        chaps.Add(new Chap(ExtractChapter(chapLink), chapLink, new List<Image>()));
+                        chaps.Add(new Chap("", chapLink, new List<Image>()));
                     }
                     var otherInfo = new OtherInfo(new Star(), new List<StoryType>(), dataNewstList.Author, "", 0);
                     resultDatas = new NewStory(dataNewstList.StoryName, dataNewstList.StoryNameShow, chaps, otherInfo, link: dataNewstList.StoryLink);
                 }
             }
             return resultDatas;
-        }
-        public static string ExtractChapter(string input)
-        {
-            string pattern = @"/(\w+)/\d+";
-            Regex regex = new Regex(pattern);
-            Match match = regex.Match(input);
-            if (match.Success)
-            {
-                string result = match.Groups[1].Value;
-                return result;
-            }
-            else
-            {
-                return ""; // or throw an exception, depending on your needs
-            }
         }
     }
 }
