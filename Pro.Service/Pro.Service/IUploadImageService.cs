@@ -9,5 +9,6 @@ namespace Pro.Service
         IResultUpload UploadImage(string fileName, string url, string pathSave = "", bool isNeedConvert = false, int retryTime = 2, int sleepNextRetryTime = 30 * 1000);
         DataStoryForSave UploadLink2Store(DataStoryForSave dataStory);
         void UploadLink2StoreWith3Threads(DataStoryForSave dataStory);
+        void UploadLink2StoreWith3ThreadsForNew(DataStoryForSave dataStory);
     }
 }

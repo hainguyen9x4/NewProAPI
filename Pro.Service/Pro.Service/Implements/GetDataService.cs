@@ -93,16 +93,16 @@ namespace Pro.Service.Implements
                     statusGetData2 = false;
                     LogHelper.Info($"GET---Start GetDataService");
 
-                    var newestChapDatas = _prepareService.PrepareNewestChapDatas();
-                    if (newestChapDatas.ChapLinks.Any())
+                    var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew();
+                    if (newestChapDatas.Chaps.Any())
                     {
-                        var rawData = _getRawDataService.GetRawDatas(newestChapDatas);
+                        var rawData = _getRawDataService.GetRawDatasForNew(newestChapDatas);
                         //Save to file
 
                         if (rawData.ChapDataForSaves.Any())
                         {
-                            _uploadImageService.UploadLink2StoreWith3Threads(rawData);
-                            _upData2DBService.UpData2DB(rawData);
+                            _uploadImageService.UploadLink2StoreWith3ThreadsForNew(rawData);
+                            _upData2DBService.UpData2DBForNew(rawData);
                             //Delete file
                             try
                             {

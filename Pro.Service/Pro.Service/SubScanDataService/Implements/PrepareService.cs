@@ -2,6 +2,8 @@
 using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
+using System;
+using System.Text.RegularExpressions;
 
 namespace Pro.Service.SubScanDataService.Implements
 {
@@ -19,6 +21,7 @@ namespace Pro.Service.SubScanDataService.Implements
             var settings = _applicationSettingService.GetValueGetScan(ApplicationSettingKey.AppsettingsScanGet, useOtherSetting: _settingData.UseSettingGetSetNumber);
             _setting = JsonManager.StringJson2Object<AppBuildDataSetting>(settings);
         }
+
         public NewestChapModel PrepareNewestChapDatas()
         {
             var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
@@ -51,6 +54,59 @@ namespace Pro.Service.SubScanDataService.Implements
                 }
             }
             return resultDatas;
+        }
+
+        public NewStory PrepareNewestChapDatasForNew()
+        {
+            var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
+            var folder = _setting.FolderSaveData + _setting.FolderNewestData;
+
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            DirectoryInfo directory = new DirectoryInfo(folder);
+
+            FileInfo? fileNewestData = directory.GetFiles(_setting.NewestDataFile + "*.json").OrderBy(f => f.Name).FirstOrDefault();
+
+            var resultDatas = new NewStory();
+            if (fileNewestData != null && !string.IsNullOrEmpty(fileNewestData.FullName))
+            {
+
+                var dataNewstList = FileReader.ReadListDataFromFile<NewestChapModel>(fileNewestData.FullName).FirstOrDefault();
+
+                if (dataNewstList != null && dataNewstList.ChapLinks.Any())
+                {
+                    dataNewstList.ChapLinks = FileReader.AddStoryNameToUrlLink(dataNewstList.ChapLinks, dataNewstList.StoryName);
+                    dataNewstList.ChapLinks = FileReader.AddHomeUrlLink(dataNewstList.ChapLinks, homeLinkWithSub);
+                    dataNewstList.StoryLink = homeLinkWithSub + dataNewstList.StoryLink;
+                    dataNewstList.FileDataNewestPathLocal = fileNewestData;
+
+                    var chaps = new List<Chap>();
+                    foreach (var chapLink in dataNewstList.ChapLinks)
+                    {
+                        chaps.Add(new Chap(ExtractChapter(chapLink), chapLink, new List<Image>()));
+                    }
+                    var otherInfo = new OtherInfo(new Star(), new List<StoryType>(), dataNewstList.Author, "", 0);
+                    resultDatas = new NewStory(dataNewstList.StoryName, dataNewstList.StoryNameShow, chaps, otherInfo, link: dataNewstList.StoryLink);
+                }
+            }
+            return resultDatas;
+        }
+        public static string ExtractChapter(string input)
+        {
+            string pattern = @"/(\w+)/\d+";
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(input);
+            if (match.Success)
+            {
+                string result = match.Groups[1].Value;
+                return result;
+            }
+            else
+            {
+                return ""; // or throw an exception, depending on your needs
+            }
         }
     }
 }

@@ -50,6 +50,37 @@ namespace Pro.Service.SubScanDataService.Implements
             return resultDatas;
         }
 
+        public DataStoryForSave GetRawDatasForNew(NewStory newestData)
+        {
+            var resultDatas = new DataStoryForSave();
+
+            string nameTruyen, chapName = "";
+            foreach (var urlChap in newestData.Chaps)
+            {
+                var pairLinks = new List<ImagePairLink>();
+                var chapSave = new ChapDataForSave();
+                var dataLinks = GetImageDatasFromWeb(urlChap);
+                dataLinks.ForEach(link => pairLinks.Add(new ImagePairLink()
+                {
+                    ImageLinkFromWeb = link
+                }));
+                FileReader.GetChapInfo(urlChap, out nameTruyen, out chapName);
+                chapSave.ChapName = chapName;
+                chapSave.ImageDatas = pairLinks;
+                chapSave.ChapName = chapName;
+                chapSave.ChapLink = urlChap;
+                resultDatas.ChapDataForSaves.Add(chapSave);
+            }
+            resultDatas.FileDataNewestPathLocal = newestData.FileDataNewestPathLocal;
+            resultDatas.StoryName = newestData.StoryName;
+            resultDatas.StoryNameShow = newestData.StoryNameShow;
+            resultDatas.StoryLink = newestData.StoryLink;
+            resultDatas.Author = newestData.Author;
+            resultDatas.StoryPictureLink = GetPictureLinkFormStoryLinkByAPI(newestData.StoryLink);// newestData.StoryPictureLink;
+
+            return resultDatas;
+        }
+
         public bool FindNewStory(int numberPage, string homeUrl)
         {
             var listStorys = new List<string>();

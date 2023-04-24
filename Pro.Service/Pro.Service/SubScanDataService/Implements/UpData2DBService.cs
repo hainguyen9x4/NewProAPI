@@ -62,6 +62,28 @@ namespace Pro.Service.SubScanDataService.Implements
                 LogHelper.Error($"UpData2DB: Can't get storyId, StoryLink:{dataStory.StoryLink}");
             }
         }
+
+        public void UpData2DBForNew(DataStoryForSave dataStory)
+        {
+            var storyId = GetStoryIdFromStoryName(dataStory);
+            if (storyId > 0)
+            {
+                foreach (var chapSaveData in dataStory.ChapDataForSaves)
+                {
+                    var chap = _chapRepository.GetAll().Where(c => c.ChapName == chapSaveData.ChapName && c.StoryId == storyId).FirstOrDefault();
+                    if (chap == null)
+                    {
+                        //Create chap with all info
+                        var chapId = CreateChapWithAllInfo(storyId, storyId, chapSaveData);
+                    }
+                }
+            }
+            else
+            {
+                LogHelper.Error($"UpData2DB: Can't get storyId, StoryLink:{dataStory.StoryLink}");
+            }
+        }
+
         private int CreateChapWithAllInfo(int storyID, int storyIdx, ChapDataForSave chapSaveData)
         {
             chapSaveData.ChapLink = FileReader.DeleteHomePage(chapSaveData.ChapLink);
