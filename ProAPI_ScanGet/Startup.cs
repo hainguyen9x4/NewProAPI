@@ -34,6 +34,7 @@ namespace xStory
             services.AddSingleton<IAppSettingData>(sp => sp.GetRequiredService<IOptions<AppSettingData>>().Value);
 
             services.AddScoped<IStoryRepository, StoryRepository>();
+            services.AddScoped<INewStoryRepository, NewStoryRepository>();
             services.AddScoped<IChapRepository, ChapRepository>();
             services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
             services.AddScoped<ICacheProvider, InMemoryCacheProvider>();
