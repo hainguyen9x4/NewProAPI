@@ -16,7 +16,7 @@ namespace Pro.Service.SubScanDataService.Implements
             _storyRepository = storys;
             _chapRepository = chaps;
         }
-        
+
         private int GetStoryIdFromStoryName(DataStoryForSave dataStoryForSave)
         {
             try
@@ -45,7 +45,7 @@ namespace Pro.Service.SubScanDataService.Implements
         public void UpData2DB(DataStoryForSave dataStory)
         {
             var storyId = GetStoryIdFromStoryName(dataStory);
-            if (storyId>0)
+            if (storyId > 0)
             {
                 foreach (var chapSaveData in dataStory.ChapDataForSaves)
                 {
@@ -72,7 +72,7 @@ namespace Pro.Service.SubScanDataService.Implements
                     ImageSavedLink = data.ImageLinkNeedSaveDB,
                     ImageWebLink = !String.IsNullOrEmpty(data.ImageLinkNeedSaveDB) ? null : data.ImageLinkFromWeb,
                 }));
-            var newChap = new Chap(storyID, storyIdx, chapSaveData.ChapName, images, 1, chapSaveData.ChapLink);
+            var newChap = new OldChap(storyID, storyIdx, chapSaveData.ChapName, images, 1, chapSaveData.ChapLink);
             _chapRepository.Create(newChap);
             return newChap.ChapId;
         }

@@ -2,7 +2,7 @@
 
 namespace Pro.Data.Repositorys
 {
-    public interface IChapRepository : IRepository<OldChap>
+    public interface INewStoryRepository : IRepository<NewStory>
     {
     }
 }

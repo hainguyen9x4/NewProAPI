@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Pro.Model
 {
-    public class Chap
+    public class OldChap
     {
         [BsonId]
         public int ChapId { get; set; }
@@ -26,7 +26,7 @@ namespace Pro.Model
         [BsonElement("Images")]
         public List<ImagesChap> Images { get; set; }
 
-        public Chap(int storyID, int chapIdx, string chapName, List<ImagesChap> images = null, int? chapStatusID = 1, string chapLink = "")
+        public OldChap(int storyID, int chapIdx, string chapName, List<ImagesChap> images = null, int? chapStatusID = 1, string chapLink = "")
         {
             StoryId = storyID;
             ChapName = chapName;

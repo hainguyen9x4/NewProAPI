@@ -16,7 +16,7 @@ namespace xStory.Controllers
         [Route("api/[controller]/StartGetData")]
         [HttpGet]
         public ActionResult<bool> StartGetData() =>
-            _getDataService.StartGetData();
+            _getDataService.StartGetDataForNewStory();
 
         [Route("api/[controller]/FindNewStory")]
         [HttpGet]
