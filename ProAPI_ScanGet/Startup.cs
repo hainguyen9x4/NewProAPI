@@ -31,7 +31,7 @@ namespace xStory
         {
             services.Configure<AppSettingData>(Configuration.GetSection(nameof(AppSettingData)));
 
-            services.AddScoped<IAppSettingData>(sp => sp.GetRequiredService<IOptions<AppSettingData>>().Value);
+            services.AddSingleton<IAppSettingData>(sp => sp.GetRequiredService<IOptions<AppSettingData>>().Value);
 
             services.AddScoped<IStoryRepository, StoryRepository>();
             services.AddScoped<IChapRepository, ChapRepository>();
