@@ -92,7 +92,7 @@ namespace Pro.Service.SubScanDataService.Implements
         {
             var story = GetStoryIdFromStoryNameForNew(dataStory);
 
-            dataStory.Link = FileReader.DeleteHomePage(dataStory.Link);
+            //dataStory.Link = FileReader.DeleteHomePage(dataStory.Link);
             if (story.ID > 0)
             {
                 //Old story
@@ -102,6 +102,7 @@ namespace Pro.Service.SubScanDataService.Implements
             }
             else
             {
+                dataStory.Link = FileReader.DeleteHomePage(dataStory.Link);
                 //new Story
                 FakeDataOtherInfo(dataStory);
                 UpdateChapId(dataStory);
