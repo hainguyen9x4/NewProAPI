@@ -93,12 +93,12 @@ namespace Pro.Service.SubScanDataService.Implements
             var story = GetStoryIdFromStoryNameForNew(dataStory);
 
             //dataStory.Link = FileReader.DeleteHomePage(dataStory.Link);
-            if (story.ID > 0)
+            if (story != null)
             {
                 //Old story
                 UpdateChapId(dataStory, story.Chaps.Count + 1);
                 story.Chaps.AddRange(dataStory.Chaps);
-                _newStoryRepository.Update(story.ID, story);
+                _newStoryRepository.Update(story.ID, dataStory);
             }
             else
             {

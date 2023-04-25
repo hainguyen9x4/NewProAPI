@@ -199,29 +199,40 @@ namespace Pro.Service.Implement
         Cloudinary GetCloundaryRandom()
         {
             var random = new Random();
-            var totalCloud = _cloudinarys.Count();
-            var number = random.Next(0, totalCloud);
-
-            if (number >= totalCloud)
-            {
-                while (number >= totalCloud)
-                {
-                    number = number - 1;
-                }
-            }
-
-            if (number < 0)
-                number = 0;
+            var number = _cloudinarys.Count;
             try
             {
-
-                return _cloudinarys[number];
+                return _cloudinarys[random.Next(number)];
             }
             catch (Exception ex)
             {
-                LogHelper.Error($"GetCloundaryRandom: number = {number}, total={_cloudinarys.Count}");
+                LogHelper.Error($"GetCloundaryRandom: number = {number}, total={_cloudinarys.Count}" + ex);
                 return _cloudinarys[0];
             }
+            //var random = new Random();
+            //var totalCloud = _cloudinarys.Count();
+            //var number = random.Next(0, totalCloud);
+
+            //if (number >= totalCloud)
+            //{
+            //    while (number >= totalCloud)
+            //    {
+            //        number = number - 1;
+            //    }
+            //}
+
+            //if (number < 0)
+            //    number = 0;
+            //try
+            //{
+
+            //    return _cloudinarys[number];
+            //}
+            //catch (Exception ex)
+            //{
+            //    LogHelper.Error($"GetCloundaryRandom: number = {number}, total={_cloudinarys.Count}");
+            //    return _cloudinarys[0];
+            //}
         }
         public DataStoryForSave UploadLink2Store(DataStoryForSave dataStory)
         {

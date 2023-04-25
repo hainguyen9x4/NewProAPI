@@ -29,10 +29,20 @@ namespace Pro.Data.Repositorys.Implements
             _storys.InsertMany(storys);
             return storys;
         }
-        public void Update(int id, NewStory updatedStory) => _storys.ReplaceOne(newStory => newStory.ID == id, updatedStory);
-
+        public void Update(int id, NewStory updatedStory)// => _storys.ReplaceOne(newStory => newStory.ID == id, updatedStory);
+        {
+            foreach (var chap in updatedStory.Chaps)
+                AddToChap(id, chap);
+        }
         public void Delete(NewStory storyForDeletion) => _storys.DeleteOne(newStory => newStory.ID == storyForDeletion.ID);
 
         public void Delete(int id) => _storys.DeleteOne(newStory => newStory.ID == id);
+
+        private void AddToChap(int storyID, Chap newChap)
+        {
+            var itemFilter = Builders<NewStory>.Filter.Eq(v => v.ID, storyID);
+            var updateBuilder = Builders<NewStory>.Update.AddToSet(items => items.Chaps, newChap);
+            _storys.UpdateOneAsync(itemFilter, updateBuilder, new UpdateOptions() { IsUpsert = true }).Wait();
+        }
     }
 }
