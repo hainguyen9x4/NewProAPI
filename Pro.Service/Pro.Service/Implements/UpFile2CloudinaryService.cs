@@ -380,7 +380,7 @@ namespace Pro.Service.Implement
                     }
                     else
                     {
-                        LogHelper.Error($"Error DownLoadLinks- cannot get cloud link:{link.OriginLink};{dataStory.Name}/{chapSave.Name},ErrorMes:{rsUp.ErrorMessage}");
+                        LogHelper.Error($"Error UpLoadDataAsyn- cannot cloud link:{link.OriginLink};{dataStory.Name}/{chapSave.Name},ErrorMes:{rsUp.ErrorMessage}");
                     }
                 }
                 chapSave.Link = FileReader.DeleteHomePage(chapSave.Link);

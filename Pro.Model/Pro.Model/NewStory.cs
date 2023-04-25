@@ -31,6 +31,7 @@ namespace Pro.Model
 
         [BsonElement("UpdatedTime")]
         public DateTime UpdatedTime { get; set; }
+
         public NewStory() { }
         public NewStory(string name, string nameShow, List<Chap> chaps, OtherInfo otherInfo, int statusId = 1/*Actived*/, string link = "", string picture = "")
         {
@@ -46,19 +47,21 @@ namespace Pro.Model
     }
     public class OtherInfo
     {
-        public OtherInfo(Star star, List<StoryType> types, string author = "", string des = "", int viewTotal = 0)
+        public OtherInfo(Star star, List<StoryType> types, string author = "", string des = "", int viewTotal = 0, int followTotal = 0)
         {
             Star = star;
             Author = author;
             Des = des;
             Types = types;
             ViewTotal = viewTotal;
+            FollowTotal = followTotal;
         }
         public string Author { get; set; }
         public string Des { get; set; }
         public List<StoryType> Types { get; set; }
         public Star Star { get; set; }
         public int ViewTotal { get; set; }
+        public int FollowTotal { get; set; }
     }
     public class Star
     {

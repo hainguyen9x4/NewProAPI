@@ -56,7 +56,7 @@ namespace Pro.Service.SubScanDataService.Implements
             return resultDatas;
         }
 
-        public NewStory PrepareNewestChapDatasForNew()
+        public NewStory PrepareNewestChapDatasForNew(ref string localPath)
         {
             var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
             var folder = _setting.FolderSaveData + _setting.FolderNewestData;
@@ -68,11 +68,11 @@ namespace Pro.Service.SubScanDataService.Implements
             DirectoryInfo directory = new DirectoryInfo(folder);
 
             FileInfo? fileNewestData = directory.GetFiles(_setting.NewestDataFile + "*.json").OrderBy(f => f.Name).FirstOrDefault();
-
+            localPath = "";
             var resultDatas = new NewStory();
             if (fileNewestData != null && !string.IsNullOrEmpty(fileNewestData.FullName))
             {
-
+                localPath = fileNewestData.FullName;
                 var dataNewstList = FileReader.ReadListDataFromFile<NewestChapModel>(fileNewestData.FullName).FirstOrDefault();
 
                 if (dataNewstList != null && dataNewstList.ChapLinks.Any())
@@ -87,7 +87,7 @@ namespace Pro.Service.SubScanDataService.Implements
                     {
                         chaps.Add(new Chap("", chapLink, new List<Image>()));
                     }
-                    var otherInfo = new OtherInfo(new Star(), new List<StoryType>(), dataNewstList.Author, "", 0);
+                    var otherInfo = new OtherInfo(new Star(), new List<StoryType>(), dataNewstList.Author, "", 0, 0);
                     resultDatas = new NewStory(dataNewstList.StoryName, dataNewstList.StoryNameShow, chaps, otherInfo, link: dataNewstList.StoryLink);
                 }
             }

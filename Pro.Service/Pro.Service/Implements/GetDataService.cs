@@ -92,27 +92,24 @@ namespace Pro.Service.Implements
                 {
                     statusGetData2 = false;
                     LogHelper.Info($"GET---Start GetDataService");
-
-                    var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew();
-                    if (newestChapDatas.Chaps.Any())
+                    string localPath = "";
+                    var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew(ref localPath);
+                    if (newestChapDatas.Chaps != null && newestChapDatas.Chaps.Any())
                     {
                         _getRawDataService.GetRawDatasForNew(newestChapDatas);
                         //Save to file
-
-                        if (newestChapDatas.Chaps.Any())
+                        _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
+                        _upData2DBService.UpData2DBForNew(newestChapDatas);
+                        //Delete file
+                        try
                         {
-                            _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
-                            _upData2DBService.UpData2DBForNew(newestChapDatas);
-                            //Delete file
-                            try
-                            {
-                                //FileReader.DeleteFile(newestChapDatas.FileDataNewestPathLocal.FullName);
-                            }
-                            catch (Exception ex)
-                            {
-                                //LogHelper.Error($"DeleteFile/Move {newestChapDatas.FileDataNewestPathLocal.FullName}" + ex);
-                            }
+                            FileReader.DeleteFile(localPath);
                         }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Error($"DeleteFile/Move {localPath}" + ex);
+                        }
+
                     }
                     statusGetData2 = true;
                     LogHelper.Info($"GET---Stop GetDataService");
