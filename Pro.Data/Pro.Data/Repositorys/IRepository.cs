@@ -1,8 +1,10 @@
-﻿namespace Pro.Data.Repositorys
+﻿using MongoDB.Driver.Linq;
+
+namespace Pro.Data.Repositorys
 {
     public interface IRepository<T> where T : class
     {
-        IQueryable<T> GetAll();
+        IMongoQueryable<T> GetAll();
         T GetById(int id);
         T Create(T entity);
         List<T> Creates(List<T> entities);

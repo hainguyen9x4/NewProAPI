@@ -5,12 +5,17 @@ using Pro.Service.Caching;
 using System.Runtime.CompilerServices;
 
 using System.Diagnostics;
+using System.Net.WebSockets;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoDB.Bson.Serialization;
 
 namespace Pro.Service.Implements
 {
     public class StorysService : IStorysService
     {
         private readonly IStoryRepository _storyRepository;
+        private readonly INewStoryRepository _newStoryRepository;
         private readonly IChapRepository _chapRepository;
         private readonly IHotStoryRepository _hotStoryRepository;
 
@@ -18,12 +23,14 @@ namespace Pro.Service.Implements
         public StorysService(IStoryRepository storyRepository
             , IChapRepository chapRepository
             , IHotStoryRepository hotStoryRepository
-            , ICacheProvider cacheProvider)
+            , ICacheProvider cacheProvider
+            , INewStoryRepository newStoryRepository)
         {
             _storyRepository = storyRepository;
             _chapRepository = chapRepository;
             _hotStoryRepository = hotStoryRepository;
             _cacheProvider = cacheProvider;
+            _newStoryRepository = newStoryRepository;
         }
 
         public List<ImageStoryInfo> GetTopHotStorys(bool useCache = true)
@@ -267,5 +274,48 @@ namespace Pro.Service.Implements
                 return new List<Story>();
             }
         }
+
+        //////******************************************************************************///////
+        public List<NewStory> GetHomeStoryForNews(int pageIndex, int dataPerPage = 16, bool useCache = true)
+        {
+            useCache = false;
+            try
+            {
+                Func<List<NewStory>> fetchFunc = () =>
+                {
+                    var results = new List<NewStory>();
+                    var totalStory = _newStoryRepository.GetAll().Count();
+
+                   var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
+
+                    var projection = Builders<NewStory>.Projection.Slice("Chaps.Images", 0, 0);
+
+
+                    var client = new MongoClient("mongodb+srv://hainguyen9x4:tjmtjm123@cluster0.psiqvzz.mongodb.net/test");
+                    var database = client.GetDatabase("xStory");
+                    var _newStorys = database.GetCollection<NewStory>("Storys");
+       
+                    var sort = Builders<NewStory>.Sort.Descending("UpdatedTime");
+
+                    var result = _newStorys.Find(n => true).Project(projection)
+                    .Skip(pageIndex * dataPerPage).Sort(sort).Limit(dataPerPage)         
+                    .ToList();
+
+                    foreach (var r in result)
+                    {
+
+                        results.Add(BsonSerializer.Deserialize<NewStory>(r));
+                    }
+                    return results;
+                };
+                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.HomePageFornew, pageIndex, dataPerPage), fetchFunc) : fetchFunc();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when get Home with key:{pageIndex}-{dataPerPage}", ex);
+                return new List<NewStory>();
+            }
+        }
+
     }
 }

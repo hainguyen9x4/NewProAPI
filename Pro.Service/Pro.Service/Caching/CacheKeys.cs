@@ -21,6 +21,7 @@
             public const string StoryID = "ImageStoryData:StoryID:{0}";
             public const string ListAllStory = "ListAllStory";
             public const string HomePage = "HomePage:{0}{1}";
+            public const string HomePageFornew = "HomePageFornew:{0}{1}";
             public const string TopHotStory = "TopHostStory";
             public const string SearchStoryData = "SearchStoryData";
         }

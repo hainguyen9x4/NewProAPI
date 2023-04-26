@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Pro.Model;
 
 namespace Pro.Data.Repositorys.Implements
@@ -12,7 +13,7 @@ namespace Pro.Data.Repositorys.Implements
             var database = client.GetDatabase(settings.DatabaseName);
             _chaps = database.GetCollection<OldChap>(settings.XStorysCollectionChap);
         }
-        public IQueryable<OldChap> GetAll() => _chaps.AsQueryable().Where(chap => true);
+        public IMongoQueryable<OldChap> GetAll() => _chaps.AsQueryable().Where(chap => true);
         //public List<Chap> GetAll() => _chaps.Find(chap => true).ToList();
 
         public OldChap GetById(int id) => _chaps.Find(chap => chap.ChapId == id).FirstOrDefault();

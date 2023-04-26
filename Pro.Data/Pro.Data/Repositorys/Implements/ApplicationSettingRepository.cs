@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using Pro.Model;
+using MongoDB.Driver.Linq;
 
 namespace Pro.Data.Repositorys.Implements
 {
@@ -12,7 +13,7 @@ namespace Pro.Data.Repositorys.Implements
             var database = client.GetDatabase(settings.DatabaseName);
             _applicationSettings = database.GetCollection<ApplicationSetting>(settings.XStorysCollectionAppSetting);
         }
-        public IQueryable<ApplicationSetting> GetAll()
+        public IMongoQueryable<ApplicationSetting> GetAll()
         {
             return _applicationSettings.AsQueryable().Where(applicationSetting => true);
         }

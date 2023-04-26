@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Pro.Model;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -13,7 +14,7 @@ namespace Pro.Data.Repositorys.Implements
             var database = client.GetDatabase(settings.DatabaseName);
             _storys = database.GetCollection<Story>(settings.XStorysCollectionStory);
         }
-        public IQueryable<Story> GetAll() => _storys.AsQueryable().Where(story => true);
+        public IMongoQueryable<Story> GetAll() => _storys.AsQueryable().Where(story => true);
 
         public Story GetById(int id) => _storys.Find(story => story.StoryId == id).FirstOrDefault();
 
