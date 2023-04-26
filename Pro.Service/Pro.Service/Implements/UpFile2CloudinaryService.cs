@@ -5,6 +5,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
+using System;
 using System.Net;
 using static MongoDB.Bson.Serialization.Serializers.SerializerHelper;
 
@@ -429,117 +430,44 @@ namespace Pro.Service.Implement
 
         public void UploadLink2StoreWith3ThreadsForNew(NewStory dataStory)
         {
-            var dataThread1 = new NewStory();
-            dataThread1.Name = dataStory.Name;
-            dataThread1.NameShow = dataStory.NameShow;
-            dataThread1.Link = dataStory.Link;
-            dataThread1.Picture = dataStory.Picture;
-            dataThread1.OtherInfo = dataStory.OtherInfo;
-            dataThread1.Chaps = new List<Chap>();
-
-            var dataThread2 = new NewStory();
-            dataThread2.Name = dataStory.Name;
-            dataThread2.NameShow = dataStory.NameShow;
-            dataThread2.Link = dataStory.Link;
-            dataThread2.Picture = dataStory.Picture;
-            dataThread2.OtherInfo = dataStory.OtherInfo;
-            dataThread2.Chaps = new List<Chap>();
-
-            var dataThread3 = new NewStory();
-            dataThread3.Name = dataStory.Name;
-            dataThread3.NameShow = dataStory.NameShow;
-            dataThread3.Link = dataStory.Link;
-            dataThread3.Picture = dataStory.Picture;
-            dataThread3.OtherInfo = dataStory.OtherInfo;
-            dataThread3.Chaps = new List<Chap>();
-
-            var dataThread4 = new NewStory();
-            dataThread4.Name = dataStory.Name;
-            dataThread4.NameShow = dataStory.NameShow;
-            dataThread4.Link = dataStory.Link;
-            dataThread4.Picture = dataStory.Picture;
-            dataThread4.OtherInfo = dataStory.OtherInfo;
-            dataThread4.Chaps = new List<Chap>();
-
-            var dataThread5 = new NewStory();
-            dataThread5.Name = dataStory.Name;
-            dataThread5.NameShow = dataStory.NameShow;
-            dataThread5.Link = dataStory.Link;
-            dataThread5.Picture = dataStory.Picture;
-            dataThread5.OtherInfo = dataStory.OtherInfo;
-            dataThread5.Chaps = new List<Chap>();
-
-            var total = dataStory.Chaps.Count();
-            var value = (total / 20);
-            if (value > 4)
+            var listDatas = DividingObject(dataStory, 5);
+            List<Task<NewStory>> tasks = new List<Task<NewStory>>();
+            foreach (var item in listDatas)
             {
-                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
-                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(20).ToList();
-                dataThread3.Chaps = dataStory.Chaps.Skip(20 * 2).Take(20).ToList();
-                dataThread4.Chaps = dataStory.Chaps.Skip(20 * 3).Take(20).ToList();
-                dataThread5.Chaps = dataStory.Chaps.Skip(20 * 4).Take(total - 20 * 4).ToList();
-
+                tasks.Add(Task.Run(async () => await UpLoadDataAsyncForNew(item)));
             }
-            else if (value > 3)
-            {
-                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
-                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(20).ToList();
-                dataThread3.Chaps = dataStory.Chaps.Skip(20 * 2).Take(20).ToList();
-                dataThread4.Chaps = dataStory.Chaps.Skip(20 * 3).Take(20).ToList();
-                dataThread5.Chaps = dataStory.Chaps.Skip(20 * 4).Take(total - 20 * 4).ToList();
-            }
-            else if (value > 2)
-            {
-                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
-                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(20).ToList();
-                dataThread3.Chaps = dataStory.Chaps.Skip(20 * 2).Take(20).ToList();
-                dataThread4.Chaps = dataStory.Chaps.Skip(20 * 3).Take(total - 20 * 3).ToList();
-            }
-            else if (value > 1)
-            {
-                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
-                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(20).ToList();
-                dataThread3.Chaps = dataStory.Chaps.Skip(20 * 2).Take(total - 20 * 2).ToList();
-            }
-            else if (value > 0)
-            {
-                dataThread1.Chaps = dataStory.Chaps.Take(20).ToList();
-                dataThread2.Chaps = dataStory.Chaps.Skip(20).Take(total - 20 * 1).ToList();
-            }
-            else
-            {
-                dataThread1.Chaps = dataStory.Chaps.ToList();
-            }
-
-            //Create 3 thread
-            var loadDataTasks = new Task[]
-            {
-                Task.Run(async () => dataThread1 = await UpLoadDataAsyncForNew(dataThread1)),
-                Task.Run(async () => dataThread2 = await UpLoadDataAsyncForNew(dataThread2)),
-                Task.Run(async () => dataThread3 = await UpLoadDataAsyncForNew(dataThread3)),
-                Task.Run(async () => dataThread4 = await UpLoadDataAsyncForNew(dataThread4)),
-                Task.Run(async () => dataThread5 = await UpLoadDataAsyncForNew(dataThread5))
-            };
-
-            try
-            {
-                var t = Task.WhenAll(loadDataTasks);
-                t.Wait();
-            }
-            catch (Exception ex)
-            {
-                // handle exception
-                var x = 12;
-            }
-
+            var t = Task.WhenAll(tasks);
+            t.Wait();
             dataStory.Chaps.Clear();
-            dataStory.Chaps.AddRange(dataThread1.Chaps);
-            dataStory.Chaps.AddRange(dataThread2.Chaps);
-            dataStory.Chaps.AddRange(dataThread3.Chaps);
-            dataStory.Chaps.AddRange(dataThread4.Chaps);
-            dataStory.Chaps.AddRange(dataThread5.Chaps);
-
+            foreach (var rs in t.Result)
+            {
+                dataStory.Chaps.AddRange(rs.Chaps);
+            }
             dataStory.Picture = MakeStoryPictureLinkForNewStory(dataStory.Picture) ?? dataStory.Picture;
+        }
+        private List<NewStory> DividingObject(NewStory dataStory, int numberObject)
+        {
+            var rs = new List<NewStory>();
+
+            List<List<Chap>> subChapLists = dataStory.Chaps
+                .Select((item, index) => new { item, index }) // Select each item and its index
+                .GroupBy(x => x.index % numberObject, x => x.item)       // Group by the remainder of index % n
+                .Select(g => g.ToList())                      // Convert each group to a list
+                .ToList();
+            foreach (var subChapList in subChapLists)
+            {
+                rs.Add(new NewStory()
+                {
+                    Chaps = subChapList,
+                    Name = dataStory.Name,
+                    NameShow = dataStory.NameShow,
+                    Link = dataStory.Link,
+                    Picture = dataStory.Picture,
+                    OtherInfo = dataStory.OtherInfo
+                });
+            }
+
+            return rs;
         }
     }
     public class CloudinarySettings
