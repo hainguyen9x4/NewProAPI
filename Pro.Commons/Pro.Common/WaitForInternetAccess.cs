@@ -25,6 +25,7 @@ namespace Pro.Common
         {
             do
             {
+                LogHelper.Error("WaitInternetAccess");
                 Thread.Sleep(5000);
             } while (IsInternetAccess() == false);
         }
