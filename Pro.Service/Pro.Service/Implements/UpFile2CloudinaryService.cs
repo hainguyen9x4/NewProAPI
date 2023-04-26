@@ -87,7 +87,7 @@ namespace Pro.Service.Implement
         public IResultUpload UploadImage(string fileName, string url, string pathSave = "", bool isNeedConvert = false, int retryTimes = 2, int sleepNextRetryTime = 15 * 1000)
         {
             var acc = new WaitForInternetAccess();
-            acc.WaitInternetAccess();
+            acc.WaitInternetAccess("UploadImage1");
 
             Stream streamFile = null;
             if (isNeedConvert)
@@ -116,7 +116,7 @@ namespace Pro.Service.Implement
                         {
                             System.Threading.Thread.Sleep(sleepNextRetryTime);
 
-                            acc.WaitInternetAccess();
+                            acc.WaitInternetAccess("UploadImage2");
 
                             continue;
                         }

@@ -21,11 +21,11 @@ namespace Pro.Common
                 return false;
             }
         }
-        public void WaitInternetAccess()
+        public void WaitInternetAccess(string name)
         {
             do
             {
-                LogHelper.Error("WaitInternetAccess");
+                LogHelper.Error($"WaitInternetAccess: {name}");
                 Thread.Sleep(5000);
             } while (IsInternetAccess() == false);
         }
