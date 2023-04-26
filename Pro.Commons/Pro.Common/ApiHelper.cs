@@ -48,6 +48,8 @@ namespace Pro.Common
 
         public T Put<T>(string api, object requestObj, string baseURL = null)
         {
+            var acc = new WaitForInternetAccess();
+            acc.WaitInternetAccess();
             var result = "";
             try
             {
@@ -81,6 +83,8 @@ namespace Pro.Common
 
         public T Get<T>(string api, string baseURL = null)
         {
+            var acc = new WaitForInternetAccess();
+            acc.WaitInternetAccess();
             var result = "";
             try
             {

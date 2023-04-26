@@ -113,7 +113,7 @@ namespace Pro.Service.SubScanDataService.Implements
         }
 
         #region Private func
-        private List<string> GetImageDatasFromWeb(string urlChap, int retryTime = 2, int delayTimeInMiniSecond = 7000)
+        public List<string> GetImageDatasFromWeb(string urlChap, int retryTime = 2, int delayTimeInMiniSecond = 7000)
         {
             var listImagesInChap = new List<string>();
             for (int i = 1; i <= retryTime; i++)

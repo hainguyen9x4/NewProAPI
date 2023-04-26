@@ -33,7 +33,7 @@ namespace Pro.Service.Implement
             }
 
         }
-        public IResultUpload UploadImage(string filePath)
+        private IResultUpload UploadImage(string filePath)
         {
             var result = new IResultUpload();
             result.ResultStatus = 0;
@@ -57,7 +57,7 @@ namespace Pro.Service.Implement
             }
             return result;
         }
-        public IResultUpload UploadImage(string fileName, string filePath, string pathSave = "")
+        private IResultUpload UploadImage(string fileName, string filePath, string pathSave = "")
         {
             var result = new IResultUpload();
             result.ResultStatus = 0;
@@ -86,6 +86,9 @@ namespace Pro.Service.Implement
         }
         public IResultUpload UploadImage(string fileName, string url, string pathSave = "", bool isNeedConvert = false, int retryTimes = 2, int sleepNextRetryTime = 15 * 1000)
         {
+            var acc = new WaitForInternetAccess();
+            acc.WaitInternetAccess();
+
             Stream streamFile = null;
             if (isNeedConvert)
             {
@@ -112,6 +115,9 @@ namespace Pro.Service.Implement
                         else if (retryTime < retryTimes)
                         {
                             System.Threading.Thread.Sleep(sleepNextRetryTime);
+
+                            acc.WaitInternetAccess();
+
                             continue;
                         }
                     }
@@ -234,7 +240,7 @@ namespace Pro.Service.Implement
             //    return _cloudinarys[0];
             //}
         }
-        public DataStoryForSave UploadLink2Store(DataStoryForSave dataStory)
+        private DataStoryForSave UploadLink2Store(DataStoryForSave dataStory)
         {
 
             foreach (var chapSave in dataStory.ChapDataForSaves)
