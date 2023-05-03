@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Pro.Model;
+using System;
 
 namespace Pro.Data.Repositorys.Implements
 {
@@ -26,6 +27,11 @@ namespace Pro.Data.Repositorys.Implements
 
         public List<ImagesOneChap> Creates(List<ImagesOneChap> chaps)
         {
+            var Id = 1 + _images.AsQueryable().Count();
+            foreach (var c in chaps)
+            {
+                c.Id = Id++;
+            }
             _images.InsertMany(chaps);
             return chaps;
         }

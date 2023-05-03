@@ -1,4 +1,6 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace Pro.Model
 {
@@ -11,6 +13,7 @@ namespace Pro.Model
             ChapID = chapID;
         }
 
+        [BsonId]
         public int Id { get; set; }
 
         [BsonElement("StoryID")]
