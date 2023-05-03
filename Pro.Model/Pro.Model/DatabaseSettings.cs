@@ -5,6 +5,7 @@ namespace Pro.Model
         public string XStorysCollectionStory { get; set; }
         public string XStorysCollectionNewStory { get; set; }
         public string XStorysCollectionChap { get; set; }
+        public string XStorysCollectionImage { get; set; }
         public string XStorysCollectionAppSetting { get; set; }
         public string ConnectionStringAppSetting { get; set; }
         public string ConnectionStringMain { get; set; }
@@ -17,6 +18,7 @@ namespace Pro.Model
         string XStorysCollectionStory { get; set; }
         string XStorysCollectionNewStory { get; set; }
         string XStorysCollectionChap { get; set; }
+        string XStorysCollectionImage { get; set; }
         string XStorysCollectionAppSetting { get; set; }
         string ConnectionStringAppSetting { get; set; }
         string ConnectionStringMain { get; set; }

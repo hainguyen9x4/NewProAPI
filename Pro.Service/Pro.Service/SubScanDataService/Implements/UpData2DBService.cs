@@ -10,15 +10,18 @@ namespace Pro.Service.SubScanDataService.Implements
     {
         private readonly IStoryRepository _storyRepository;
         private readonly IChapRepository _chapRepository;
+        private readonly IImageRepository _imageRepository;
         private readonly INewStoryRepository _newStoryRepository;
 
         public UpData2DBService(IStoryRepository storys
             , IChapRepository chaps
-            , INewStoryRepository newStoryRepository)
+            , IImageRepository image
+            , INewStoryRepository newStory)
         {
             _storyRepository = storys;
             _chapRepository = chaps;
-            _newStoryRepository = newStoryRepository;
+            _imageRepository = image;
+            _newStoryRepository = newStory;
         }
 
         private int GetStoryIdFromStoryName(DataStoryForSave dataStoryForSave)
@@ -96,8 +99,20 @@ namespace Pro.Service.SubScanDataService.Implements
             {
                 //Old story
                 UpdateChapId(dataStory, story.Chaps.Count + 1);
+
+                var imagesOnChap = new List<ImagesOneChap>();
+                foreach (var chapSaveData in dataStory.Chaps)
+                {
+                    imagesOnChap.Add(new ImagesOneChap(story.ID, chapSaveData.ID, chapSaveData.Images));
+                    chapSaveData.Images = new List<Image>();
+                }
+                _imageRepository.Creates(imagesOnChap);
+
+                LogHelper.Info($"UpData2DBForNew: _1");
+
                 story.Chaps.AddRange(dataStory.Chaps);
                 _newStoryRepository.Update(story.ID, dataStory);
+
             }
             else
             {
@@ -105,7 +120,21 @@ namespace Pro.Service.SubScanDataService.Implements
                 //new Story
                 FakeDataOtherInfo(dataStory);
                 UpdateChapId(dataStory);
-                _newStoryRepository.Create(dataStory);
+
+                var imagesOnChap = new List<ImagesOneChap>();
+                foreach (var chapSaveData in dataStory.Chaps)
+                {
+                    imagesOnChap.Add(new ImagesOneChap(0, chapSaveData.ID, chapSaveData.Images));
+                    chapSaveData.Images = new List<Image>();
+                }
+
+                var newStory = _newStoryRepository.Create(dataStory);
+
+                foreach (var c in imagesOnChap)
+                {
+                    c.StoryID = newStory.ID;
+                }
+                _imageRepository.Creates(imagesOnChap);
             }
         }
 

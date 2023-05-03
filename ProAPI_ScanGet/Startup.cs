@@ -36,6 +36,7 @@ namespace xStory
             services.AddScoped<IStoryRepository, StoryRepository>();
             services.AddScoped<INewStoryRepository, NewStoryRepository>();
             services.AddScoped<IChapRepository, ChapRepository>();
+            services.AddScoped<IImageRepository, ImageRepository>();
             services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
             services.AddScoped<ICacheProvider, InMemoryCacheProvider>();
 

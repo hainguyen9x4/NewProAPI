@@ -100,19 +100,16 @@ namespace Pro.Model
 
     public class Image
     {
-        public Image(int statusID = 1, string link = "", string originLink = "")
+        public Image(string link = "", string originLink = "")
         {
-            StatusID = statusID;
             Link = link;
             OriginLink = originLink;
         }
         public Image()
         {
-            StatusID = 1;
             Link = "";
             OriginLink = "";
         }
-        public int StatusID { get; set; }
         public string Link { get; set; }
         public string OriginLink { get; set; }
     }
