@@ -1,13 +1,10 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using FileManager;
-using MongoDB.Bson.Serialization.Serializers;
 using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
-using System;
 using System.Net;
-using static MongoDB.Bson.Serialization.Serializers.SerializerHelper;
 
 namespace Pro.Service.Implement
 {
@@ -31,6 +28,9 @@ namespace Pro.Service.Implement
                     cloudinary.Api.Timeout = 60000;//60s
                     _cloudinarys.Add(cloudinary);
                 }
+            }
+            else
+            {
             }
 
         }
@@ -88,7 +88,7 @@ namespace Pro.Service.Implement
         public IResultUpload UploadImage(string fileName, string url, string pathSave = "", bool isNeedConvert = false, int retryTimes = 2, int sleepNextRetryTime = 15 * 1000)
         {
             var acc = new WaitForInternetAccess();
-            acc.WaitInternetAccess("UploadImage1");
+            //acc.WaitInternetAccess("UploadImage1");
 
             Stream streamFile = null;
             if (isNeedConvert)
@@ -165,6 +165,7 @@ namespace Pro.Service.Implement
                         isOK = IsUploadResultOK(uploadResult);
                         if (isOK) break;
                         System.Threading.Thread.Sleep(sleepNextRetryTime);
+                        acc.WaitInternetAccess("Uploadcloudinary");
                     }
 
                     if (isOK)

@@ -52,12 +52,12 @@ namespace xStory
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "xStory", Version = "v1" });
             });
-#if DEBUG
+//#if DEBUG
             LogHelper.InitLogHelper(@"C:\Logs\XStory\");
-#else
-            LogHelper.InitLogHelper();
-#endif
-            LogHelper.Info("App Started!");
+//#else
+//            LogHelper.InitLogHelper();
+//#endif
+//            LogHelper.Info("App Started!");
 
         }
 

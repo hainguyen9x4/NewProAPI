@@ -7,6 +7,9 @@ public static class Program
     {
         Console.WriteLine("Main thread: starting a timer");
 
+        Console.WriteLine($"Start-CallAPI:{DateTime.Now.ToString()}");
+        CallAPI();
+
         System.Timers.Timer aTimer = new System.Timers.Timer();
         aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
         aTimer.Interval = 1000 * 5 * 60;//5 min

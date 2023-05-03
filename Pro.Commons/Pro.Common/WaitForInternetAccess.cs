@@ -10,7 +10,7 @@ namespace Pro.Common
             {
                 Ping myPing = new Ping();
                 String host = "google.com";
-                byte[] buffer = new byte[32];
+                byte[] buffer = new byte[1];
                 int timeout = 1000;
                 PingOptions pingOptions = new PingOptions();
                 PingReply reply = myPing.Send(host, timeout, buffer, pingOptions);
@@ -26,7 +26,7 @@ namespace Pro.Common
             while (IsInternetAccess() == false)
             {
                 LogHelper.Error($"WaitInternetAccess: {name}");
-                Thread.Sleep(5000);
+                Thread.Sleep(500);
             }
         }
     }
