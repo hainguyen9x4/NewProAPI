@@ -286,25 +286,31 @@ namespace Pro.Service.Implements
                     var results = new List<NewStory>();
                     var totalStory = _newStoryRepository.GetAll().Count();
 
-                   var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
+                    var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
 
-                    var projection = Builders<NewStory>.Projection.Slice("Chaps.Images", 0, 0);
+                    //var projection = Builders<NewStory>.Projection.Slice("Chaps", 0, 3);
 
 
-                    var client = new MongoClient("mongodb+srv://hainguyen9x4:tjmtjm123@cluster0.psiqvzz.mongodb.net/test");
-                    var database = client.GetDatabase("xStory");
-                    var _newStorys = database.GetCollection<NewStory>("Storys");
-       
-                    var sort = Builders<NewStory>.Sort.Descending("UpdatedTime");
+                    //var client = new MongoClient("mongodb://xstory-db:rqs3aZ45cnVTkoAVSwkd3Wg48oR3uLRL5U9C2ORkWmSPQNW12rDx5ckjDeeZ9VTmb7tL2KQW9gPrACDbMsJEPQ%3D%3D@xstory-db.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@xstory-db@");
+                    //var database = client.GetDatabase("xStory");
+                    //var _newStorys = database.GetCollection<NewStory>("NewStorys");
 
-                    var result = _newStorys.Find(n => true).Project(projection)
-                    .Skip(pageIndex * dataPerPage).Sort(sort).Limit(dataPerPage)         
-                    .ToList();
+                    //var sort = Builders<NewStory>.Sort.Descending("UpdatedTime");
 
-                    foreach (var r in result)
+                    //var result = _newStorys.Find(n => true).Sort(sort)
+                    //.Skip(pageIndex * dataPerPage).Limit(dataPerPage).Project(projection)
+                    //.ToList();
+
+                    //foreach (var r in result)
+                    //{
+
+                    //    results.Add(BsonSerializer.Deserialize<NewStory>(r));
+                    //}
+                    var storys = _newStoryRepository.GetAll().OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
+                    foreach (var s in storys)
                     {
-
-                        results.Add(BsonSerializer.Deserialize<NewStory>(r));
+                        s.Chaps = s.Chaps.OrderByDescending(t => t.ID).Take(3).ToList();
+                        results.Add(s);
                     }
                     return results;
                 };
