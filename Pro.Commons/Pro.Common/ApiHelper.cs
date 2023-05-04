@@ -114,6 +114,39 @@ namespace Pro.Common
             }
         }
 
+        public bool GetAsyn(string api, string baseURL = null)
+        {
+            var acc = new WaitForInternetAccess();
+            acc.WaitInternetAccess("Get");
+            try
+            {
+                if (string.IsNullOrEmpty(api))
+                {
+                    return false;
+                }
+
+                if (!api.StartsWith("/"))
+                {
+                    api = "/" + api;
+                }
+
+                using (var client = GetHttpClient())
+                {
+                    var post = client.GetAsync(baseURL + api);
+
+                    post.Result.Content.ReadAsStringAsync();
+
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                //e.WriteLog(nameof(ApiHelper.Get) + $", api: {baseURL + api}, result: {result}");
+                return false;
+            }
+        }
+
+
         protected virtual HttpContent GetObjectContent(object requestObj)
         {
             string myObject = JsonConvert.SerializeObject(requestObj);

@@ -26,6 +26,6 @@ public static class Program
     }
     private static void CallAPI()
     {
-        new ApiHelper().Get<bool>($"/api/GetData/StartGetData", "https://localhost:5001");
+        new ApiHelper().GetAsyn($"/api/GetData/StartGetData", "https://localhost:5001");
     }
 }
