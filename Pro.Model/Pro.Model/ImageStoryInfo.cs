@@ -14,8 +14,10 @@
         public HomePageInfo()
         {
             ImageStoryInfos = new List<ImageStoryInfo>();
+            NewStorys = new List<NewStory>();
         }
         public List<ImageStoryInfo> ImageStoryInfos { get; set; }
+        public List<NewStory> NewStorys { get; set; }
         public int TotalPage { get; set; }
         public int CurrentPage { get; set; }
     }

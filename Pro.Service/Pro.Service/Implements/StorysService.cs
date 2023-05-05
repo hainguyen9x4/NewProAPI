@@ -276,18 +276,20 @@ namespace Pro.Service.Implements
         }
 
         //////******************************************************************************///////
-        public List<NewStory> GetHomeStoryForNews(int pageIndex, int dataPerPage = 16, bool useCache = true)
+        public HomePageInfo GetHomeStoryForNews(int pageIndex, int dataPerPage = 16, bool useCache = true)
         {
-            useCache = false;
+            //useCache = false;
             try
             {
-                Func<List<NewStory>> fetchFunc = () =>
+                Func<HomePageInfo> fetchFunc = () =>
                 {
-                    var results = new List<NewStory>();
+                    var results = new HomePageInfo();
+                    var newStorys = new List<NewStory>();
                     var totalStory = _newStoryRepository.GetAll().Count();
 
                     var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
-
+                    results.TotalPage = totalPage;
+                    results.CurrentPage = pageIndex;
                     //var projection = Builders<NewStory>.Projection.Slice("Chaps", 0, 3);
 
 
@@ -310,8 +312,9 @@ namespace Pro.Service.Implements
                     foreach (var s in storys)
                     {
                         s.Chaps = s.Chaps.OrderByDescending(t => t.ID).Take(3).ToList();
-                        results.Add(s);
+                        newStorys.Add(s);
                     }
+                    results.NewStorys = newStorys;
                     return results;
                 };
                 return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.HomePageFornew, pageIndex, dataPerPage), fetchFunc) : fetchFunc();
@@ -319,7 +322,7 @@ namespace Pro.Service.Implements
             catch (Exception ex)
             {
                 LogHelper.Error($"Error when get Home with key:{pageIndex}-{dataPerPage}", ex);
-                return new List<NewStory>();
+                return new HomePageInfo();
             }
         }
 

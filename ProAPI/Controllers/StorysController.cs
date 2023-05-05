@@ -25,7 +25,7 @@ namespace xStory.Controllers
 
         [Route("api/[controller]/GetHomeStorys")]
         [HttpGet]
-        public ActionResult<List<NewStory>> GetHomeStorys([FromQuery] int pageIndex, int storyPerPage) =>
+        public ActionResult<HomePageInfo> GetHomeStorys([FromQuery] int pageIndex, int storyPerPage) =>
                     _storyService.GetHomeStoryForNews(pageIndex, storyPerPage);
         [Route("api/[controller]/GetAllChapByStoryId")]
         [HttpGet]
