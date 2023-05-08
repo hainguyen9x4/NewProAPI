@@ -450,11 +450,11 @@ namespace Pro.Service.Implement
         {
             var rs = new List<NewStory>();
 
-            List<List<Chap>> subChapLists = dataStory.Chaps
-                .Select((item, index) => new { item, index }) // Select each item and its index
-                .GroupBy(x => x.index % numberObject, x => x.item)       // Group by the remainder of index % n
-                .Select(g => g.ToList())                      // Convert each group to a list
-                .ToList();
+            var subChapLists = Chunk(dataStory.Chaps, 5).ToList();
+            //.Select((item, index) => new { item, index }) // Select each item and its index
+            //.GroupBy(x => x.index % numberObject, x => x.item)       // Group by the remainder of index % n
+            //.Select(g => g.ToList())                      // Convert each group to a list
+            //.ToList();
             foreach (var subChapList in subChapLists)
             {
                 rs.Add(new NewStory()
@@ -468,6 +468,16 @@ namespace Pro.Service.Implement
                 });
             }
 
+            return rs;
+        }
+        public static List<List<Chap>> Chunk(List<Chap> source, int chunksize)
+        {
+            var rs = new List<List<Chap>>();
+            while (source.Any())
+            {
+                rs.Add(source.Take(chunksize).ToList());
+                source = source.Skip(chunksize).ToList();
+            }
             return rs;
         }
     }
