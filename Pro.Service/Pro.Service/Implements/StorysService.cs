@@ -1,14 +1,8 @@
+using MongoDB.Driver;
 using Pro.Common;
 using Pro.Data.Repositorys;
 using Pro.Model;
 using Pro.Service.Caching;
-using System.Runtime.CompilerServices;
-
-using System.Diagnostics;
-using System.Net.WebSockets;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Bson.Serialization;
 
 namespace Pro.Service.Implements
 {
@@ -285,7 +279,9 @@ namespace Pro.Service.Implements
                 {
                     var results = new HomePageInfo();
                     var newStorys = new List<NewStory>();
-                    var totalStory = _newStoryRepository.GetAll().Count();
+
+                    var allStorys = GetTotalStoryForNew();
+                    var totalStory = allStorys.Count();
 
                     var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
                     results.TotalPage = totalPage;
@@ -308,7 +304,7 @@ namespace Pro.Service.Implements
 
                     //    results.Add(BsonSerializer.Deserialize<NewStory>(r));
                     //}
-                    var storys = _newStoryRepository.GetAll().OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
+                    var storys = allStorys.OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
                     foreach (var s in storys)
                     {
                         s.Chaps = s.Chaps.OrderByDescending(t => t.ID).Take(3).ToList();
@@ -326,5 +322,102 @@ namespace Pro.Service.Implements
             }
         }
 
+        public List<ImageStoryInfo> GetTopHotStorysForNew(bool useCache = true)
+        {
+            try
+            {
+                Func<List<ImageStoryInfo>> fetchFunc = () =>
+                {
+                    var results = new List<ImageStoryInfo>();
+
+                    var storys = GetTotalStoryForNew();
+
+                    var topStorys = storys.OrderBy(x => Guid.NewGuid()).Take(8).ToList();
+
+                    var hotSoryIds = topStorys.Select(t => t.ID).ToList();
+
+                    if (!hotSoryIds.Any()) return results;
+                    //var allChaps = _chapRepository.GetAll();
+
+                    foreach (var topStory in topStorys)
+                    {
+                        var chapInfos = new List<ChapInfoForHome>();
+
+                        var chap = topStory.Chaps.OrderByDescending(ac => ac.ID).FirstOrDefault();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
+                        if (chap != null)
+                        {
+                            chapInfos.Add(new ChapInfoForHome()
+                            {
+                                ChapName = chap.Name,
+                                ChapLink = chap.Link,
+                                ChapID = chap.ID,
+                                LastModifyDatetime = topStory.UpdatedTime,
+                            });
+                        }
+                        var imageStoryInfo = new ImageStoryInfo()
+                        {
+                            StoryID = topStory.ID,
+                            StoryLink = topStory.Link,
+                            StoryName = topStory.Name,
+                            StoryPictureLink = topStory.Picture,
+                            StoryNameShow = topStory.NameShow,
+                            Chaps = chapInfos,
+                        };
+                        results.Add(imageStoryInfo);
+                    }
+
+                    return results;
+                };
+                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.TopHotStory), fetchFunc) : fetchFunc();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when get TopHot with key", ex);
+                return null;
+            }
+        }
+
+        public List<ImageStoryInfo> GetAllStoryForSearchForNew(bool useCache = true)
+        {
+            try
+            {
+                var storys = GetTotalStoryForNew();
+
+                var results = storys.Select(s => new ImageStoryInfo
+                {
+                    StoryID = s.ID,
+                    StoryLink = s.Link,
+                    StoryName = s.Name,
+                    StoryPictureLink = s.Picture,
+                    StoryNameShow = s.NameShow,
+
+                });
+                return results.ToList();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when get Search SptyData with key", ex);
+                return null;
+            }
+        }
+        
+        private List<NewStory> GetTotalStoryForNew(bool useCache = true)
+        {
+            try
+            {
+                Func<List<NewStory>> fetchFunc = () =>
+                {
+                    return _newStoryRepository.GetAll().ToList();
+                };
+                var value = useCache ? _cacheProvider.Get<List<NewStory>>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory), fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
+
+                return value;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when caculate page", ex);
+                return new List<NewStory>();
+            }
+        }
     }
 }

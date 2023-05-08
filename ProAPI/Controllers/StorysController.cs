@@ -21,7 +21,7 @@ namespace xStory.Controllers
         [Route("api/[controller]/GetTopHotStorys")]
         [HttpGet]
         public ActionResult<List<ImageStoryInfo>> GetTopHotStorys() =>
-                            _storyService.GetTopHotStorys();
+                            _storyService.GetTopHotStorysForNew();
 
         [Route("api/[controller]/GetHomeStorys")]
         [HttpGet]
@@ -38,6 +38,6 @@ namespace xStory.Controllers
         [Route("api/[controller]/GetAllStoryForSearch")]
         [HttpGet]
         public ActionResult<List<ImageStoryInfo>> GetAllStoryForSearch() =>
-            _storyService.GetAllStoryForSearch();
+            _storyService.GetAllStoryForSearchForNew();
     }
 }
