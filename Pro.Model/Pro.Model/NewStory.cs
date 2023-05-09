@@ -77,12 +77,13 @@ namespace Pro.Model
 
     public class Chap
     {
-        public Chap(string name, string link, List<Image> images, int statusID = 1)
+        public Chap(string name, string link, List<Image> images, DateTime updateTime, int statusID = 1)
         {
             Name = name;
             Link = link;
             Images = images;
             StatusID = statusID;
+            UpdatedTime = updateTime;
         }
 
         public Chap()
@@ -96,6 +97,7 @@ namespace Pro.Model
         public string Link { get; set; }
         public int StatusID { get; set; }
         public List<Image> Images { get; set; }
+        public DateTime UpdatedTime { get; set; }
     }
 
     public class Image

@@ -3,6 +3,8 @@ using Pro.Common;
 using Pro.Data.Repositorys;
 using Pro.Model;
 using Pro.Service.Caching;
+using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace Pro.Service.Implements
 {
@@ -67,26 +69,20 @@ namespace Pro.Service.Implements
 
                     var storys = GetTotalStoryForNew().NewStorys;
 
-                    var topStorys = storys.OrderBy(x => Guid.NewGuid()).Take(8).ToList();
-
-                    var hotSoryIds = topStorys.Select(t => t.ID).ToList();
-
-                    if (!hotSoryIds.Any()) return results;
-                    //var allChaps = _chapRepository.GetAll();
+                    var topStorys = storys.OrderBy(x => Guid.NewGuid()).Take(78).ToList();
 
                     foreach (var topStory in topStorys)
                     {
-                        var chapInfos = new List<ChapInfoForHome>();
+                        var chapInfos = new List<Chap>();
 
                         var chap = topStory.Chaps.OrderByDescending(ac => ac.ID).FirstOrDefault();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
                         if (chap != null)
                         {
-                            chapInfos.Add(new ChapInfoForHome()
+                            chapInfos.Add(new Chap()
                             {
-                                ChapName = chap.Name,
-                                ChapLink = chap.Link,
-                                ChapID = chap.ID,
-                                LastModifyDatetime = topStory.UpdatedTime,
+                                ID = chap.ID,
+                                Link = chap.Link,
+                                Name = chap.Name,
                             });
                         }
                         var imageStoryInfo = new ImageStoryInfo()
@@ -97,6 +93,7 @@ namespace Pro.Service.Implements
                             StoryPictureLink = topStory.Picture,
                             StoryNameShow = topStory.NameShow,
                             Chaps = chapInfos,
+                            LastUpdateTime = topStory.UpdatedTime,
                         };
                         results.Add(imageStoryInfo);
                     }
@@ -176,16 +173,17 @@ namespace Pro.Service.Implements
                         StoryName = storyInfor.Name,
                         StoryPictureLink = storyInfor.Picture,
                         StoryNameShow = storyInfor.NameShow,
-                        Chaps = new List<ChapInfoForHome>(),
+                        Chaps = new List<Chap>(),
                         LastUpdateTime = storyInfor.UpdatedTime,
                     };
                     foreach (var chap in storyInfor.Chaps)
                     {
-                        imageStoryInfo.Chaps.Add(new ChapInfoForHome()
+                        imageStoryInfo.Chaps.Add(new Chap()
                         {
-                            ChapID = chap.ID,
-                            ChapLink = chap.Link,
-                            ChapName = chap.Name,
+                            ID = chap.ID,
+                            Link = chap.Link,
+                            Name = chap.Name,
+                            UpdatedTime = chap.UpdatedTime
                         });
                     }
                     return imageStoryInfo;

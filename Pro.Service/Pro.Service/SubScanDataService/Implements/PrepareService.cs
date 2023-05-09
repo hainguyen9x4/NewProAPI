@@ -85,7 +85,7 @@ namespace Pro.Service.SubScanDataService.Implements
                     var chaps = new List<Chap>();
                     foreach (var chapLink in dataNewstList.ChapLinks)
                     {
-                        chaps.Add(new Chap("", chapLink, new List<Image>()));
+                        chaps.Add(new Chap("", chapLink, new List<Image>(), DateTime.UtcNow));
                     }
                     var otherInfo = new OtherInfo(new Star(), new List<StoryType>(), dataNewstList.Author, "", 0, 0);
                     resultDatas = new NewStory(dataNewstList.StoryName, dataNewstList.StoryNameShow, chaps, otherInfo, link: dataNewstList.StoryLink);
