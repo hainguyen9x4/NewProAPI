@@ -8,6 +8,7 @@
         public string StoryLink { get; set; }
         public string StoryPictureLink { get; set; }
         public List<ChapInfoForHome> Chaps { get; set; }
+        public DateTime LastUpdateTime { get; set; }
     }
     public class HomePageInfo
     {
@@ -42,7 +43,7 @@
         public string StoryName { get; set; }
         public string StoryNameShow { get; set; }
         public DateTime? LastModifyDatetime { get; set; }
-        public List<ImagesChap> ImageStoryLinks { get; set; }
+        public List<Image> ImageStoryLinks { get; set; }
         public List<ShortStoryInfo> StoryShortInfos { get; set; }
     }
 }

@@ -12,12 +12,14 @@ namespace Pro.Service.Implements
         private readonly INewStoryRepository _newStoryRepository;
         private readonly IChapRepository _chapRepository;
         private readonly IHotStoryRepository _hotStoryRepository;
+        private readonly IImageRepository _imageRepository;
 
         private readonly ICacheProvider _cacheProvider;
         public StorysService(IStoryRepository storyRepository
             , IChapRepository chapRepository
             , IHotStoryRepository hotStoryRepository
             , ICacheProvider cacheProvider
+            , IImageRepository imageRepository
             , INewStoryRepository newStoryRepository)
         {
             _storyRepository = storyRepository;
@@ -25,6 +27,7 @@ namespace Pro.Service.Implements
             _hotStoryRepository = hotStoryRepository;
             _cacheProvider = cacheProvider;
             _newStoryRepository = newStoryRepository;
+            _imageRepository = imageRepository;
         }
 
         public List<ImageStoryInfo> GetTopHotStorys(bool useCache = true)
@@ -209,7 +212,7 @@ namespace Pro.Service.Implements
                         ChapName = chap.ChapName,
                         StoryNameShow = storyInfor.StoryNameShow,
                         StoryName = storyInfor.StoryName,
-                        ImageStoryLinks = chap.Images,
+                        //ImageStoryLinks = chap.Images,
                         LastModifyDatetime = chap.LastModifyDatetime,
                         StoryShortInfos = storyShortInfos,
                     };
@@ -400,7 +403,7 @@ namespace Pro.Service.Implements
                 return null;
             }
         }
-        
+
         private List<NewStory> GetTotalStoryForNew(bool useCache = true)
         {
             try
@@ -417,6 +420,87 @@ namespace Pro.Service.Implements
             {
                 LogHelper.Error($"Error when caculate page", ex);
                 return new List<NewStory>();
+            }
+        }
+
+        public ImageStoryInfo GetAllChapByStoryIdForNew(int storyID, bool useCache = true)
+        {
+            try
+            {
+                Func<ImageStoryInfo> fetchFunc = () =>
+                {
+                    var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
+                    if (storyInfor == null) return null;
+
+                    var imageStoryInfo = new ImageStoryInfo()
+                    {
+                        StoryID = storyID,
+                        StoryLink = storyInfor.Link,
+                        StoryName = storyInfor.Name,
+                        StoryPictureLink = storyInfor.Picture,
+                        StoryNameShow = storyInfor.NameShow,
+                        Chaps = new List<ChapInfoForHome>(),
+                        LastUpdateTime = storyInfor.UpdatedTime,
+                    };
+                    foreach (var chap in storyInfor.Chaps)
+                    {
+                        imageStoryInfo.Chaps.Add(new ChapInfoForHome()
+                        {
+                            ChapID = chap.ID,
+                            ChapLink = chap.Link,
+                            ChapName = chap.Name,
+                        });
+                    }
+                    return imageStoryInfo;
+                };
+                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.StoryID, storyID), fetchFunc) : fetchFunc();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when get with key:{storyID}", ex);
+                return null;
+            }
+        }
+
+        public ChapInfo GetImageStorysInChapForNew(int storyID, int chapID, bool useCache = true)
+        {
+            try
+            {
+                Func<ChapInfo> fetchFunc = () =>
+                {
+                    var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
+                    if (storyInfor == null) return null;
+
+                    var storyShortInfos = storyInfor.Chaps.Select(a => new ShortStoryInfo()
+                    {
+                        ChapLink = a.Link,
+                        ChapName = a.Name,
+                        ChapId = a.ID,
+                    }).ToList();
+
+                    var chap = storyInfor.Chaps.Where(c => c.ID == chapID).FirstOrDefault();
+                    if (chap == null) return null;
+
+                    var image = _imageRepository.GetAll().Where(i => i.StoryID == storyID && i.ChapID == chapID).FirstOrDefault();
+                    var imageStoryInfo = new ChapInfo()
+                    {
+                        ChapID = chap.ID,
+                        ChapLink = chap.Link,
+                        ChapName = chap.Name,
+                        StoryNameShow = storyInfor.NameShow,
+                        StoryName = storyInfor.Name,
+                        ImageStoryLinks = image.Images,
+                        LastModifyDatetime = storyInfor.UpdatedTime,
+                        StoryShortInfos = storyShortInfos,
+                    };
+                    return imageStoryInfo;
+                };
+                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.StoryIDChapID, storyID, chapID), fetchFunc) : fetchFunc();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when get with key:{storyID}, {chapID}", ex);
+                return null;
             }
         }
     }
