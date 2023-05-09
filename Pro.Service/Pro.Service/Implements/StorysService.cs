@@ -31,30 +31,14 @@ namespace Pro.Service.Implements
                     var results = new HomePageInfo();
                     var newStorys = new List<NewStory>();
 
-                    var allStorys = GetTotalStoryForNew();
-                    var totalStory = allStorys.Count();
+                    var tempAllStory = GetTotalStoryForNew();
+                    var allStorys = tempAllStory.NewStorys;
+                    var totalStory = tempAllStory.TotalStory;
 
                     var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
                     results.TotalPage = totalPage;
                     results.CurrentPage = pageIndex;
-                    //var projection = Builders<NewStory>.Projection.Slice("Chaps", 0, 3);
 
-
-                    //var client = new MongoClient("mongodb://xstory-db:rqs3aZ45cnVTkoAVSwkd3Wg48oR3uLRL5U9C2ORkWmSPQNW12rDx5ckjDeeZ9VTmb7tL2KQW9gPrACDbMsJEPQ%3D%3D@xstory-db.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@xstory-db@");
-                    //var database = client.GetDatabase("xStory");
-                    //var _newStorys = database.GetCollection<NewStory>("NewStorys");
-
-                    //var sort = Builders<NewStory>.Sort.Descending("UpdatedTime");
-
-                    //var result = _newStorys.Find(n => true).Sort(sort)
-                    //.Skip(pageIndex * dataPerPage).Limit(dataPerPage).Project(projection)
-                    //.ToList();
-
-                    //foreach (var r in result)
-                    //{
-
-                    //    results.Add(BsonSerializer.Deserialize<NewStory>(r));
-                    //}
                     var storys = allStorys.OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
                     foreach (var s in storys)
                     {
@@ -81,7 +65,7 @@ namespace Pro.Service.Implements
                 {
                     var results = new List<ImageStoryInfo>();
 
-                    var storys = GetTotalStoryForNew();
+                    var storys = GetTotalStoryForNew().NewStorys;
 
                     var topStorys = storys.OrderBy(x => Guid.NewGuid()).Take(8).ToList();
 
@@ -132,7 +116,7 @@ namespace Pro.Service.Implements
         {
             try
             {
-                var storys = GetTotalStoryForNew();
+                var storys = GetTotalStoryForNew().NewStorys;
 
                 var results = storys.Select(s => new ImageStoryInfo
                 {
@@ -152,22 +136,27 @@ namespace Pro.Service.Implements
             }
         }
 
-        private List<NewStory> GetTotalStoryForNew(bool useCache = true)
+        private TempGetAllStoryData GetTotalStoryForNew(bool useCache = true)
         {
             try
             {
-                Func<List<NewStory>> fetchFunc = () =>
+                Func<TempGetAllStoryData> fetchFunc = () =>
                 {
-                    return _newStoryRepository.GetAll().ToList();
+                    return new TempGetAllStoryData()
+                    {
+                        NewStorys = _newStoryRepository.GetAll().Take(100).ToList(),
+                        TotalStory = _newStoryRepository.GetAll().Count()
+
+                    };
                 };
-                var value = useCache ? _cacheProvider.Get<List<NewStory>>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory), fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
+                var value = useCache ? _cacheProvider.Get<TempGetAllStoryData>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory), fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
 
                 return value;
             }
             catch (Exception ex)
             {
                 LogHelper.Error($"Error when caculate page", ex);
-                return new List<NewStory>();
+                return new TempGetAllStoryData();
             }
         }
 
