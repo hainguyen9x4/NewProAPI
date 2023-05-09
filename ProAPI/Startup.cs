@@ -31,15 +31,10 @@ namespace xStory
 
             services.AddSingleton<IAppSettingData>(sp => sp.GetRequiredService<IOptions<AppSettingData>>().Value);
             //Repository
-            services.AddScoped<IStoryRepository, StoryRepository>();
             services.AddScoped<INewStoryRepository, NewStoryRepository>();
-            services.AddScoped<IHotStoryRepository, HotStoryRepository>();
-            services.AddScoped<IChapRepository, ChapRepository>();
-            services.AddSingleton<IApplicationSettingRepository, ApplicationSettingRepository>();
-            services.AddSingleton<ICacheProvider, InMemoryCacheProvider>();
             services.AddScoped<IImageRepository, ImageRepository>();
+            services.AddSingleton<ICacheProvider, InMemoryCacheProvider>();
             //Service
-            services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             services.AddScoped<IStorysService, StorysService>();
 
             services.AddControllers();
