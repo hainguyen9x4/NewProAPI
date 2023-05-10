@@ -25,88 +25,65 @@ namespace Pro.Service.Implements
 
         public HomePageInfo GetHomeStoryForNews(int pageIndex, int dataPerPage = 16, bool useCache = true)
         {
-            //useCache = false;
-            try
+
+            var results = new HomePageInfo();
+            var newStorys = new List<NewStory>();
+
+            var tempAllStory = GetTotalStoryForNew();
+            var allStorys = tempAllStory.NewStorys;
+            var totalStory = tempAllStory.TotalStory;
+
+            var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
+            results.TotalPage = totalPage;
+            results.CurrentPage = pageIndex;
+
+            var storys = allStorys.OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
+            foreach (var s in storys)
             {
-                Func<HomePageInfo> fetchFunc = () =>
-                {
-                    var results = new HomePageInfo();
-                    var newStorys = new List<NewStory>();
-
-                    var tempAllStory = GetTotalStoryForNew();
-                    var allStorys = tempAllStory.NewStorys;
-                    var totalStory = tempAllStory.TotalStory;
-
-                    var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
-                    results.TotalPage = totalPage;
-                    results.CurrentPage = pageIndex;
-
-                    var storys = allStorys.OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
-                    foreach (var s in storys)
-                    {
-                        s.Chaps = s.Chaps.OrderByDescending(t => t.ID).Take(3).ToList();
-                        newStorys.Add(s);
-                    }
-                    results.NewStorys = newStorys;
-                    return results;
-                };
-                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.HomePageFornew, pageIndex, dataPerPage), fetchFunc) : fetchFunc();
+                s.Chaps = s.Chaps.OrderByDescending(t => t.ID).Take(3).ToList();
+                newStorys.Add(s);
             }
-            catch (Exception ex)
-            {
-                LogHelper.Error($"Error when get Home with key:{pageIndex}-{dataPerPage}", ex);
-                return new HomePageInfo();
-            }
+            results.NewStorys = newStorys;
+            return results;
+
         }
 
         public List<ImageStoryInfo> GetTopHotStorysForNew(bool useCache = true)
         {
-            try
+            var results = new List<ImageStoryInfo>();
+
+            var storys = GetTotalStoryForNew().NewStorys;
+
+            var topStorys = storys.OrderBy(x => Guid.NewGuid()).Take(78).ToList();
+
+            foreach (var topStory in topStorys)
             {
-                Func<List<ImageStoryInfo>> fetchFunc = () =>
+                var chapInfos = new List<Chap>();
+
+                var chap = topStory.Chaps.OrderByDescending(ac => ac.ID).FirstOrDefault();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
+                if (chap != null)
                 {
-                    var results = new List<ImageStoryInfo>();
-
-                    var storys = GetTotalStoryForNew().NewStorys;
-
-                    var topStorys = storys.OrderBy(x => Guid.NewGuid()).Take(78).ToList();
-
-                    foreach (var topStory in topStorys)
+                    chapInfos.Add(new Chap()
                     {
-                        var chapInfos = new List<Chap>();
-
-                        var chap = topStory.Chaps.OrderByDescending(ac => ac.ID).FirstOrDefault();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
-                        if (chap != null)
-                        {
-                            chapInfos.Add(new Chap()
-                            {
-                                ID = chap.ID,
-                                Link = chap.Link,
-                                Name = chap.Name,
-                            });
-                        }
-                        var imageStoryInfo = new ImageStoryInfo()
-                        {
-                            StoryID = topStory.ID,
-                            StoryLink = topStory.Link,
-                            StoryName = topStory.Name,
-                            StoryPictureLink = topStory.Picture,
-                            StoryNameShow = topStory.NameShow,
-                            Chaps = chapInfos,
-                            LastUpdateTime = topStory.UpdatedTime,
-                        };
-                        results.Add(imageStoryInfo);
-                    }
-
-                    return results;
+                        ID = chap.ID,
+                        Link = chap.Link,
+                        Name = chap.Name,
+                    });
+                }
+                var imageStoryInfo = new ImageStoryInfo()
+                {
+                    StoryID = topStory.ID,
+                    StoryLink = topStory.Link,
+                    StoryName = topStory.Name,
+                    StoryPictureLink = topStory.Picture,
+                    StoryNameShow = topStory.NameShow,
+                    Chaps = chapInfos,
+                    LastUpdateTime = topStory.UpdatedTime,
                 };
-                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.TopHotStory), fetchFunc) : fetchFunc();
+                results.Add(imageStoryInfo);
             }
-            catch (Exception ex)
-            {
-                LogHelper.Error($"Error when get TopHot with key", ex);
-                return null;
-            }
+
+            return results;
         }
 
         public List<ImageStoryInfo> GetAllStoryForSearchForNew(bool useCache = true)
@@ -161,34 +138,30 @@ namespace Pro.Service.Implements
         {
             try
             {
-                Func<ImageStoryInfo> fetchFunc = () =>
-                {
-                    var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
-                    if (storyInfor == null) return null;
+                var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
+                if (storyInfor == null) return null;
 
-                    var imageStoryInfo = new ImageStoryInfo()
-                    {
-                        StoryID = storyID,
-                        StoryLink = storyInfor.Link,
-                        StoryName = storyInfor.Name,
-                        StoryPictureLink = storyInfor.Picture,
-                        StoryNameShow = storyInfor.NameShow,
-                        Chaps = new List<Chap>(),
-                        LastUpdateTime = storyInfor.UpdatedTime,
-                    };
-                    foreach (var chap in storyInfor.Chaps)
-                    {
-                        imageStoryInfo.Chaps.Add(new Chap()
-                        {
-                            ID = chap.ID,
-                            Link = chap.Link,
-                            Name = chap.Name,
-                            UpdatedTime = chap.UpdatedTime
-                        });
-                    }
-                    return imageStoryInfo;
+                var imageStoryInfo = new ImageStoryInfo()
+                {
+                    StoryID = storyID,
+                    StoryLink = storyInfor.Link,
+                    StoryName = storyInfor.Name,
+                    StoryPictureLink = storyInfor.Picture,
+                    StoryNameShow = storyInfor.NameShow,
+                    Chaps = new List<Chap>(),
+                    LastUpdateTime = storyInfor.UpdatedTime,
                 };
-                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.StoryID, storyID), fetchFunc) : fetchFunc();
+                foreach (var chap in storyInfor.Chaps)
+                {
+                    imageStoryInfo.Chaps.Add(new Chap()
+                    {
+                        ID = chap.ID,
+                        Link = chap.Link,
+                        Name = chap.Name,
+                        UpdatedTime = chap.UpdatedTime
+                    });
+                }
+                return imageStoryInfo;
             }
             catch (Exception ex)
             {
@@ -201,36 +174,32 @@ namespace Pro.Service.Implements
         {
             try
             {
-                Func<ChapInfo> fetchFunc = () =>
+                var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
+                if (storyInfor == null) return null;
+
+                var storyShortInfos = storyInfor.Chaps.Select(a => new ShortStoryInfo()
                 {
-                    var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
-                    if (storyInfor == null) return null;
+                    ChapLink = a.Link,
+                    ChapName = a.Name,
+                    ChapId = a.ID,
+                }).ToList();
 
-                    var storyShortInfos = storyInfor.Chaps.Select(a => new ShortStoryInfo()
-                    {
-                        ChapLink = a.Link,
-                        ChapName = a.Name,
-                        ChapId = a.ID,
-                    }).ToList();
+                var chap = storyInfor.Chaps.Where(c => c.ID == chapID).FirstOrDefault();
+                if (chap == null) return null;
 
-                    var chap = storyInfor.Chaps.Where(c => c.ID == chapID).FirstOrDefault();
-                    if (chap == null) return null;
-
-                    var image = _imageRepository.GetAll().Where(i => i.StoryID == storyID && i.ChapID == chapID).FirstOrDefault();
-                    var imageStoryInfo = new ChapInfo()
-                    {
-                        ChapID = chap.ID,
-                        ChapLink = chap.Link,
-                        ChapName = chap.Name,
-                        StoryNameShow = storyInfor.NameShow,
-                        StoryName = storyInfor.Name,
-                        ImageStoryLinks = image.Images,
-                        LastModifyDatetime = storyInfor.UpdatedTime,
-                        StoryShortInfos = storyShortInfos,
-                    };
-                    return imageStoryInfo;
+                var image = _imageRepository.GetAll().Where(i => i.StoryID == storyID && i.ChapID == chapID).FirstOrDefault();
+                var imageStoryInfo = new ChapInfo()
+                {
+                    ChapID = chap.ID,
+                    ChapLink = chap.Link,
+                    ChapName = chap.Name,
+                    StoryNameShow = storyInfor.NameShow,
+                    StoryName = storyInfor.Name,
+                    ImageStoryLinks = image.Images,
+                    LastModifyDatetime = storyInfor.UpdatedTime,
+                    StoryShortInfos = storyShortInfos,
                 };
-                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.StoryIDChapID, storyID, chapID), fetchFunc) : fetchFunc();
+                return imageStoryInfo;
             }
             catch (Exception ex)
             {
