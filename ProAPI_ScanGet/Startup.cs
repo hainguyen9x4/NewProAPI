@@ -46,6 +46,7 @@ namespace xStory
             services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             services.AddScoped<IPrepareService, PrepareService>();
             services.AddScoped<IGetRawDataService, GetRawDataService>();
+            services.AddScoped<ISaveImage2Local, SaveImage2Local>();
             services.AddScoped<IUpData2DBService, UpData2DBService>();
 
             services.AddControllers();

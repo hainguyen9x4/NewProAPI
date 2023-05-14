@@ -104,7 +104,7 @@ namespace Pro.Service.SubScanDataService.Implements
                 foreach (var chapSaveData in dataStory.Chaps)
                 {
                     imagesOnChap.Add(new ImagesOneChap(story.ID, chapSaveData.ID, chapSaveData.Images));
-                    chapSaveData.Images = new List<Image>();
+                    chapSaveData.Images = new List<Model.ImageData>();
                 }
                 _imageRepository.Creates(imagesOnChap);
 
@@ -125,7 +125,7 @@ namespace Pro.Service.SubScanDataService.Implements
                 foreach (var chapSaveData in dataStory.Chaps)
                 {
                     imagesOnChap.Add(new ImagesOneChap(0, chapSaveData.ID, chapSaveData.Images));
-                    chapSaveData.Images = new List<Image>();
+                    chapSaveData.Images = new List<Model.ImageData>();
                 }
 
                 var newStory = _newStoryRepository.Create(dataStory);

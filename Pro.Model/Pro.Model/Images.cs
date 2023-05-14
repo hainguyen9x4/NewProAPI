@@ -6,7 +6,7 @@ namespace Pro.Model
 {
     public class ImagesOneChap
     {
-        public ImagesOneChap(int storyID, int chapID, List<Image> images)
+        public ImagesOneChap(int storyID, int chapID, List<ImageData> images)
         {
             Images = images;
             StoryID = storyID;
@@ -23,6 +23,6 @@ namespace Pro.Model
         public int ChapID { get; set; }
 
         [BsonElement("Images")]
-        public List<Image> Images { get; set; }
+        public List<ImageData> Images { get; set; }
     }
 }

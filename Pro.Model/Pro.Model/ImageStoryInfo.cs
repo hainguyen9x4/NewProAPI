@@ -43,7 +43,7 @@
         public string StoryName { get; set; }
         public string StoryNameShow { get; set; }
         public DateTime? LastModifyDatetime { get; set; }
-        public List<Image> ImageStoryLinks { get; set; }
+        public List<ImageData> ImageStoryLinks { get; set; }
         public List<ShortStoryInfo> StoryShortInfos { get; set; }
     }
 }

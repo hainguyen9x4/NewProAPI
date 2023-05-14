@@ -234,19 +234,11 @@ namespace Pro.Service.Implements
 
         public List<string> GetAllCloudarySettings(string settingKey, bool useCache = true)
         {
-            //var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingName.Contains(settingKey) && k.AppSettingIsActive).ToArray();
-            //var settings = new List<string>();
-            //foreach (var key in keys)
-            //{
-            //    settings.Add(GetValue(key.AppSettingName));
-            //}
-            //return settings;
-
             try
             {
                 Func<List<string>> fetchFunc = () =>
                 {
-                    var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingName.Contains(settingKey) && k.AppSettingIsActive).ToArray();
+                    var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingName.Contains(settingKey) && k.AppSettingIsActive && k.NumberImage <= 1000).ToArray();
                     var settings = new List<string>();
                     foreach (var key in keys)
                     {

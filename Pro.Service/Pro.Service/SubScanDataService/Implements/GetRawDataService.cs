@@ -58,7 +58,7 @@ namespace Pro.Service.SubScanDataService.Implements
             foreach (var chap in newestData.Chaps)
             {
                 var dataLinks = GetImageDatasFromWeb(chap.Link);
-                dataLinks.ForEach(link => chap.Images.Add(new Image()
+                dataLinks.ForEach(link => chap.Images.Add(new Model.ImageData()
                 {
                     OriginLink = link
                 }));

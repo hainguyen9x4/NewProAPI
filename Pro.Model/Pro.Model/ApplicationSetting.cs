@@ -21,5 +21,8 @@ namespace Pro.Model
 
         [BsonElement("Descriptions")]
         public string Descriptions { get; set; }
+
+        [BsonElement("NumberImage")]
+        public int NumberImage { get; set; }
     }
 }

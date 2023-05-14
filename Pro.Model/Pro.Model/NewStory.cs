@@ -77,7 +77,7 @@ namespace Pro.Model
 
     public class Chap
     {
-        public Chap(string name, string link, List<Image> images, DateTime updateTime, int statusID = 1)
+        public Chap(string name, string link, List<ImageData> images, DateTime updateTime, int statusID = 1)
         {
             Name = name;
             Link = link;
@@ -90,30 +90,33 @@ namespace Pro.Model
         {
             Name = "";
             Link = "";
-            Images = new List<Image>();
+            Images = new List<ImageData>();
         }
         public int ID { get; set; }
         public string Name { get; set; }
         public string Link { get; set; }
         public int StatusID { get; set; }
-        public List<Image> Images { get; set; }
+        public List<ImageData> Images { get; set; }
         public DateTime UpdatedTime { get; set; }
     }
 
-    public class Image
+    public class ImageData
     {
-        public Image(string link = "", string originLink = "")
+        public ImageData(string link = "", string originLink = "", string localLink = "")
         {
             Link = link;
             OriginLink = originLink;
+            LocalLink = localLink;
         }
-        public Image()
+        public ImageData()
         {
             Link = "";
             OriginLink = "";
+            LocalLink = "";
         }
         public string Link { get; set; }
         public string OriginLink { get; set; }
+        public string LocalLink { get; set; }
     }
 
     public class StoryType
