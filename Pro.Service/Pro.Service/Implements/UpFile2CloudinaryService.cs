@@ -18,7 +18,7 @@ namespace Pro.Service.Implement
     public class UpFile2CloudinaryService : IUploadImageService
     {
         private readonly IApplicationSettingService _applicationSettingService;
-        private Cloudinary _cloudinary = new Cloudinary();
+        private readonly Cloudinary _cloudinary;
 
         public UpFile2CloudinaryService(IApplicationSettingService applicationSettingService)
         {
@@ -30,7 +30,7 @@ namespace Pro.Service.Implement
 
                 var cloudinarySettings = JsonManager.StringJson2Object<CloudinarySettings>(allSettings.First());
                 Account acc = new Account(cloudinarySettings.CloudName, cloudinarySettings.ApiKey, cloudinarySettings.ApiSecret);
-                var _cloudinary = new Cloudinary(acc);
+                _cloudinary = new Cloudinary(acc);
                 _cloudinary.Api.Timeout = 60000;//60s
             }
             else
@@ -118,6 +118,7 @@ namespace Pro.Service.Implement
 
         private async Task<NewStory> UpLoadDataAsyncForNew(NewStory dataStory)
         {
+            var totalImages = 0;
             foreach (var chapSave in dataStory.Chaps)
             {
                 var savePath = $"/Truyen-tranh2/{dataStory.Name}/{chapSave.Name}/";//Folder save on clound
@@ -136,9 +137,10 @@ namespace Pro.Service.Implement
                         LogHelper.Error($"Error UpLoadDataAsyn- cannot cloud link:{link.OriginLink};{dataStory.Name}/{chapSave.Name},ErrorMes:{rsUp.ErrorMessage}");
                     }
                 }
+                totalImages += chapSave.Images.Count();
                 chapSave.Link = FileReader.DeleteHomePage(chapSave.Link);
             }
-            UploadDataToAppSetting(_cloudinary, dataStory.Chaps.Count());
+            UploadDataToAppSetting(_cloudinary, totalImages);
             return dataStory;
         }
 
@@ -166,11 +168,11 @@ namespace Pro.Service.Implement
         {
             var listDatas = DividingObject(dataStory, 2);
             List<Task<NewStory>> tasks = new List<Task<NewStory>>();
-            //foreach (var item in listDatas)
-            //{
-            //    tasks.Add(Task.Run(async () => await UpLoadDataAsyncForNew(item)));
-            //}
-            var ss = Task.Run(async () => await UpLoadDataAsyncForNew(listDatas[0])).Result;
+            foreach (var item in listDatas)
+            {
+                tasks.Add(Task.Run(async () => await UpLoadDataAsyncForNew(item)));
+            }
+            //var ss = Task.Run(async () => await UpLoadDataAsyncForNew(listDatas[0])).Result;
             var t = Task.WhenAll(tasks);
             t.Wait();
 
