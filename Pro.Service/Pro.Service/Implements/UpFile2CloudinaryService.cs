@@ -166,7 +166,7 @@ namespace Pro.Service.Implement
 
         public void UploadLink2StoreWith3ThreadsForNew(NewStory dataStory)
         {
-            var listDatas = DividingObject(dataStory, 2);
+            var listDatas = DividingObject(dataStory, 5);
             List<Task<NewStory>> tasks = new List<Task<NewStory>>();
             foreach (var item in listDatas)
             {

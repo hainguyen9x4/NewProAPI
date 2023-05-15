@@ -3,7 +3,6 @@ using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
 using Pro.Service.SubScanDataService;
-using System.IO;
 
 namespace Pro.Service.Implements
 {
@@ -46,10 +45,10 @@ namespace Pro.Service.Implements
                     var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew(ref localPath);
                     if (newestChapDatas.Chaps != null && newestChapDatas.Chaps.Any())
                     {
-                        //_getRawDataService.GetRawDatasForNew(newestChapDatas);
+                        _getRawDataService.GetRawDatasForNew(newestChapDatas);
                         //Save to file
-                        //_saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
-                        //SaveData2File(@"D:\Debug\newestChapDatas.json", newestChapDatas);
+                        _saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
+                        SaveData2File(@"D:\Debug\newestChapDatas.json", newestChapDatas);
                         //Uplpad to Clound
                         newestChapDatas = ReadDataFromFile(@"D:\Debug\newestChapDatas.json");
                         _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
