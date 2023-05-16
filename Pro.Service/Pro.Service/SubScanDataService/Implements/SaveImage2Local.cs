@@ -1,8 +1,8 @@
-﻿using FileManager;
-using Pro.Common;
+﻿using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using System.Net;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -41,16 +41,18 @@ namespace Pro.Service.SubScanDataService.Implements
         {
             foreach (var data in dataStory.Chaps)
             {
+                var imageName = 0;
                 foreach (var img in data.Images)
                 {
+                    imageName++;
                     var streamFile = GetStreamImage(img.OriginLink);
                     if (streamFile != null)
                     {
-                        var savePath = $@"\Truyen-tranh2\{dataStory.Name}\{data.Name}\";
+                        var savePath = $@"\TT\{dataStory.Name}\{data.Name}\";
 #if !DEBUG
-                        var local = SaveToLocal(streamFile, savePath, disk:_applicationSettingService.GetValue(ApplicationSettingKey.DiskSaveImageLocal));
+                        var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}", disk:_applicationSettingService.GetValue(ApplicationSettingKey.DiskSaveImageLocal));
 #elif DEBUG
-                        var local = SaveToLocal(streamFile, savePath);
+                        var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}");
 #endif
                         img.LocalLink = local;
                     }
@@ -63,17 +65,18 @@ namespace Pro.Service.SubScanDataService.Implements
             }
             return dataStory;
         }
-        private string SaveToLocal(Stream streamFile, string path, string disk = @"D:\xStory")
+        private string SaveToLocal(Stream streamFile, string path, string imageName, string disk = @"D:\xStory")
         {
-            var fileName = Guid.NewGuid().ToString();
             var subFolderPath = disk + path;
 
             if (!Directory.Exists(subFolderPath))
             {
                 Directory.CreateDirectory(subFolderPath);
             }
-            var subPath = path + fileName;
-            var fullPathLocal = disk + subPath + ".jpg";
+            var subPath = path + imageName;
+            var fullPathLocal = disk + subPath + ".jpg"; 
+            var acc = new WaitForInternetAccess();
+            acc.WaitInternetAccess("SaveToLocal");
             using (var image = Image.Load(streamFile))
             {
                 image.Save(fullPathLocal);
