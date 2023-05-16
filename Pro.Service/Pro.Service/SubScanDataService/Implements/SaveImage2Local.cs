@@ -54,6 +54,10 @@ namespace Pro.Service.SubScanDataService.Implements
 #endif
                         img.LocalLink = local;
                     }
+                    else
+                    {
+                        LogHelper.Error($"SaveDataAsyncForNew-streamFile is NULL:{img.OriginLink}");
+                    }
                 }
 
             }
