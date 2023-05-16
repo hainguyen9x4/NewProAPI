@@ -4,8 +4,6 @@ using FileManager;
 using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
-using System.Linq;
-using System.Net;
 
 namespace Pro.Service.Implement
 {
@@ -18,7 +16,7 @@ namespace Pro.Service.Implement
     public class UpFile2CloudinaryService : IUploadImageService
     {
         private readonly IApplicationSettingService _applicationSettingService;
-        private readonly Cloudinary _cloudinary;
+        private Cloudinary _cloudinary;
 
         public UpFile2CloudinaryService(IApplicationSettingService applicationSettingService)
         {
@@ -140,18 +138,33 @@ namespace Pro.Service.Implement
                 totalImages += chapSave.Images.Count();
                 chapSave.Link = FileReader.DeleteHomePage(chapSave.Link);
             }
-            UploadDataToAppSetting(_cloudinary, totalImages);
+            _cloudinary = UploadDataToAppSetting(_cloudinary, totalImages);
             return dataStory;
         }
+        private Cloudinary GetCloudinary()
+        {
+            var allSettings = _applicationSettingService.GetAllCloudarySettings(ApplicationSettingKey.CloundSetting, useCache: false);
 
-        private void UploadDataToAppSetting(Cloudinary cloudinary, int newNumberImages)
+            var cloudinarySettings = JsonManager.StringJson2Object<CloudinarySettings>(allSettings.First());
+            Account acc = new Account(cloudinarySettings.CloudName, cloudinarySettings.ApiKey, cloudinarySettings.ApiSecret);
+            var cloudinary = new Cloudinary(acc);
+            cloudinary.Api.Timeout = 60000;//60s
+
+            return cloudinary;
+        }
+        private Cloudinary UploadDataToAppSetting(Cloudinary cloudinary, int newNumberImages)
         {
             var clound = _applicationSettingService.Get().Where(s => s.AppSettingValue.Contains(cloudinary.Api.Account.ApiKey)).FirstOrDefault();
             if (clound != null)
             {
                 clound.NumberImage += newNumberImages;
                 _applicationSettingService.Update(clound.AppSettingId, clound);
+                if (clound.NumberImage >= Constants.MAX_IMAGE)
+                {
+                    return GetCloudinary();
+                }
             }
+            return cloudinary;
         }
 
         private string? MakeStoryPictureLinkForNewStory(string storyPictureLink)
