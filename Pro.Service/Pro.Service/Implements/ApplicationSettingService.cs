@@ -272,7 +272,30 @@ namespace Pro.Service.Implements
         {
             return _appSettingRepository.Create(appSetting);
         }
-
+        public ApplicationSetting CreateCloundinary(string dataCreateCloundinary, string email)
+        {
+            var appSetting = new ApplicationSetting();
+            var clound = GetData(dataCreateCloundinary);
+            if (clound.Any() && clound.Count() >= 3)
+            {
+                appSetting.AppSettingName = "CloundSetting";
+                appSetting.AppSettingValue = $"{{\"CloudName\":\"{clound[0]}\",\"ApiKey\":\"{clound[1]}\",\"ApiSecret\":\"{clound[0]}\"}}";
+                appSetting.AppSettingIsActive = true;
+                appSetting.Descriptions = email;
+            }
+            return _appSettingRepository.Create(appSetting);
+        }
+        private List<string> GetData(string dataCreateCloundinary)
+        {
+            Regex regex = new Regex("\"([^\"]*)\"");
+            MatchCollection matches = regex.Matches(dataCreateCloundinary);
+            var rs = new List<string>();
+            foreach (Match match in matches)
+            {
+                rs.Add(match.Groups[1].Value);
+            }
+            return rs;
+        }
         public void Update(int id, ApplicationSetting updatedAppSetting) => _appSettingRepository.Update(id, updatedAppSetting);
 
         public void Delete(ApplicationSetting appSettingForDeletion) => _appSettingRepository.Delete(appSettingForDeletion);
