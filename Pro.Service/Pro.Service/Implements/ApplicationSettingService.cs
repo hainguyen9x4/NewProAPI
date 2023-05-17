@@ -238,11 +238,11 @@ namespace Pro.Service.Implements
             {
                 Func<List<string>> fetchFunc = () =>
                 {
-                    var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingName.Contains(settingKey) && k.AppSettingIsActive && k.NumberImage <= 10000).ToArray();
+                    var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingName.Contains(settingKey) && k.AppSettingIsActive && k.NumberImage < Constants.MAX_IMAGE).ToArray();
                     var settings = new List<string>();
                     foreach (var key in keys)
                     {
-                        settings.Add(_appSettingRepository.GetAll().Where(i => i.AppSettingName == key.AppSettingName).Select(i => i.AppSettingValue).FirstOrDefault());
+                        settings.Add(_appSettingRepository.GetAll().Where(i => i.AppSettingId == key.AppSettingId).Select(i => i.AppSettingValue).FirstOrDefault());
                     }
                     return settings;
                 };

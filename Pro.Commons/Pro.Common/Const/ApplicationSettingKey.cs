@@ -12,4 +12,8 @@
         public const string UrlBaseApiExGetHtmlElement = "UrlBaseApiExecuteGetHtmlElement";
         public const string IsNeedReStart = "IsNeedReStartAfterFinishGetData";
     }
+    public static class Constants
+    {
+        public const int MAX_IMAGE = 1000;
+    }
 }

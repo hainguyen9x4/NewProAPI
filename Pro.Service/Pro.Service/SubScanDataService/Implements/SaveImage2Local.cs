@@ -1,8 +1,6 @@
 ﻿using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
 using System.Net;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -52,9 +50,13 @@ namespace Pro.Service.SubScanDataService.Implements
 #if !DEBUG
                         var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}", disk:_applicationSettingService.GetValue(ApplicationSettingKey.DiskSaveImageLocal));
 #elif DEBUG
-                        var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}");
+                        var local = SaveToLocal(streamFile, savePath, $"{imageName.ToString().PadLeft(4, '0')}");
 #endif
                         img.LocalLink = local;
+                    }
+                    else
+                    {
+                        LogHelper.Error($"SaveDataAsyncForNew-streamFile is NULL:{img.OriginLink}");
                     }
                 }
 
