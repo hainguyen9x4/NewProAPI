@@ -287,7 +287,7 @@ namespace Pro.Service.Implements
         }
         private List<string> GetData(string dataCreateCloundinary)
         {
-            Regex regex = new Regex("\"([^\"]*)\"");
+            Regex regex = new Regex("'([^']*)'");
             MatchCollection matches = regex.Matches(dataCreateCloundinary);
             var rs = new List<string>();
             foreach (Match match in matches)
