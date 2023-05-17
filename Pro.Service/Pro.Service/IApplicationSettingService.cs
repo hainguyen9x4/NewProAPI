@@ -22,7 +22,7 @@ namespace Pro.Service
         List<ApplicationSetting> Get();
         ApplicationSetting Get(int id);
         ApplicationSetting Create(ApplicationSetting appSetting);
-        ApplicationSetting CreateCloundinary(string dataCreateCloundinary, string email);
+        ApplicationSetting CreateCloundinary(string dataCreateCloundinary, string email, string c);
         void Delete(int id);
         void Delete(ApplicationSetting appSettingForDeletion);
         void Update(int id, ApplicationSetting updatedAppSetting);

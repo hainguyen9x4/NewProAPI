@@ -42,9 +42,9 @@ namespace xAppSetting.Controllers
         }
         [HttpPost]
         [Route("CreateCloundinary")]
-        public ActionResult<ApplicationSetting> CreateCloundinary(string dataCreateCloundinary, string email)
+        public ActionResult<ApplicationSetting> CreateCloundinary(string dataCreateCloundinary, string email, string c = "\"")
         {
-            var sppSetting = _applicationSettingService.CreateCloundinary(dataCreateCloundinary, email);
+            var sppSetting = _applicationSettingService.CreateCloundinary(dataCreateCloundinary, email, c);
 
             return CreatedAtRoute("GetAppSetting", new { id = sppSetting.AppSettingId }, sppSetting);
         }

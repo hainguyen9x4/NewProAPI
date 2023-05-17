@@ -272,10 +272,10 @@ namespace Pro.Service.Implements
         {
             return _appSettingRepository.Create(appSetting);
         }
-        public ApplicationSetting CreateCloundinary(string dataCreateCloundinary, string email)
+        public ApplicationSetting CreateCloundinary(string dataCreateCloundinary, string email, string c)
         {
             var appSetting = new ApplicationSetting();
-            var clound = GetData(dataCreateCloundinary);
+            var clound = GetData(dataCreateCloundinary, c);
             if (clound.Any() && clound.Count() >= 3)
             {
                 appSetting.AppSettingName = "CloundSetting";
@@ -285,9 +285,10 @@ namespace Pro.Service.Implements
             }
             return _appSettingRepository.Create(appSetting);
         }
-        private List<string> GetData(string dataCreateCloundinary)
+        private List<string> GetData(string dataCreateCloundinary, string c)
         {
-            Regex regex = new Regex("'([^']*)'");
+            Regex regex = new Regex("\"([^\"]*)\"");
+            if (c == "'") regex = new Regex("'([^']*)'");
             MatchCollection matches = regex.Matches(dataCreateCloundinary);
             var rs = new List<string>();
             foreach (Match match in matches)
