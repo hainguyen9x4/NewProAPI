@@ -48,11 +48,13 @@ namespace Pro.Service.Implements
                         _getRawDataService.GetRawDatasForNew(newestChapDatas);
 
                         //Save to file
+                        LogHelper.Info($"GET---Start SaveImage2LocalFunc");
                         _saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
                         SaveData2File($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json", newestChapDatas);
 
                         //Uplpad to Clound
                         //newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
+                        LogHelper.Info($"GET---Start UploadLink2StoreWith3ThreadsForNew");
                         _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
                         SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
 
