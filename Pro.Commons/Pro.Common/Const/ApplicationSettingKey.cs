@@ -14,6 +14,6 @@
     }
     public static class Constants
     {
-        public const int MAX_IMAGE = 1000;
+        public const int MAX_IMAGE = 6000;
     }
 }

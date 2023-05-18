@@ -179,7 +179,7 @@ namespace Pro.Service.Implement
 
         public void UploadLink2StoreWith3ThreadsForNew(NewStory dataStory)
         {
-            var listDatas = DividingObject(dataStory, 5);
+            var listDatas = DividingObject(dataStory, 15);
             List<Task<NewStory>> tasks = new List<Task<NewStory>>();
             foreach (var item in listDatas)
             {
@@ -200,7 +200,7 @@ namespace Pro.Service.Implement
         {
             var rs = new List<NewStory>();
 
-            var subChapLists = Chunk(dataStory.Chaps, 5).ToList();
+            var subChapLists = Chunk(dataStory.Chaps, numberObject).ToList();
             foreach (var subChapList in subChapLists)
             {
                 rs.Add(new NewStory()

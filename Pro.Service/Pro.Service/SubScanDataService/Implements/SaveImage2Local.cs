@@ -47,11 +47,10 @@ namespace Pro.Service.SubScanDataService.Implements
                     if (streamFile != null)
                     {
                         var savePath = $@"\TT\{dataStory.Name}\{data.Name}\";
-#if !DEBUG
-                        var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}", disk:_applicationSettingService.GetValue(ApplicationSettingKey.DiskSaveImageLocal));
-#elif DEBUG
+                        //var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}", disk:_applicationSettingService.GetValue(ApplicationSettingKey.DiskSaveImageLocal));
+
                         var local = SaveToLocal(streamFile, savePath, $"{imageName.ToString().PadLeft(4, '0')}");
-#endif
+
                         img.LocalLink = local;
                     }
                     else

@@ -279,7 +279,7 @@ namespace Pro.Service.Implements
             if (clound.Any() && clound.Count() >= 3)
             {
                 appSetting.AppSettingName = "CloundSetting";
-                appSetting.AppSettingValue = $"{{\"CloudName\":\"{clound[0]}\",\"ApiKey\":\"{clound[1]}\",\"ApiSecret\":\"{clound[0]}\"}}";
+                appSetting.AppSettingValue = $"{{\"CloudName\":\"{clound[0]}\",\"ApiKey\":\"{clound[1]}\",\"ApiSecret\":\"{clound[2]}\"}}";
                 appSetting.AppSettingIsActive = true;
                 appSetting.Descriptions = email;
             }

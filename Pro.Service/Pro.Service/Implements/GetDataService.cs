@@ -45,14 +45,14 @@ namespace Pro.Service.Implements
                     var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew(ref localPath);
                     if (newestChapDatas.Chaps != null && newestChapDatas.Chaps.Any())
                     {
-                        //_getRawDataService.GetRawDatasForNew(newestChapDatas);
+                        _getRawDataService.GetRawDatasForNew(newestChapDatas);
 
                         //Save to file
                         _saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
-                        //SaveData2File($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json", newestChapDatas);
+                        SaveData2File($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json", newestChapDatas);
 
                         //Uplpad to Clound
-                        newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
+                        //newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
                         _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
                         SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
 
