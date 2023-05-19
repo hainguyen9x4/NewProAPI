@@ -23,27 +23,20 @@ namespace Pro.Service.Implements
             _imageRepository = imageRepository;
         }
 
-        public HomePageInfo GetHomeStoryForNews(int pageIndex, int dataPerPage = 16, bool useCache = true)
+        public HomePageInfo GetHomeStoryForNews(int currentPageIndex, int pageIndex, int dataPerPage = 16, bool useCache = true)
         {
-
             var results = new HomePageInfo();
-            var newStorys = new List<NewStory>();
+            var tempAllStory = GetTotalStoryForNew(currentPageIndex, pageIndex, dataPerPage);
 
-            var tempAllStory = GetTotalStoryForNew();
-            var allStorys = tempAllStory.NewStorys;
-            var totalStory = tempAllStory.TotalStory;
-
-            var totalPage = totalStory / dataPerPage + (totalStory % dataPerPage > 0 ? 1 : 0);
-            results.TotalPage = totalPage;
+            results.TotalPage = tempAllStory.TotalStory / dataPerPage + (tempAllStory.TotalStory % dataPerPage > 0 ? 1 : 0);
             results.CurrentPage = pageIndex;
-
-            var storys = allStorys.OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
-            foreach (var s in storys)
+            var datas = tempAllStory.NewStorys.Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
+            foreach (var s in datas)
             {
-                s.Chaps = s.Chaps.OrderByDescending(t => t.ID).Take(3).ToList();
-                newStorys.Add(s);
+                s.Chaps = s.Chaps.Take(3).ToList();
             }
-            results.NewStorys = newStorys;
+            results.NewStorys = datas;
+
             return results;
 
         }
@@ -110,22 +103,27 @@ namespace Pro.Service.Implements
             }
         }
 
-        private TempGetAllStoryData GetTotalStoryForNew(bool useCache = true)
+        private TempGetAllStoryData GetTotalStoryForNew(int currenPageIndex = 0, int pageIndex = 0, int dataPerPage = 0, int numberStory = 10, bool useCache = true)
         {
             try
             {
                 Func<TempGetAllStoryData> fetchFunc = () =>
                 {
+                    var storys = _newStoryRepository.GetAll().ToList().OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
+                    foreach (var s in storys)
+                    {
+                        s.Chaps = s.Chaps.OrderByDescending(t => t.ID).ToList();
+                    }
                     return new TempGetAllStoryData()
                     {
-                        NewStorys = _newStoryRepository.GetAll().Take(100).ToList(),
+                        NewStorys = storys,
                         TotalStory = _newStoryRepository.GetAll().Count()
 
                     };
                 };
-                var value = useCache ? _cacheProvider.Get<TempGetAllStoryData>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory), fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
 
-                return value;
+                return useCache ? _cacheProvider.Get<TempGetAllStoryData>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPage, pageIndex / dataPerPage, dataPerPage, fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
+
             }
             catch (Exception ex)
             {
