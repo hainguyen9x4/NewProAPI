@@ -1,6 +1,7 @@
 ﻿using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
+using System.IO;
 using System.Net;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -48,10 +49,16 @@ namespace Pro.Service.SubScanDataService.Implements
                     {
                         var savePath = $@"\TT\{dataStory.Name}\{data.Name}\";
                         //var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}", disk:_applicationSettingService.GetValue(ApplicationSettingKey.DiskSaveImageLocal));
-
-                        var local = SaveToLocal(streamFile, savePath, $"{imageName.ToString().PadLeft(4, '0')}");
-
-                        img.LocalLink = local;
+                        var localLink = "";
+                        try
+                        {
+                            localLink = SaveToLocal(streamFile, savePath, $"{imageName.ToString().PadLeft(4, '0')}");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Error($"SaveToLocal-Error,{savePath}:{img.OriginLink}" + ex);
+                        }
+                        img.LocalLink = localLink;
                     }
                     else
                     {
@@ -65,19 +72,19 @@ namespace Pro.Service.SubScanDataService.Implements
         private string SaveToLocal(Stream streamFile, string path, string imageName, string disk = @"D:\xStory")
         {
             var subFolderPath = disk + path;
+            var fullPathLocal = "";
 
             if (!Directory.Exists(subFolderPath))
             {
                 Directory.CreateDirectory(subFolderPath);
             }
             var subPath = path + imageName;
-            var fullPathLocal = disk + subPath + ".jpg"; 
-            var acc = new WaitForInternetAccess();
-            acc.WaitInternetAccess("SaveToLocal");
+            fullPathLocal = disk + subPath + ".jpg";
             using (var image = Image.Load(streamFile))
             {
                 image.Save(fullPathLocal);
             }
+
             return fullPathLocal;
         }
         private Stream GetStreamImage(string url, int retryTimes = 2, int sleepTime = 400)
@@ -92,6 +99,9 @@ namespace Pro.Service.SubScanDataService.Implements
                     System.Net.HttpWebRequest wr = (System.Net.HttpWebRequest)WebRequest.Create(url);
 
                     wr.Referer = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage);//No need sub
+                    wr.Proxy = null;
+                    wr.Timeout = 1200000;
+                    wr.ReadWriteTimeout = 1200000;
 
                     System.Net.WebResponse res = wr.GetResponse();
 
