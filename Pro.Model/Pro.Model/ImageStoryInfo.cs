@@ -9,6 +9,7 @@
         public string StoryPictureLink { get; set; }
         public List<Chap> Chaps { get; set; }
         public DateTime LastUpdateTime { get; set; }
+        public int View { get; set; }
     }
     public class HomePageInfo
     {

@@ -72,6 +72,7 @@ namespace Pro.Service.Implements
                     StoryNameShow = topStory.NameShow,
                     Chaps = chapInfos,
                     LastUpdateTime = topStory.UpdatedTime,
+                    View = topStory.OtherInfo.ViewTotal,
                 };
                 results.Add(imageStoryInfo);
             }
