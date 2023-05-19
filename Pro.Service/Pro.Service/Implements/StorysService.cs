@@ -23,10 +23,10 @@ namespace Pro.Service.Implements
             _imageRepository = imageRepository;
         }
 
-        public HomePageInfo GetHomeStoryForNews(int currentPageIndex, int pageIndex, int dataPerPage = 16, bool useCache = true)
+        public HomePageInfo GetHomeStoryForNews(int pageIndex, int dataPerPage = 16, bool useCache = true)
         {
             var results = new HomePageInfo();
-            var tempAllStory = GetTotalStoryForNew(currentPageIndex, pageIndex, dataPerPage);
+            var tempAllStory = GetTotalStoryForNew(pageIndex, dataPerPage);
 
             results.TotalPage = tempAllStory.TotalStory / dataPerPage + (tempAllStory.TotalStory % dataPerPage > 0 ? 1 : 0);
             results.CurrentPage = pageIndex;
@@ -103,7 +103,7 @@ namespace Pro.Service.Implements
             }
         }
 
-        private TempGetAllStoryData GetTotalStoryForNew(int currenPageIndex = 0, int pageIndex = 0, int dataPerPage = 0, int numberStory = 10, bool useCache = true)
+        private TempGetAllStoryData GetTotalStoryForNew(int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true)
         {
             try
             {
@@ -121,8 +121,10 @@ namespace Pro.Service.Implements
 
                     };
                 };
+                var cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPage, pageIndex / dataPerPage, dataPerPage);
+                if (dataPerPage == 0) cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory);
 
-                return useCache ? _cacheProvider.Get<TempGetAllStoryData>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPage, pageIndex / dataPerPage, dataPerPage, fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
+                return useCache ? _cacheProvider.Get<TempGetAllStoryData>(cached, fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
 
             }
             catch (Exception ex)

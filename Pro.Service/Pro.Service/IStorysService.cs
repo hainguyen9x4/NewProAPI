@@ -4,7 +4,7 @@ namespace Pro.Service
 {
     public interface IStorysService
     {
-        HomePageInfo GetHomeStoryForNews(int currenPageIndex, int pageIndex, int dataPerPage = 16, bool useCache = true);
+        HomePageInfo GetHomeStoryForNews(int pageIndex, int dataPerPage = 16, bool useCache = true);
         List<ImageStoryInfo> GetTopHotStorysForNew(bool useCache = true);
         List<ImageStoryInfo> GetAllStoryForSearchForNew(bool useCache = true);
         ImageStoryInfo GetAllChapByStoryIdForNew(int storyID, bool useCache = true);
