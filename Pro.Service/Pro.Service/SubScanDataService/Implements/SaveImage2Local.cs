@@ -124,7 +124,7 @@ namespace Pro.Service.SubScanDataService.Implements
                     }
                     else
                     {
-                        LogHelper.Error($"SaveDataAsyncForNew-streamFile is NULL:{img.OriginLink}");
+                        LogHelper.Error($"SaveDataAsyncForNew-streamFile is NULL:{img.OriginLink};{data.Name};{dataStory.Name}");
                     }
                 }
             }
