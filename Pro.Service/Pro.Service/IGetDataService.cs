@@ -4,6 +4,5 @@
     {
         bool StartGetDataForNewStory();
         bool FindNewStory(int numberPage, string homeUrl);
-        bool TestUploadImgbb();
     }
 }
