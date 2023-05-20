@@ -11,6 +11,7 @@
         public const string SubDataForHomePage = "SubDataForHomePage";
         public const string UrlBaseApiExGetHtmlElement = "UrlBaseApiExecuteGetHtmlElement";
         public const string IsNeedReStart = "IsNeedReStartAfterFinishGetData";
+        public const string ImgbbAPI = "ImgbbAPI";
     }
     public static class Constants
     {

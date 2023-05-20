@@ -42,7 +42,7 @@ namespace xStory
 
             services.AddScoped<IScanDataService, ScanDataService>();
             services.AddScoped<IGetDataService, GetDataService>();
-            services.AddScoped<IUploadImageService, UpFile2CloudinaryService>();
+            services.AddScoped<IUploadImageService, UpFile2ImgbbService>();
             services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             services.AddScoped<IPrepareService, PrepareService>();
             services.AddScoped<IGetRawDataService, GetRawDataService>();
