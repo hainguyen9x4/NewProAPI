@@ -1,7 +1,6 @@
 ﻿using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
-using System.IO;
 using System.Net;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -21,7 +20,7 @@ namespace Pro.Service.SubScanDataService.Implements
 
         public void SaveImage2LocalFunc(NewStory dataStory)
         {
-            var listDatas = DividingObject(dataStory, 5);
+            var listDatas = DividingObject(dataStory, 20);
             List<Task<NewStory>> tasks = new List<Task<NewStory>>();
             foreach (var item in listDatas)
             {
@@ -29,9 +28,13 @@ namespace Pro.Service.SubScanDataService.Implements
             }
             var t = Task.WhenAll(tasks);
             t.Wait();
-
+            var results = t.Result;
+            foreach (var ts in tasks)
+            {
+                if (!ts.IsCompleted) while (!ts.IsCompleted) ;
+            }
             dataStory.Chaps.Clear();
-            foreach (var rs in t.Result)
+            foreach (var rs in results)
             {
                 dataStory.Chaps.AddRange(rs.Chaps);
             }
@@ -44,67 +47,102 @@ namespace Pro.Service.SubScanDataService.Implements
                 foreach (var img in data.Images)
                 {
                     imageName++;
-                    var streamFile = GetStreamImage(img.OriginLink);
-                    if (streamFile != null)
+                    var savePath = $@"\TT\{dataStory.Name}\{data.Name}\";
+                    var localLink = "";
+                    //var streamFile = GetStreamImage(img.OriginLink);
+                    Stream streamFile = null;
+                    var retryTimes = 2;
+                    for (int retryTime = 0; retryTime < retryTimes; retryTime++)
                     {
-                        var savePath = $@"\TT\{dataStory.Name}\{data.Name}\";
-                        //var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}", disk:_applicationSettingService.GetValue(ApplicationSettingKey.DiskSaveImageLocal));
-                        var localLink = "";
                         try
                         {
-                            localLink = SaveToLocal(streamFile, savePath, $"{imageName.ToString().PadLeft(4, '0')}");
+                            System.Net.HttpWebRequest wr = (System.Net.HttpWebRequest)WebRequest.Create(img.OriginLink);
+                            wr.Referer = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage);//No need sub
+                            wr.Proxy = null;
+                            wr.Timeout = 1200000;
+                            wr.ReadWriteTimeout = 1200000;
+                            System.Net.WebResponse res = wr.GetResponse();
+                            streamFile = res.GetResponseStream();
+                            break;
                         }
                         catch (Exception ex)
                         {
-                            LogHelper.Error($"SaveToLocal-Error,{savePath}:{img.OriginLink}" + ex);
+                            if (retryTime == retryTimes)
+                            {
+                                //LogHelper.Error($"UploadImage-isNeedConvert-Error,pathSave:{pathSave}" + ex);
+                            }
+                            else if (retryTime < retryTimes)
+                            {
+                                System.Threading.Thread.Sleep(300);
+
+                                var acc = new WaitForInternetAccess();
+                                acc.WaitInternetAccess("GetStreamImage");
+                                continue;
+                            }
                         }
+                    }
+                    //
+                    if (streamFile != null)
+                    {
+                        //var local = SaveToLocal(streamFile, savePath, $"_{imageName.ToString().PadLeft(4, '0')}", disk:_applicationSettingService.GetValue(ApplicationSettingKey.DiskSaveImageLocal));
+                        for (var retry = 1; retry <= 2; retry++)
+                        {
+                            try
+                            {
+                                var disk = @"D:\xStory";
+                                var subFolderPath = disk + savePath;
+                                if (!Directory.Exists(subFolderPath))
+                                {
+                                    Directory.CreateDirectory(subFolderPath);
+                                }
+                                var subPath = savePath + $"{imageName.ToString().PadLeft(4, '0')}";
+                                localLink = disk + subPath + ".jpg";
+                                using (var image = Image.Load(streamFile))
+                                {
+                                    image.Save(localLink);
+                                    streamFile.Dispose();
+                                    break;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                if (retry == 2)
+                                {
+                                    LogHelper.Error($"SaveToLocal-Error,{savePath}:{img.OriginLink}" + ex);
+                                    if (streamFile != null) streamFile.Dispose();
+                                }
+                                else
+                                {
+                                    Thread.Sleep(500);
+                                    streamFile = GetStreamImage(img.OriginLink);
+                                }
+                            }
+                        }
+                        //
                         img.LocalLink = localLink;
+                        if (streamFile != null) streamFile.Dispose();
                     }
                     else
                     {
                         LogHelper.Error($"SaveDataAsyncForNew-streamFile is NULL:{img.OriginLink}");
                     }
                 }
-
             }
             return dataStory;
-        }
-        private string SaveToLocal(Stream streamFile, string path, string imageName, string disk = @"D:\xStory")
-        {
-            var subFolderPath = disk + path;
-            var fullPathLocal = "";
-
-            if (!Directory.Exists(subFolderPath))
-            {
-                Directory.CreateDirectory(subFolderPath);
-            }
-            var subPath = path + imageName;
-            fullPathLocal = disk + subPath + ".jpg";
-            using (var image = Image.Load(streamFile))
-            {
-                image.Save(fullPathLocal);
-            }
-
-            return fullPathLocal;
         }
         private Stream GetStreamImage(string url, int retryTimes = 2, int sleepTime = 400)
         {
             Stream streamFile = null;
-
             for (int retryTime = 0; retryTime < retryTimes; retryTime++)
             {
                 try
                 {
-
                     System.Net.HttpWebRequest wr = (System.Net.HttpWebRequest)WebRequest.Create(url);
-
                     wr.Referer = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage);//No need sub
                     wr.Proxy = null;
                     wr.Timeout = 1200000;
                     wr.ReadWriteTimeout = 1200000;
-
                     System.Net.WebResponse res = wr.GetResponse();
-
                     streamFile = res.GetResponseStream();
                     break;
                 }
@@ -120,7 +158,6 @@ namespace Pro.Service.SubScanDataService.Implements
 
                         var acc = new WaitForInternetAccess();
                         acc.WaitInternetAccess("GetStreamImage");
-
                         continue;
                     }
                 }
@@ -132,7 +169,7 @@ namespace Pro.Service.SubScanDataService.Implements
         {
             var rs = new List<NewStory>();
 
-            var subChapLists = Chunk(dataStory.Chaps, 5).ToList();
+            var subChapLists = Chunk(dataStory.Chaps, numberObject).ToList();
             foreach (var subChapList in subChapLists)
             {
                 rs.Add(new NewStory()
@@ -145,7 +182,6 @@ namespace Pro.Service.SubScanDataService.Implements
                     OtherInfo = dataStory.OtherInfo
                 });
             }
-
             return rs;
         }
         private static List<List<Chap>> Chunk(List<Chap> source, int chunksize)
