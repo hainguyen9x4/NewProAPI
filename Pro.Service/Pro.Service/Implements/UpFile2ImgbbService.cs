@@ -100,37 +100,38 @@ namespace Pro.Service.Implement
         }
         private string PostToImgBB(string imagFilePath, string apiKey)
         {
-            try {
-            if (!String.IsNullOrEmpty(imagFilePath)) return "";
-            byte[] imageData;
-
-            FileStream fileStream = File.OpenRead(imagFilePath);
-            imageData = new byte[fileStream.Length];
-            fileStream.Read(imageData, 0, imageData.Length);
-            fileStream.Close();
-
-            string uploadRequestString = "image=" + Uri.EscapeDataString(System.Convert.ToBase64String(imageData)) + "&key=" + apiKey;
-
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create("https://api.imgbb.com/1/upload");
-            webRequest.Method = "POST";
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.ServicePoint.Expect100Continue = false;
-
-            StreamWriter streamWriter = new StreamWriter(webRequest.GetRequestStream());
-            streamWriter.Write(uploadRequestString);
-            streamWriter.Close();
-
-            WebResponse response = webRequest.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            StreamReader responseReader = new StreamReader(responseStream);
-
-            string responseString = responseReader.ReadToEnd();
-            var rs = JsonConvert.DeserializeObject<DataRes>(responseString);
-            //LogHelper.Error(responseString);
-            if (rs != null && rs.data != null)
+            try
             {
-                return rs.data.display_url;
-            }
+                if (String.IsNullOrEmpty(imagFilePath)) return "";
+                byte[] imageData;
+
+                FileStream fileStream = File.OpenRead(imagFilePath);
+                imageData = new byte[fileStream.Length];
+                fileStream.Read(imageData, 0, imageData.Length);
+                fileStream.Close();
+
+                string uploadRequestString = "image=" + Uri.EscapeDataString(System.Convert.ToBase64String(imageData)) + "&key=" + apiKey;
+
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create("https://api.imgbb.com/1/upload");
+                webRequest.Method = "POST";
+                webRequest.ContentType = "application/x-www-form-urlencoded";
+                webRequest.ServicePoint.Expect100Continue = false;
+
+                StreamWriter streamWriter = new StreamWriter(webRequest.GetRequestStream());
+                streamWriter.Write(uploadRequestString);
+                streamWriter.Close();
+
+                WebResponse response = webRequest.GetResponse();
+                Stream responseStream = response.GetResponseStream();
+                StreamReader responseReader = new StreamReader(responseStream);
+
+                string responseString = responseReader.ReadToEnd();
+                var rs = JsonConvert.DeserializeObject<DataRes>(responseString);
+                //LogHelper.Error(responseString);
+                if (rs != null && rs.data != null)
+                {
+                    return rs.data.display_url;
+                }
             }
             catch (Exception ex)
             {
@@ -142,7 +143,7 @@ namespace Pro.Service.Implement
         {
             try
             {
-                if (!String.IsNullOrEmpty(imgLink)) return "";
+                if (String.IsNullOrEmpty(imgLink)) return "";
                 byte[] imageData;
 
                 var fileStream = GetStreamImage(imgLink);

@@ -45,17 +45,17 @@ namespace Pro.Service.Implements
                     var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew(ref localPath);
                     if (newestChapDatas.Chaps != null && newestChapDatas.Chaps.Any())
                     {
-                        _getRawDataService.GetRawDatasForNew(newestChapDatas);
-                        SaveData2File($@"D:\Debug\RawData{newestChapDatas.Name}.json", newestChapDatas);
+                        //_getRawDataService.GetRawDatasForNew(newestChapDatas);
+                        //SaveData2File($@"D:\Debug\RawData{newestChapDatas.Name}.json", newestChapDatas);
 
                         //Save to file
                         //newestChapDatas = ReadDataFromFile($@"D:\Debug\RawData{newestChapDatas.Name}.json");
-                        LogHelper.Info($"GET---Start SaveImage2LocalFunc");
-                        _saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
-                        SaveData2File($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json", newestChapDatas);
+                        //LogHelper.Info($"GET---Start SaveImage2LocalFunc");
+                        //_saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
+                        //SaveData2File($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json", newestChapDatas);
 
                         //Uplpad to Clound
-                        //newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
+                        newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_bac-si-phau-thuat-hoan-hao.json");
                         LogHelper.Info($"GET---Start UploadLink2StoreWith3ThreadsForNew");
                         _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
                         SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
