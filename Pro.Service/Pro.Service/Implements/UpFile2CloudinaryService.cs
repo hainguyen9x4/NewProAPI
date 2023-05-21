@@ -4,6 +4,7 @@ using FileManager;
 using Pro.Common;
 using Pro.Common.Const;
 using Pro.Model;
+using System.Net;
 
 namespace Pro.Service.Implement
 {
@@ -101,6 +102,75 @@ namespace Pro.Service.Implement
             }
             return result;
         }
+        private IResultUpload UploadImageByLink(string fileName, string link, string pathSave = "", bool isNeedConvert = false, int retryTimes = 2, int sleepNextRetryTime = 15 * 1000)
+        {
+            var acc = new WaitForInternetAccess();
+
+            var result = new IResultUpload();
+            result.ResultStatus = 0;
+
+            if (_cloudinary != null)
+            {
+                var stream = GetStreamImage(link);
+                if (stream != null)
+                {
+                    var uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(Guid.NewGuid().ToString(), stream),
+                        Format = "jpg",
+                        Folder = pathSave,
+                        DisplayName = fileName,
+                        UseFilename = true,
+                    };
+                try
+                {
+                    bool isOK = false;
+                    var uploadResult = new ImageUploadResult();
+                    for (int retry = 1; retry <= retryTimes; retry++)
+                    {
+                        isOK = false;
+                        try
+                        {
+                            uploadResult = _cloudinary.Upload(uploadParams);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (retry == retryTimes)
+                            {
+                                LogHelper.Error($"UploadImage-Exception-Retrytime:{retry},{link},pathSave:{pathSave}" + ex);
+                                //throw;
+                            }
+                        }
+                        isOK = IsUploadResultOK(uploadResult);
+                        if (isOK) break;
+                        System.Threading.Thread.Sleep(sleepNextRetryTime);
+                        acc.WaitInternetAccess("Uploadcloudinary");
+                    }
+
+                    if (isOK)
+                    {
+                        var rs = uploadResult.JsonObj.ToObject<JsonObj>();
+                        if (rs != null && !String.IsNullOrEmpty(rs.url))
+                        {
+                            result.ResultStatus = 1;
+                            result.Url = rs.url;
+                        }
+                    }
+                    else
+                    {
+                        //LogHelper.Info($"UploadImage-allResult:{JsonConvert.SerializeObject(uploadResult)}");
+                        result.ErrorMessage = uploadResult.Error?.Message;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Error($"UploadImage-Exception-url={link}" + ex);
+                    result.ErrorMessage = ex.Message;
+                }
+                }
+            }
+            return result;
+        }
         private bool IsUploadResultOK(ImageUploadResult uploadResult)
         {
             if (uploadResult != null && uploadResult.JsonObj != null)
@@ -122,7 +192,7 @@ namespace Pro.Service.Implement
                 var savePath = $"/Truyen-tranh2/{dataStory.Name}/{chapSave.Name}/";//Folder save on clound
                 foreach (var link in chapSave.Images)
                 {
-                    var rsUp = UploadImage("0", link.LocalLink, savePath, true);
+                    var rsUp = UploadImageByLink("0", link.OriginLink, savePath, true);
 
                     if (rsUp.ResultStatus > 0)//Success
                     {
@@ -225,6 +295,40 @@ namespace Pro.Service.Implement
                 source = source.Skip(chunksize).ToList();
             }
             return rs;
+        }
+        private Stream GetStreamImage(string url, int retryTimes = 2, int sleepTime = 400)
+        {
+            Stream streamFile = null;
+            for (int retryTime = 0; retryTime < retryTimes; retryTime++)
+            {
+                try
+                {
+                    System.Net.HttpWebRequest wr = (System.Net.HttpWebRequest)WebRequest.Create(url);
+                    wr.Referer = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage);//No need sub
+                    wr.Proxy = null;
+                    wr.Timeout = 1200000;
+                    wr.ReadWriteTimeout = 1200000;
+                    System.Net.WebResponse res = wr.GetResponse();
+                    streamFile = res.GetResponseStream();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    if (retryTime == retryTimes)
+                    {
+                        //LogHelper.Error($"UploadImage-isNeedConvert-Error,pathSave:{pathSave}" + ex);
+                    }
+                    else if (retryTime < retryTimes)
+                    {
+                        System.Threading.Thread.Sleep(sleepTime);
+
+                        var acc = new WaitForInternetAccess();
+                        acc.WaitInternetAccess("GetStreamImage");
+                        continue;
+                    }
+                }
+            }
+            return streamFile;
         }
     }
     public class CloudinarySettings
