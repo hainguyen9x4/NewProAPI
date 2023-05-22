@@ -7,5 +7,6 @@ namespace Pro.Service
         bool AddNewUser(User user);
         bool UpdateUser(User user);
         bool DeleteUser(User user);
+        User CheckUserLogin(User user);
     }
 }
