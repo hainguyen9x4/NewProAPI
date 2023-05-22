@@ -38,6 +38,7 @@ namespace xStory
             services.AddSingleton<IUserRepository, UserRepository>();
             //Service
             services.AddScoped<IStorysService, StorysService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

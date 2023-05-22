@@ -5,16 +5,16 @@ namespace Pro.Model
 {
     public class User
     {
-        public User(string accName, string email, string password, List<int> followStorys, Level levelInfo,
+        public User(string accName, string email, string password, List<int> followStorys, LevelUser levelInfo,
             string firstName = "", string lastName = "", byte gt = 2, string avatar = "")
         {
             AccName = accName;
+            Password = password;
             FirstName = firstName;
             LastName = lastName;
             Gt = gt;
             Email = email;
             Avatar = avatar;
-            Password = password;
             FollowStorys = followStorys;
             LevelInfo = levelInfo;
         }
@@ -47,20 +47,24 @@ namespace Pro.Model
         public List<int> FollowStorys { get; set; }
 
         [BsonElement("Level")]
-        public Level LevelInfo { get; set; }
+        public LevelUser LevelInfo { get; set; }
+
     }
-    public class Level
+    public class LevelUser
     {
-        public Level()
+        public LevelUser()
         {
             LevelNow = 0;
+            LevelPercent = 0;
             LevelType = LevelType.Normal;
         }
         public int LevelNow { get; set; }
+        public int LevelPercent { get; set; }
         public LevelType LevelType { get; set; }
     }
     public enum LevelType
     {
         Normal = 1,
+        TuTien = 2,
     }
 }
