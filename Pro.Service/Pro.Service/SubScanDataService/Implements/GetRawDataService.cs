@@ -19,37 +19,6 @@ namespace Pro.Service.SubScanDataService.Implements
             _setting = JsonManager.StringJson2Object<AppBuildDataSetting>(settings);
         }
 
-        public DataStoryForSave GetRawDatas(NewestChapModel newestData)
-        {
-            var resultDatas = new DataStoryForSave();
-
-            string nameTruyen, chapName = "";
-            foreach (var urlChap in newestData.ChapLinks)
-            {
-                var pairLinks = new List<ImagePairLink>();
-                var chapSave = new ChapDataForSave();
-                var dataLinks = GetImageDatasFromWeb(urlChap);
-                dataLinks.ForEach(link => pairLinks.Add(new ImagePairLink()
-                {
-                    ImageLinkFromWeb = link
-                }));
-                FileReader.GetChapInfo(urlChap, out nameTruyen, out chapName);
-                chapSave.ChapName = chapName;
-                chapSave.ImageDatas = pairLinks;
-                chapSave.ChapName = chapName;
-                chapSave.ChapLink = urlChap;
-                resultDatas.ChapDataForSaves.Add(chapSave);
-            }
-            resultDatas.FileDataNewestPathLocal = newestData.FileDataNewestPathLocal;
-            resultDatas.StoryName = newestData.StoryName;
-            resultDatas.StoryNameShow = newestData.StoryNameShow;
-            resultDatas.StoryLink = newestData.StoryLink;
-            resultDatas.Author = newestData.Author;
-            resultDatas.StoryPictureLink = GetPictureLinkFormStoryLinkByAPI(newestData.StoryLink);// newestData.StoryPictureLink;
-
-            return resultDatas;
-        }
-
         public void GetRawDatasForNew(NewStory newestData)
         {
             var resultDatas = new DataStoryForSave();
