@@ -1,7 +1,6 @@
 ﻿using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Pro.Model;
-using System;
 
 namespace Pro.Data.Repositorys.Implements
 {
