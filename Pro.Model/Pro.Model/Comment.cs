@@ -7,10 +7,10 @@ namespace Pro.Model
     {
         public Comment(int userID, int chapID, int storyID, List<CommentDetail> comments, string content = "")
         {
-            UserID = userID;
+            //UserID = userID;
             StoryID = storyID;
-            ChapID = chapID;
-            Content = content;
+            //ChapID = chapID;
+            //Content = content;
             CommentDetails = comments;
         }
 
