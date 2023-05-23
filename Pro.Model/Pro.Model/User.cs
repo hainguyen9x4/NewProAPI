@@ -1,12 +1,16 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.VisualBasic;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Pro.Common.Const;
+using System.ComponentModel.DataAnnotations.Schema;
+using Constants = Pro.Common.Const.Constants;
 
 namespace Pro.Model
 {
     public class User
     {
         public User(string accName, string email, string password, List<int> followStorys, LevelUser levelInfo,
-            string firstName = "", string lastName = "", byte gt = 2, string avatar = "")
+            string firstName = "", string lastName = "", byte gt = 2, string avatar = "", bool isDeleted =false)
         {
             AccName = accName;
             Password = password;
@@ -17,6 +21,7 @@ namespace Pro.Model
             Avatar = avatar;
             FollowStorys = followStorys;
             LevelInfo = levelInfo;
+            IsDeleted = isDeleted;
         }
 
         [BsonId]
@@ -48,6 +53,38 @@ namespace Pro.Model
 
         [BsonElement("Level")]
         public LevelUser LevelInfo { get; set; }
+
+        [BsonElement("IsDeleted")]
+        public bool IsDeleted { get; set; }
+
+
+        [BsonElement("AccessToken")]
+        public string AccessToken { get; set; }
+        [BsonElement("RefreshToken")]
+        public string RefreshToken { get; set; }
+        [BsonElement("ExpiresIn")]
+        public int? ExpiresIn { get; set; }
+        [BsonElement("ExpiresOn")]
+        public long? ExpiresOn { get; set; }
+        [BsonElement("LastLogin")]
+        public DateTime? LastLogin { get; set; }
+
+        public void Login(long ts)
+        {
+            AccessToken = Guid.NewGuid().ToString();
+            RefreshToken = Guid.NewGuid().ToString();
+            ExpiresIn = Constants.ONE_DAY_IN_SECONDS;
+            ExpiresOn = ts + ExpiresIn;
+            LastLogin = DateTime.Now;
+        }
+
+        public void Logout()
+        {
+            AccessToken = null;
+            RefreshToken = null;
+            ExpiresIn = null;
+            ExpiresOn = null;
+        }
 
     }
     public class LevelUser

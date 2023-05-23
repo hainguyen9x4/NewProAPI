@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Pro.Common.Account;
 using Pro.Model;
 using Pro.Service;
+using System.Security.Claims;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
@@ -50,5 +53,35 @@ namespace xStory.Controllers
         [HttpPost]
         public ActionResult<User> AddFollowStoryInfoUser(int userID, int storyID) =>
             _userService.AddFollowStoryInfoUser(userID, storyID);
+
+
+        [AllowAnonymous]
+        [HttpPost("api/[controller]/Login")]
+        public ActionResult Login(UserRequest req)
+        {
+            var resp = _userService.UserLogin(req);
+
+            var ret = resp == null ? (ActionResult)Unauthorized("User not found.") : Ok(resp);
+
+            return ret;
+        }
+
+        [Authorize]
+        [HttpPost("api/[controller]/Logout")]
+        public ActionResult Logout()
+        {
+            var token = GetToken();
+            _userService.Logout(token);
+
+            return Ok();
+        }
+        private string GetToken()
+        {
+            var claims = User.Identity as ClaimsIdentity;
+            var token = claims.FindFirst("token").Value;
+
+            return token;
+        }
+
     }
 }

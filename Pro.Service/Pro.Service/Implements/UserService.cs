@@ -1,4 +1,5 @@
 using Pro.Common;
+using Pro.Common.Account;
 using Pro.Data.Repositorys;
 using Pro.Model;
 
@@ -17,7 +18,7 @@ namespace Pro.Service.Implements
             if (!String.IsNullOrEmpty(accName))
             {
                 var ux = _userRepository.GetAll().Where(u => u.AccName == accName).FirstOrDefault();
-                if(ux!=null) ux.Password = "";
+                if (ux != null) ux.Password = "";
                 return ux;
             }
             var uxx = _userRepository.GetAll().Where(u => u.Id == userID).FirstOrDefault();
@@ -44,13 +45,17 @@ namespace Pro.Service.Implements
             return false;
         }
 
-        public User UserLogin(User user)
+        public User UserLogin(UserRequest user)
         {
-            var ux = _userRepository.GetAll().Where(u => u.AccName == user.AccName).FirstOrDefault();
+            var ux = _userRepository.GetAll().Where(u => u.AccName == user.Username).FirstOrDefault();
             if (ux != null)
             {
                 if (Functions.GetMD5(user.Password) == ux.Password)
                 {
+                    var ts = GetEpoch();
+                    ux.Login(ts);
+                    _userRepository.Update(ux.Id, ux);
+                    //response = user.CreateMapped<LoginResponse>();
                     return ux;
                 }
             }
@@ -58,6 +63,19 @@ namespace Pro.Service.Implements
             return null;
         }
 
+        public void Logout(string token)
+        {
+            var ux = _userRepository.GetAll().Single(u => u.AccessToken == token);
+            ux.Logout();
+            _userRepository.Update(ux.Id, ux);
+        }
+
+        private long GetEpoch()
+        {
+            var ts = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;   // We declare the epoch to be 1/1/1970.
+
+            return ts;
+        }
         public bool DeleteUser(User user)
         {
             throw new NotImplementedException();
