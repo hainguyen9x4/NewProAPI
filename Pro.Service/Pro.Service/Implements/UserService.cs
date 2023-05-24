@@ -146,7 +146,14 @@ namespace Pro.Service.Implements
             ux.Password = "";
             return ux;
         }
+        public bool VerifyAccount(string token)
+        {
+            var user = _userRepository.GetAll().Where(u => u.AccessToken == token).SingleOrDefault();
+            var ts = GetEpoch();
+            bool ok = (user?.ExpiresOn ?? 0) > ts;
 
+            return ok;
+        }
         public User DeleteFollowStoryInfoUser(int userID, int storyID)
         {
             var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();

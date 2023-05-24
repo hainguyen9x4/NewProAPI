@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Pro.Common;
@@ -40,6 +39,9 @@ namespace xStory
             services.AddScoped<IStorysService, StorysService>();
             services.AddScoped<IUserService, UserService>();
 
+            services.AddAuthentication("tokenAuth")
+            .AddScheme<TokenAuthenticationSchemeOptions, TokenAuthenticationService>("tokenAuth", ops => { });
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -65,8 +67,10 @@ namespace xStory
 
             app.UseRouting();
 
-            app.UseCors(builder => builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader());
+            app.UseCors(builder => builder.WithOrigins("*").AllowAnyMethod());
 
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

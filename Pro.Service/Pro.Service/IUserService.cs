@@ -11,6 +11,7 @@ namespace Pro.Service
         bool DeleteUser(User user);
         User UserLogin(UserRequest user);
         void Logout(string token);
+        bool VerifyAccount(string token);
         public User UpdateLevelInfoUser(int userID, LevelUser level);
         User UpdateLevelInfoUser(int userID, int increasePercent);
         User DeleteFollowStoryInfoUser(int userID, int storyID);
