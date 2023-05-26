@@ -67,7 +67,7 @@ namespace xStory
 
             app.UseRouting();
 
-            app.UseCors(builder => builder.WithOrigins("*").AllowAnyMethod());
+            app.UseCors(builder => builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader());
 
 
             app.UseAuthentication();
