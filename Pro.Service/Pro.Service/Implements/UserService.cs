@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Pro.Common;
 using Pro.Common.Account;
 using Pro.Data.Repositorys;
@@ -94,10 +95,6 @@ namespace Pro.Service.Implements
                 {
                     ux.LastName = user.LastName;
                 }
-                if (!String.IsNullOrEmpty(user.Email) && ux.Email != user.Email)
-                {
-                    ux.Email = user.Email;
-                }
                 if (!String.IsNullOrEmpty(user.Avatar) && ux.Avatar != user.Avatar)
                 {
                     ux.Avatar = user.Avatar;
@@ -105,6 +102,15 @@ namespace Pro.Service.Implements
                 if (ux.Gt != user.Gt)
                 {
                     ux.Gt = user.Gt;
+                }
+                var newLevel = JsonConvert.SerializeObject(user.LevelInfo);
+                if (newLevel != null)
+                {
+                    var oldLevel = JsonConvert.SerializeObject(ux.LevelInfo);
+                    if (oldLevel != newLevel)
+                    {
+                        ux.LevelInfo = user.LevelInfo;
+                    }
                 }
                 _userRepository.Update(ux.Id, ux);
             }
