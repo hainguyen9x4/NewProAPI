@@ -25,12 +25,12 @@ namespace xStory.Controllers
 
         [Route("api/[controller]/UpdateLevelInfoUser1")]
         [HttpPost]
-        public ActionResult<User> UpdateLevelInfoUser(int userID, int percent) =>
+        public ActionResult<bool> UpdateLevelInfoUser(int userID, int percent) =>
             _userService.UpdateLevelInfoUser(userID, percent);
 
         [Route("api/[controller]/UpdateLevelInfoUser")]
         [HttpPost]
-        public ActionResult<User> UpdateLevelInfoUser(int userID, LevelUser level) =>
+        public ActionResult<bool> UpdateLevelInfoUser(int userID, LevelUser level) =>
             _userService.UpdateLevelInfoUser(userID, level);
 
         [AllowAnonymous]
@@ -63,19 +63,19 @@ namespace xStory.Controllers
         [Authorize]
         [Route("api/[controller]/DeleteFollowStoryInfoUser")]
         [HttpPost]
-        public ActionResult<User> DeleteFollowStoryInfoUser(int userID, int storyID) =>
+        public ActionResult<bool> DeleteFollowStoryInfoUser(int userID, int storyID) =>
             _userService.DeleteFollowStoryInfoUser(userID, storyID);
 
         [Authorize]
         [Route("api/[controller]/AddFollowStoryInfoUser")]
         [HttpPost]
-        public ActionResult<User> AddFollowStoryInfoUser(int userID, int storyID) =>
+        public ActionResult<bool> AddFollowStoryInfoUser(int userID, int storyID) =>
             _userService.AddFollowStoryInfoUser(userID, storyID);
 
         [Authorize]
         [Route("api/[controller]/UpdateBasicInfoUser")]
         [HttpPost]
-        public ActionResult<User> UpdateBasicInfoUser(User user) =>
+        public ActionResult<bool> UpdateBasicInfoUser(User user) =>
             _userService.UpdateBasicInfoUser(user);
 
         private string GetToken()

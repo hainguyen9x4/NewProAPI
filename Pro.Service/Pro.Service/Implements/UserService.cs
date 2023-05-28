@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Pro.Common;
 using Pro.Common.Account;
 using Pro.Data.Repositorys;
@@ -81,70 +82,103 @@ namespace Pro.Service.Implements
             throw new NotImplementedException();
         }
 
-        public User UpdateBasicInfoUser(User user)
+        public bool UpdateBasicInfoUser(User user)
         {
-            var ux = _userRepository.GetAll().Where(u => u.AccName == user.AccName).FirstOrDefault();
-            if (ux != null)
+            try
             {
-                if (!String.IsNullOrEmpty(user.FirstName) && ux.FirstName != user.FirstName)
+                var ux = _userRepository.GetAll().Where(u => u.AccName == user.AccName).FirstOrDefault();
+                if (ux != null)
                 {
-                    ux.FirstName = user.FirstName;
+                    if (!String.IsNullOrEmpty(user.FirstName) && ux.FirstName != user.FirstName)
+                    {
+                        ux.FirstName = user.FirstName;
+                    }
+                    if (!String.IsNullOrEmpty(user.LastName) && ux.LastName != user.LastName)
+                    {
+                        ux.LastName = user.LastName;
+                    }
+                    if (!String.IsNullOrEmpty(user.Avatar) && ux.Avatar != user.Avatar)
+                    {
+                        ux.Avatar = user.Avatar;
+                    }
+                    if (ux.Gt != user.Gt)
+                    {
+                        ux.Gt = user.Gt;
+                    }
+                    var newLevel = JsonConvert.SerializeObject(user.LevelInfo);
+                    if (newLevel != null)
+                    {
+                        var oldLevel = JsonConvert.SerializeObject(ux.LevelInfo);
+                        if (oldLevel != newLevel)
+                        {
+                            ux.LevelInfo = user.LevelInfo;
+                        }
+                    }
+                    _userRepository.Update(ux.Id, ux);
                 }
-                if (!String.IsNullOrEmpty(user.LastName) && ux.LastName != user.LastName)
+                //ux.Password = "";
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool UpdateLevelInfoUser(int userID, LevelUser level)
+        {
+            try
+            {
+                var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
+                ux.LevelInfo = level;
+                _userRepository.Update(ux.Id, ux);
+                //ux.Password = "";
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool UpdateLevelInfoUser(int userID, int increasePercent)
+        {
+            try
+            {
+                var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
+                ux.LevelInfo.LevelPercent += increasePercent;
+                if (ux.LevelInfo.LevelPercent >= 100)
                 {
-                    ux.LastName = user.LastName;
-                }
-                if (!String.IsNullOrEmpty(user.Email) && ux.Email != user.Email)
-                {
-                    ux.Email = user.Email;
-                }
-                if (!String.IsNullOrEmpty(user.Avatar) && ux.Avatar != user.Avatar)
-                {
-                    ux.Avatar = user.Avatar;
-                }
-                if (ux.Gt != user.Gt)
-                {
-                    ux.Gt = user.Gt;
+                    ux.LevelInfo.LevelPercent = ux.LevelInfo.LevelPercent - 100;
+                    ux.LevelInfo.LevelNow += 1;
                 }
                 _userRepository.Update(ux.Id, ux);
+                //ux.Password = "";
             }
-            ux.Password = "";
-            return user;
-        }
-
-        public User UpdateLevelInfoUser(int userID, LevelUser level)
-        {
-            var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
-            ux.LevelInfo = level;
-            _userRepository.Update(ux.Id, ux);
-            ux.Password = "";
-            return ux;
-        }
-
-        public User UpdateLevelInfoUser(int userID, int increasePercent)
-        {
-            var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
-            ux.LevelInfo.LevelPercent += increasePercent;
-            if (ux.LevelInfo.LevelPercent >= 100)
+            catch (Exception ex)
             {
-                ux.LevelInfo.LevelPercent = ux.LevelInfo.LevelPercent - 100;
-                ux.LevelInfo.LevelNow += 1;
+                return false;
             }
-            _userRepository.Update(ux.Id, ux);
-            ux.Password = "";
-            return ux;
+            return true;
         }
 
-        public User AddFollowStoryInfoUser(int userID, int storyID)
+        public bool AddFollowStoryInfoUser(int userID, int storyID)
         {
-            var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
-            if (!ux.FollowStorys.Contains(storyID))
+            try
             {
-                ux.FollowStorys.Add(storyID);
-                _userRepository.Update(ux.Id, ux);
+                var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
+                if (!ux.FollowStorys.Contains(storyID))
+                {
+                    ux.FollowStorys.Add(storyID);
+                    _userRepository.Update(ux.Id, ux);
+                }
+                //ux.Password = "";
             }
-            ux.Password = "";
-            return ux;
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
         }
         public bool VerifyAccount(string token)
         {
@@ -154,16 +188,23 @@ namespace Pro.Service.Implements
 
             return ok;
         }
-        public User DeleteFollowStoryInfoUser(int userID, int storyID)
+        public bool DeleteFollowStoryInfoUser(int userID, int storyID)
         {
-            var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
-            if (ux.FollowStorys.Contains(storyID))
+            try
             {
-                ux.FollowStorys.Add(storyID);
-                _userRepository.Update(ux.Id, ux);
+                var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
+                if (ux.FollowStorys.Contains(storyID))
+                {
+                    ux.FollowStorys.Add(storyID);
+                    _userRepository.Update(ux.Id, ux);
+                }
+                //ux.Password = "";
             }
-            ux.Password = "";
-            return ux;
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

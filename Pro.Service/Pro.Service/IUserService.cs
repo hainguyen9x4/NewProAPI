@@ -7,14 +7,14 @@ namespace Pro.Service
     {
         User GetUser(int userID, string accName = "");
         bool AddNewUser(User user);
-        User UpdateBasicInfoUser(User user);
+        bool UpdateBasicInfoUser(User user);
         bool DeleteUser(User user);
         User UserLogin(UserRequest user);
         void Logout(string token);
         bool VerifyAccount(string token);
-        public User UpdateLevelInfoUser(int userID, LevelUser level);
-        User UpdateLevelInfoUser(int userID, int increasePercent);
-        User DeleteFollowStoryInfoUser(int userID, int storyID);
-        User AddFollowStoryInfoUser(int userID, int storyID);
+        bool UpdateLevelInfoUser(int userID, LevelUser level);
+        bool UpdateLevelInfoUser(int userID, int increasePercent);
+        bool DeleteFollowStoryInfoUser(int userID, int storyID);
+        bool AddFollowStoryInfoUser(int userID, int storyID);
     }
 }
