@@ -54,7 +54,7 @@ namespace Pro.Service.Implements
 
         public User UserLogin(UserRequest user)
         {
-            var ux = _userRepository.GetAll().Where(u => u.AccName == user.Username).FirstOrDefault();
+            var ux = _userRepository.GetAll().Where(u => u.Email == user.Email).FirstOrDefault();
             if (ux != null)
             {
                 if (Functions.GetMD5(user.Password) == ux.Password)
