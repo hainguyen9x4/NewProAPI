@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Pro.Common;
 using Pro.Common.Account;
+using Pro.Common.Const;
 using Pro.Data.Repositorys;
 using Pro.Model;
 
@@ -29,7 +30,7 @@ namespace Pro.Service.Implements
 
         public bool AddNewUser(User user)
         {
-            var uOlde = _userRepository.GetAll().Where(u => u.AccName == user.AccName || u.Email == user.Email).FirstOrDefault();
+            var uOlde = _userRepository.GetAll().Where(u => u.AccName == user.Email).FirstOrDefault();
             if (uOlde != null)
             {
                 if (uOlde.AccName == user.AccName)
@@ -42,6 +43,11 @@ namespace Pro.Service.Implements
                 }
             }
             user.Password = Functions.GetMD5(user.Password);
+            user.AccessToken = Guid.NewGuid().ToString();
+            user.RefreshToken = Guid.NewGuid().ToString();
+            user.ExpiresIn = Constants.ONE_DAY_IN_SECONDS;
+            user.ExpiresOn = GetEpoch() + user.ExpiresIn;
+            user.LastLogin = DateTime.Now;
             if (_userRepository.Create(user) != null) return true;
             return false;
         }
@@ -59,8 +65,8 @@ namespace Pro.Service.Implements
                     //response = user.CreateMapped<LoginResponse>();
                     return ux;
                 }
+                ux.Password = "";
             }
-            ux.Password = "";
             return null;
         }
 
