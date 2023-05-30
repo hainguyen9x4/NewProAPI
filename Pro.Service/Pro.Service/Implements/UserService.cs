@@ -39,7 +39,7 @@ namespace Pro.Service.Implements
                 {
                     if (uOlde.Email == user.Email)
                     {
-                        rs.Result = Common.Enum.RESUTL_API.ERROR_EXISTED_USER;
+                        rs.Result = Common.Enum.RESUTL_API.EXISTED_USER;
                         return rs;
                     }
                 }
