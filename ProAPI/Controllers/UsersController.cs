@@ -29,6 +29,11 @@ namespace xStory.Controllers
         public ActionResult<IResult> UpdateLevelInfoUser(int userID, int percent) =>
             _userService.UpdateLevelInfoUser(userID, percent);
 
+        [Route("api/[controller]/ChangePassword")]
+        [HttpPost]
+        public ActionResult<IResult> ChangePassword(ChangePasswordRequest data) =>
+            _userService.ChangePassword(data);
+
         [Route("api/[controller]/UpdateLevelInfoUser")]
         [HttpPost]
         public ActionResult<IResult> UpdateLevelInfoUser(int userID, LevelUser level) =>
@@ -36,13 +41,9 @@ namespace xStory.Controllers
 
         [AllowAnonymous]
         [HttpPost("api/[controller]/Login")]
-        public ActionResult Login(UserRequest req)
+        public ActionResult<IResult> Login(UserRequest req)
         {
-            var resp = _userService.UserLogin(req);
-
-            var ret = resp == null ? (ActionResult)Unauthorized("User not found.") : Ok(resp);
-
-            return ret;
+            return _userService.UserLogin(req);
         }
 
         [Authorize]

@@ -31,7 +31,7 @@ namespace Pro.Service.Implements
 
         public IResult AddNewUser(User user)
         {
-            var rs = new APIResult();
+            var rs = new APIResultAndUser();
             try
             {
                 var uOlde = _userRepository.GetAll().Where(u => u.Email == user.Email).FirstOrDefault();
@@ -40,18 +40,31 @@ namespace Pro.Service.Implements
                     if (uOlde.Email == user.Email)
                     {
                         rs.Result = Common.Enum.RESUTL_API.EXISTED_USER;
+                        var ts = GetEpoch();
+                        uOlde.Login(ts);
+                        _userRepository.Update(uOlde.Id, uOlde);
+                        uOlde.Password = "";
+                        rs.UserData = uOlde;
                         return rs;
                     }
                 }
-                user.Password = Functions.GetMD5(user.Password);
-                user.AccessToken = Guid.NewGuid().ToString();
-                user.RefreshToken = Guid.NewGuid().ToString();
-                user.ExpiresIn = Constants.ONE_DAY_IN_SECONDS;
-                user.ExpiresOn = GetEpoch() + user.ExpiresIn;
-                user.LastLogin = DateTime.Now;
-                if (_userRepository.Create(user) != null)
+
+                if (!String.IsNullOrEmpty(user.Password))
+                {
+                    user.Password = Functions.GetMD5(user.Password);
+                    user.AccessToken = Guid.NewGuid().ToString();
+                    user.RefreshToken = Guid.NewGuid().ToString();
+                    user.ExpiresIn = Constants.ONE_DAY_IN_SECONDS;
+                    user.ExpiresOn = GetEpoch() + user.ExpiresIn;
+                    user.LastLogin = DateTime.Now;
+                }
+
+                var newUser = _userRepository.Create(user);
+                if (newUser != null)
                 {
                     rs.Result = Common.Enum.RESUTL_API.SUCCESS;
+                    user.Password = "";
+                    rs.UserData = newUser;
                 }
             }
             catch (Exception ex)
@@ -63,8 +76,9 @@ namespace Pro.Service.Implements
             return rs;
         }
 
-        public User UserLogin(UserRequest user)
+        public IResult UserLogin(UserRequest user)
         {
+            var rs = new APIResultAndUser();
             var ux = _userRepository.GetAll().Where(u => u.Email == user.Email).FirstOrDefault();
             if (ux != null)
             {
@@ -74,11 +88,17 @@ namespace Pro.Service.Implements
                     ux.Login(ts);
                     _userRepository.Update(ux.Id, ux);
                     //response = user.CreateMapped<LoginResponse>();
-                    return ux;
+                    ux.Password = "";
+                    rs.UserData = ux;
+                    return rs;
                 }
-                ux.Password = "";
+                rs.Result = Common.Enum.RESUTL_API.LOGIN_FAIL;
             }
-            return null;
+            else
+            {
+                rs.Result = Common.Enum.RESUTL_API.LOGIN_FAIL;
+            }
+            return rs;
         }
 
         public void Logout(string token)
@@ -188,6 +208,32 @@ namespace Pro.Service.Implements
             }
             return rs;
         }
+
+        public IResult ChangePassword(ChangePasswordRequest data)
+        {
+            var rs = new APIResultAndUser();
+            try
+            {
+                var ux = _userRepository.GetAll().Where(u => u.Id == data.UserID).First();
+                ux.Password = Functions.GetMD5(data.NewPassword);
+                _userRepository.Update(ux.Id, ux);
+
+                var ts = GetEpoch();
+                ux.Login(ts);
+                _userRepository.Update(ux.Id, ux);
+                ux.Password = "";
+                rs.UserData = ux;
+                return rs;
+            }
+            catch (Exception ex)
+            {
+                rs.Result = Common.Enum.RESUTL_API.ERROR_SERVER;
+                LogHelper.Error($"ChangePassword: {data.UserID}", ex);
+                rs.Message = "Server error!";
+            }
+            return rs;
+        }
+
 
         public IResult AddFollowStoryInfoUser(int userID, int storyID)
         {

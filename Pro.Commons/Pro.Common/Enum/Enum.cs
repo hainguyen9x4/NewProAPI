@@ -6,5 +6,6 @@
         EXISTED_USER = 1,
         ERROR = 2,
         ERROR_SERVER = 3,
+        LOGIN_FAIL = 4,
     }
 }
