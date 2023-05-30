@@ -4,6 +4,7 @@ using Pro.Common.Account;
 using Pro.Common.Const;
 using Pro.Data.Repositorys;
 using Pro.Model;
+using System;
 
 namespace Pro.Service.Implements
 {
@@ -28,28 +29,38 @@ namespace Pro.Service.Implements
             return uxx;
         }
 
-        public bool AddNewUser(User user)
+        public IResult AddNewUser(User user)
         {
-            var uOlde = _userRepository.GetAll().Where(u => u.AccName == user.Email).FirstOrDefault();
-            if (uOlde != null)
+            var rs = new APIResult();
+            try
             {
-                if (uOlde.AccName == user.AccName)
+                var uOlde = _userRepository.GetAll().Where(u => u.Email == user.Email).FirstOrDefault();
+                if (uOlde != null)
                 {
-                    return false;
+                    if (uOlde.Email == user.Email)
+                    {
+                        rs.Result = Common.Enum.RESUTL_API.ERROR_EXISTED_USER;
+                        return rs;
+                    }
                 }
-                if (uOlde.Email == user.Email)
+                user.Password = Functions.GetMD5(user.Password);
+                user.AccessToken = Guid.NewGuid().ToString();
+                user.RefreshToken = Guid.NewGuid().ToString();
+                user.ExpiresIn = Constants.ONE_DAY_IN_SECONDS;
+                user.ExpiresOn = GetEpoch() + user.ExpiresIn;
+                user.LastLogin = DateTime.Now;
+                if (_userRepository.Create(user) != null)
                 {
-                    return false;
+                    rs.Result = Common.Enum.RESUTL_API.SUCCESS;
                 }
             }
-            user.Password = Functions.GetMD5(user.Password);
-            user.AccessToken = Guid.NewGuid().ToString();
-            user.RefreshToken = Guid.NewGuid().ToString();
-            user.ExpiresIn = Constants.ONE_DAY_IN_SECONDS;
-            user.ExpiresOn = GetEpoch() + user.ExpiresIn;
-            user.LastLogin = DateTime.Now;
-            if (_userRepository.Create(user) != null) return true;
-            return false;
+            catch (Exception ex)
+            {
+                rs.Result = Common.Enum.RESUTL_API.ERROR_SERVER;
+                LogHelper.Error($"AddNewUser: {JsonConvert.SerializeObject(user)}", ex);
+                rs.Message = "Server error!";
+            }
+            return rs;
         }
 
         public User UserLogin(UserRequest user)
@@ -83,13 +94,14 @@ namespace Pro.Service.Implements
 
             return ts;
         }
-        public bool DeleteUser(User user)
+        public IResult DeleteUser(User user)
         {
             throw new NotImplementedException();
         }
 
-        public bool UpdateBasicInfoUser(User user)
+        public IResult UpdateBasicInfoUser(User user)
         {
+            var rs = new APIResult();
             try
             {
                 var ux = _userRepository.GetAll().Where(u => u.AccName == user.AccName).FirstOrDefault();
@@ -122,33 +134,41 @@ namespace Pro.Service.Implements
                     }
                     _userRepository.Update(ux.Id, ux);
                 }
-                //ux.Password = "";
+                else
+                {
+                    rs.Result = Common.Enum.RESUTL_API.ERROR;
+                }
             }
             catch (Exception ex)
             {
-                return false;
+                rs.Result = Common.Enum.RESUTL_API.ERROR_SERVER;
+                LogHelper.Error($"UpdateBasicInfoUser: {JsonConvert.SerializeObject(user)}", ex);
+                rs.Message = "Server error!";
             }
-            return true;
+            return rs;
         }
 
-        public bool UpdateLevelInfoUser(int userID, LevelUser level)
+        public IResult UpdateLevelInfoUser(int userID, LevelUser level)
         {
+            var rs = new APIResult();
             try
             {
                 var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
                 ux.LevelInfo = level;
                 _userRepository.Update(ux.Id, ux);
-                //ux.Password = "";
             }
             catch (Exception ex)
             {
-                return false;
+                rs.Result = Common.Enum.RESUTL_API.ERROR_SERVER;
+                LogHelper.Error($"UpdateLevelInfoUser: {userID};{JsonConvert.SerializeObject(level)}", ex);
+                rs.Message = "Server error!";
             }
-            return true;
+            return rs;
         }
 
-        public bool UpdateLevelInfoUser(int userID, int increasePercent)
+        public IResult UpdateLevelInfoUser(int userID, int increasePercent)
         {
+            var rs = new APIResult();
             try
             {
                 var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
@@ -159,17 +179,19 @@ namespace Pro.Service.Implements
                     ux.LevelInfo.LevelNow += 1;
                 }
                 _userRepository.Update(ux.Id, ux);
-                //ux.Password = "";
             }
             catch (Exception ex)
             {
-                return false;
+                rs.Result = Common.Enum.RESUTL_API.ERROR_SERVER;
+                LogHelper.Error($"UpdateLevelInfoUser: {userID};{increasePercent}", ex);
+                rs.Message = "Server error!";
             }
-            return true;
+            return rs;
         }
 
-        public bool AddFollowStoryInfoUser(int userID, int storyID)
+        public IResult AddFollowStoryInfoUser(int userID, int storyID)
         {
+            var rs = new APIResult();
             try
             {
                 var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
@@ -178,24 +200,26 @@ namespace Pro.Service.Implements
                     ux.FollowStorys.Add(storyID);
                     _userRepository.Update(ux.Id, ux);
                 }
-                //ux.Password = "";
+                {
+                    rs.Result = Common.Enum.RESUTL_API.ERROR;
+                }
             }
             catch (Exception ex)
             {
-                return false;
+                rs.Result = Common.Enum.RESUTL_API.ERROR_SERVER;
+                LogHelper.Error($"AddFollowStoryInfoUser: {userID};{storyID}", ex);
+                rs.Message = "Server error!";
             }
-            return true;
+            return rs;
         }
         public bool VerifyAccount(string token)
         {
             var user = _userRepository.GetAll().Where(u => u.AccessToken == token).SingleOrDefault();
-            var ts = GetEpoch();
-            bool ok = (user?.ExpiresOn ?? 0) > ts;
-
-            return ok;
+            return (user?.ExpiresOn ?? 0) > GetEpoch();
         }
-        public bool DeleteFollowStoryInfoUser(int userID, int storyID)
+        public IResult DeleteFollowStoryInfoUser(int userID, int storyID)
         {
+            var rs = new APIResult();
             try
             {
                 var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
@@ -204,13 +228,18 @@ namespace Pro.Service.Implements
                     ux.FollowStorys.Add(storyID);
                     _userRepository.Update(ux.Id, ux);
                 }
-                //ux.Password = "";
+                else
+                {
+                    rs.Result = Common.Enum.RESUTL_API.ERROR;
+                }
             }
             catch (Exception ex)
             {
-                return false;
+                rs.Result = Common.Enum.RESUTL_API.ERROR_SERVER;
+                LogHelper.Error($"DeleteFollowStoryInfoUser: {userID};{storyID}", ex);
+                rs.Message = "Server error!";
             }
-            return true;
+            return rs;
         }
     }
 }

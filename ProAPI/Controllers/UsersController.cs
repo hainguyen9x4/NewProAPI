@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Pro.Common;
 using Pro.Common.Account;
 using Pro.Model;
 using Pro.Service;
@@ -20,17 +21,17 @@ namespace xStory.Controllers
         }
         [Route("api/[controller]/AddUser")]
         [HttpPost]
-        public ActionResult<bool> AddUser(User user) =>
+        public ActionResult<IResult> AddUser(User user) =>
             _userService.AddNewUser(user);
 
         [Route("api/[controller]/UpdateLevelInfoUser1")]
         [HttpPost]
-        public ActionResult<bool> UpdateLevelInfoUser(int userID, int percent) =>
+        public ActionResult<IResult> UpdateLevelInfoUser(int userID, int percent) =>
             _userService.UpdateLevelInfoUser(userID, percent);
 
         [Route("api/[controller]/UpdateLevelInfoUser")]
         [HttpPost]
-        public ActionResult<bool> UpdateLevelInfoUser(int userID, LevelUser level) =>
+        public ActionResult<IResult> UpdateLevelInfoUser(int userID, LevelUser level) =>
             _userService.UpdateLevelInfoUser(userID, level);
 
         [AllowAnonymous]
@@ -63,19 +64,19 @@ namespace xStory.Controllers
         [Authorize]
         [Route("api/[controller]/DeleteFollowStoryInfoUser")]
         [HttpPost]
-        public ActionResult<bool> DeleteFollowStoryInfoUser(int userID, int storyID) =>
+        public ActionResult<IResult> DeleteFollowStoryInfoUser(int userID, int storyID) =>
             _userService.DeleteFollowStoryInfoUser(userID, storyID);
 
         [Authorize]
         [Route("api/[controller]/AddFollowStoryInfoUser")]
         [HttpPost]
-        public ActionResult<bool> AddFollowStoryInfoUser(int userID, int storyID) =>
+        public ActionResult<IResult> AddFollowStoryInfoUser(int userID, int storyID) =>
             _userService.AddFollowStoryInfoUser(userID, storyID);
 
         [Authorize]
         [Route("api/[controller]/UpdateBasicInfoUser")]
         [HttpPost]
-        public ActionResult<bool> UpdateBasicInfoUser(User user) =>
+        public ActionResult<IResult> UpdateBasicInfoUser(User user) =>
             _userService.UpdateBasicInfoUser(user);
 
         private string GetToken()
