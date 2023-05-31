@@ -2,7 +2,7 @@
 
 namespace Pro.Data.Repositorys
 {
-    public interface IStoryRepository : IRepository<Story>
+    public interface IUserRepository : IRepository<User>
     {
     }
 }

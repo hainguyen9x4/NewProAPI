@@ -1,80 +1,109 @@
 ﻿using FileManager;
 using Pro.Common;
 using Pro.Data.Repositorys;
+using Pro.Data.Repositorys.Implements;
 using Pro.Model;
 
 namespace Pro.Service.SubScanDataService.Implements
 {
     public class UpData2DBService : IUpData2DBService
     {
-        private readonly IStoryRepository _storyRepository;
-        private readonly IChapRepository _chapRepository;
+        private readonly IImageRepository _imageRepository;
+        private readonly INewStoryRepository _newStoryRepository;
 
-        public UpData2DBService(IStoryRepository storys
-            , IChapRepository chaps)
+        public UpData2DBService(IImageRepository image
+            , INewStoryRepository newStory)
         {
-            _storyRepository = storys;
-            _chapRepository = chaps;
+            _imageRepository = image;
+            _newStoryRepository = newStory;
         }
-        
-        private int GetStoryIdFromStoryName(DataStoryForSave dataStoryForSave)
+
+        private NewStory GetStoryIdFromStoryNameForNew(NewStory dataStoryForSave)
         {
             try
             {
-                var story = _storyRepository.GetAll().Where(s => s.StoryName.Equals(dataStoryForSave.StoryName)).FirstOrDefault();
+                var story = _newStoryRepository.GetAll().Where(s => s.Name.Equals(dataStoryForSave.Name)).FirstOrDefault();
                 if (story != null)
                 {
-                    return story.StoryId;
+                    return story;
                 }
                 else
                 {
-                    //New story-> insert new story
-                    dataStoryForSave.StoryLink = FileReader.DeleteHomePage(dataStoryForSave.StoryLink);
-                    var newStory = new Story(dataStoryForSave.StoryName, 1, 0, dataStoryForSave.StoryLink, dataStoryForSave.Author, dataStoryForSave.StoryPictureLink, dataStoryForSave.StoryNameShow);
-                    _storyRepository.Create(newStory);
-                    return newStory.StoryId;
+                    return null;
                 }
             }
             catch (Exception ex)
             {
-                LogHelper.Error($"GetStoryIdFromStoryName {dataStoryForSave.StoryName}" + ex);
-                return 0;
+                LogHelper.Error($"GetStoryIdFromStoryName {dataStoryForSave.Name}" + ex);
+                return null;
             }
         }
 
-        public void UpData2DB(DataStoryForSave dataStory)
+        public void UpData2DBForNew(NewStory dataStory)
         {
-            var storyId = GetStoryIdFromStoryName(dataStory);
-            if (storyId>0)
+            var story = GetStoryIdFromStoryNameForNew(dataStory);
+
+            if (story != null)
             {
-                foreach (var chapSaveData in dataStory.ChapDataForSaves)
+                //Old story
+                UpdateChapId(dataStory, story.Chaps.Count + 1);
+
+                var imagesOnChap = new List<ImagesOneChap>();
+                foreach (var chapSaveData in dataStory.Chaps)
                 {
-                    var chap = _chapRepository.GetAll().Where(c => c.ChapName == chapSaveData.ChapName && c.StoryId == storyId).FirstOrDefault();
-                    if (chap == null)
-                    {
-                        //Create chap with all info
-                        var chapId = CreateChapWithAllInfo(storyId, storyId, chapSaveData);
-                    }
+                    imagesOnChap.Add(new ImagesOneChap(story.ID, chapSaveData.ID, chapSaveData.Images));
+                    chapSaveData.Images = new List<Model.ImageData>();
                 }
+                _imageRepository.Creates(imagesOnChap);
+
+                LogHelper.Info($"UpData2DBForNew: _1");
+
+                story.Chaps.AddRange(dataStory.Chaps);
+                _newStoryRepository.Update(story.ID, dataStory);
+
             }
             else
             {
-                LogHelper.Error($"UpData2DB: Can't get storyId, StoryLink:{dataStory.StoryLink}");
+                dataStory.Link = FileReader.DeleteHomePage(dataStory.Link);
+                //new Story
+                FakeDataOtherInfo(dataStory);
+                UpdateChapId(dataStory);
+
+                var imagesOnChap = new List<ImagesOneChap>();
+                foreach (var chapSaveData in dataStory.Chaps)
+                {
+                    imagesOnChap.Add(new ImagesOneChap(0, chapSaveData.ID, chapSaveData.Images));
+                    chapSaveData.Images = new List<Model.ImageData>();
+                }
+
+                var newStory = _newStoryRepository.Create(dataStory);
+
+                foreach (var c in imagesOnChap)
+                {
+                    c.StoryID = newStory.ID;
+                }
+                _imageRepository.Creates(imagesOnChap);
             }
         }
-        private int CreateChapWithAllInfo(int storyID, int storyIdx, ChapDataForSave chapSaveData)
+
+        private void FakeDataOtherInfo(NewStory dataStory)
         {
-            chapSaveData.ChapLink = FileReader.DeleteHomePage(chapSaveData.ChapLink);
-            var images = new List<ImagesChap>();
-            chapSaveData.ImageDatas.ForEach(data =>
-                images.Add(new ImagesChap()
-                {
-                    ImageSavedLink = data.ImageLinkNeedSaveDB,
-                    ImageWebLink = !String.IsNullOrEmpty(data.ImageLinkNeedSaveDB) ? null : data.ImageLinkFromWeb,
-                }));
-            var newChap = new Chap(storyID, storyIdx, chapSaveData.ChapName, images, 1, chapSaveData.ChapLink);
-            _chapRepository.Create(newChap);
-            return newChap.ChapId;
+            dataStory.OtherInfo = new OtherInfo(new Star(4.5, RandomRate(3000, 9000)), new List<StoryType>() { }, "", "", RandomRate(80000, 99000), RandomRate(80000, 99000));
+
+            int RandomRate(int start, int end)
+            {
+                var random = new Random();
+                return random.Next(start, end);
+            }
+        }
+
+        private void UpdateChapId(NewStory dataStory, int startId = 1)
+        {
+            foreach (var chap in dataStory.Chaps)
+            {
+                chap.ID = startId;
+                startId++;
+            }
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Pro.Common
     {
         public T Post<T>(string api, object requestObj, string baseURL = null)
         {
+            var acc = new WaitForInternetAccess();
+            acc.WaitInternetAccess("Post");
             try
             {
                 if (string.IsNullOrEmpty(api))
@@ -81,6 +83,8 @@ namespace Pro.Common
 
         public T Get<T>(string api, string baseURL = null)
         {
+            var acc = new WaitForInternetAccess();
+            acc.WaitInternetAccess("Get");
             var result = "";
             try
             {
@@ -109,6 +113,39 @@ namespace Pro.Common
                 throw;
             }
         }
+
+        public bool GetAsyn(string api, string baseURL = null)
+        {
+            var acc = new WaitForInternetAccess();
+            acc.WaitInternetAccess("Get");
+            try
+            {
+                if (string.IsNullOrEmpty(api))
+                {
+                    return false;
+                }
+
+                if (!api.StartsWith("/"))
+                {
+                    api = "/" + api;
+                }
+
+                using (var client = GetHttpClient())
+                {
+                    var post = client.GetAsync(baseURL + api);
+
+                    post.Result.Content.ReadAsStringAsync();
+
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                //e.WriteLog(nameof(ApiHelper.Get) + $", api: {baseURL + api}, result: {result}");
+                return false;
+            }
+        }
+
 
         protected virtual HttpContent GetObjectContent(object requestObj)
         {

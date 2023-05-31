@@ -40,7 +40,14 @@ namespace xAppSetting.Controllers
 
             return CreatedAtRoute("GetAppSetting", new { id = applicationSetting.AppSettingId }, applicationSetting);
         }
+        [HttpPost]
+        [Route("CreateCloundinary")]
+        public ActionResult<ApplicationSetting> CreateCloundinary(string dataCreateCloundinary, string email, string c = "\"")
+        {
+            var sppSetting = _applicationSettingService.CreateCloundinary(dataCreateCloundinary, email, c);
 
+            return CreatedAtRoute("GetAppSetting", new { id = sppSetting.AppSettingId }, sppSetting);
+        }
         [HttpPut("{id}")]
         public IActionResult Update(int id, ApplicationSetting appSetting)
         {

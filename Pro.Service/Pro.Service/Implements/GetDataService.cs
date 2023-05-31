@@ -1,6 +1,7 @@
 using FileManager;
 using Pro.Common;
 using Pro.Common.Const;
+using Pro.Model;
 using Pro.Service.SubScanDataService;
 
 namespace Pro.Service.Implements
@@ -11,59 +12,74 @@ namespace Pro.Service.Implements
         private readonly IUploadImageService _uploadImageService;
         private readonly IPrepareService _prepareService;
         private readonly IGetRawDataService _getRawDataService;
+        private readonly ISaveImage2Local _saveImage2Local;
         private readonly IUpData2DBService _upData2DBService;
 
         public GetDataService(IApplicationSettingService applicationSettingService
             , IUploadImageService uploadImageService
             , IPrepareService prepareService
             , IGetRawDataService getRawDataService
+            , ISaveImage2Local saveImage2Local
             , IUpData2DBService upData2DBService)
         {
             _uploadImageService = uploadImageService;
             _applicationSettingService = applicationSettingService;
             _prepareService = prepareService;
             _getRawDataService = getRawDataService;
+            _saveImage2Local = saveImage2Local;
             _upData2DBService = upData2DBService;
         }
 
         private static bool statusGetData = true;
-        public bool StartGetData()
+        private static bool statusGetData2 = true;
+
+        public bool StartGetDataForNewStory()
         {
-            if (statusGetData)
+            if (statusGetData2)
             {
                 try
                 {
-                    statusGetData = false;
+                    statusGetData2 = false;
                     LogHelper.Info($"GET---Start GetDataService");
-
-                    var newestChapDatas = _prepareService.PrepareNewestChapDatas();
-                    if (newestChapDatas.ChapLinks.Any())
+                    string localPath = "";
+                    var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew(ref localPath);
+                    if (newestChapDatas.Chaps != null && newestChapDatas.Chaps.Any())
                     {
-                        var rawData = _getRawDataService.GetRawDatas(newestChapDatas);
-                        //Save to file
+                        _getRawDataService.GetRawDatasForNew(newestChapDatas);
+                        SaveData2File($@"D:\Debug\RawData{newestChapDatas.Name}.json", newestChapDatas);
 
-                        if (rawData.ChapDataForSaves.Any())
+                        //Save to file
+                        //newestChapDatas = ReadDataFromFile($@"D:\Debug\RawData{newestChapDatas.Name}.json");
+                        LogHelper.Info($"GET---Start SaveImage2LocalFunc");
+                        _saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
+                        SaveData2File($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json", newestChapDatas);
+
+                        //Uplpad to Clound
+                        //newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
+                        LogHelper.Info($"GET---Start UploadLink2StoreWith3ThreadsForNew");
+                        _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
+                        SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
+
+                        //Save to DB
+                        _upData2DBService.UpData2DBForNew(newestChapDatas);
+                        //Delete file
+                        try
                         {
-                            _uploadImageService.UploadLink2StoreWith3Threads(rawData);
-                            _upData2DBService.UpData2DB(rawData);
-                            //Delete file
-                            try
-                            {
-                                FileReader.DeleteFile(newestChapDatas.FileDataNewestPathLocal.FullName);
-                            }
-                            catch (Exception ex)
-                            {
-                                LogHelper.Error($"DeleteFile/Move {newestChapDatas.FileDataNewestPathLocal.FullName}" + ex);
-                            }
+                            FileReader.DeleteFile(localPath);
                         }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Error($"DeleteFile/Move {localPath}" + ex);
+                        }
+
                     }
-                    statusGetData = true;
+                    statusGetData2 = true;
                     LogHelper.Info($"GET---Stop GetDataService");
                 }
                 catch (Exception ex)
                 {
                     LogHelper.Error($"TaskTrackingGetDataWorking" + ex);
-                    statusGetData = true;
+                    statusGetData2 = true;
                     LogHelper.Info($"GET---Stop GetDataService");
                 }
             }
@@ -82,9 +98,18 @@ namespace Pro.Service.Implements
             }
             return true;
         }
+
         public bool FindNewStory(int numberPage, string homeUrl)
         {
             return _getRawDataService.FindNewStory(numberPage, homeUrl);
+        }
+        private void SaveData2File(string path, NewStory data)
+        {
+            FileReader.WriteDataToFile2<NewStory>(path, data);
+        }
+        private NewStory ReadDataFromFile(string filePath)
+        {
+            return FileReader.ReadListDataFromFile2<NewStory>(filePath);
         }
     }
 }

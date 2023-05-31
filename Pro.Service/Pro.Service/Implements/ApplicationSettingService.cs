@@ -234,23 +234,15 @@ namespace Pro.Service.Implements
 
         public List<string> GetAllCloudarySettings(string settingKey, bool useCache = true)
         {
-            //var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingName.Contains(settingKey) && k.AppSettingIsActive).ToArray();
-            //var settings = new List<string>();
-            //foreach (var key in keys)
-            //{
-            //    settings.Add(GetValue(key.AppSettingName));
-            //}
-            //return settings;
-
             try
             {
                 Func<List<string>> fetchFunc = () =>
                 {
-                    var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingName.Contains(settingKey) && k.AppSettingIsActive).ToArray();
+                    var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingName.Contains(settingKey) && k.AppSettingIsActive && k.NumberImage < Constants.MAX_IMAGE).ToArray();
                     var settings = new List<string>();
                     foreach (var key in keys)
                     {
-                        settings.Add(_appSettingRepository.GetAll().Where(i => i.AppSettingName == key.AppSettingName).Select(i => i.AppSettingValue).FirstOrDefault());
+                        settings.Add(_appSettingRepository.GetAll().Where(i => i.AppSettingId == key.AppSettingId).Select(i => i.AppSettingValue).FirstOrDefault());
                     }
                     return settings;
                 };
@@ -280,7 +272,31 @@ namespace Pro.Service.Implements
         {
             return _appSettingRepository.Create(appSetting);
         }
-
+        public ApplicationSetting CreateCloundinary(string dataCreateCloundinary, string email, string c)
+        {
+            var appSetting = new ApplicationSetting();
+            var clound = GetData(dataCreateCloundinary, c);
+            if (clound.Any() && clound.Count() >= 3)
+            {
+                appSetting.AppSettingName = "CloundSetting";
+                appSetting.AppSettingValue = $"{{\"CloudName\":\"{clound[0]}\",\"ApiKey\":\"{clound[1]}\",\"ApiSecret\":\"{clound[2]}\"}}";
+                appSetting.AppSettingIsActive = true;
+                appSetting.Descriptions = email;
+            }
+            return _appSettingRepository.Create(appSetting);
+        }
+        private List<string> GetData(string dataCreateCloundinary, string c)
+        {
+            Regex regex = new Regex("\"([^\"]*)\"");
+            if (c == "'") regex = new Regex("'([^']*)'");
+            MatchCollection matches = regex.Matches(dataCreateCloundinary);
+            var rs = new List<string>();
+            foreach (Match match in matches)
+            {
+                rs.Add(match.Groups[1].Value);
+            }
+            return rs;
+        }
         public void Update(int id, ApplicationSetting updatedAppSetting) => _appSettingRepository.Update(id, updatedAppSetting);
 
         public void Delete(ApplicationSetting appSettingForDeletion) => _appSettingRepository.Delete(appSettingForDeletion);

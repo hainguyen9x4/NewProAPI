@@ -70,6 +70,71 @@ namespace FileManager
             }
             return objData ?? new List<T>();
         }
+        public static void WriteDataToFile2<T>(string filePath, T datas, int delay = 100, int redoTime = 5)
+        {
+            if (!File.Exists(filePath))
+            {
+                var folder = new FileInfo(filePath).Directory.FullName;
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+                File.Create(filePath).Close();
+            }
+
+            for (int i = 0; i < redoTime; i++)
+            {
+                if (!IsFileLocked(filePath))
+                {
+                    var results = JsonConvert.SerializeObject(datas);
+                    try
+                    {
+                        File.WriteAllText(filePath, results);
+                        break;
+                    }
+                    catch { }
+                }
+                else
+                {
+                    Thread.Sleep(delay);
+                }
+            }
+        }
+        public static T ReadListDataFromFile2<T>(string filePath)
+        {
+            var objData = default(T);
+            if (!File.Exists(filePath))
+            {
+                return objData;
+            }
+
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    using (StreamReader r = new StreamReader(filePath))
+                    {
+                        try
+                        {
+                            objData = JsonConvert.DeserializeObject<T>(r.ReadToEnd());
+                        }
+                        catch
+                        {
+                            return default(T);
+                        }
+                        finally
+                        {
+                            r.Close();
+                        }
+                    }
+                }
+                catch
+                {
+                    return default(T);
+                }
+            }
+            return objData;
+        }
         public static bool IsFileLocked(string filePath)
         {
             FileInfo file = new FileInfo(filePath);

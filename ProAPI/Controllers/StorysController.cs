@@ -21,23 +21,23 @@ namespace xStory.Controllers
         [Route("api/[controller]/GetTopHotStorys")]
         [HttpGet]
         public ActionResult<List<ImageStoryInfo>> GetTopHotStorys() =>
-                            _storyService.GetTopHotStorys();
+                            _storyService.GetTopHotStorysForNew();
 
         [Route("api/[controller]/GetHomeStorys")]
         [HttpGet]
         public ActionResult<HomePageInfo> GetHomeStorys([FromQuery] int pageIndex, int storyPerPage) =>
-                    _storyService.GetHomeStorys(pageIndex, storyPerPage);
+                    _storyService.GetHomeStoryForNews(pageIndex, storyPerPage);
         [Route("api/[controller]/GetAllChapByStoryId")]
         [HttpGet]
         public ActionResult<ImageStoryInfo> GetAllChapByStoryId([FromQuery] int storyID) =>
-            _storyService.GetAllChapByStoryId(storyID);
+            _storyService.GetAllChapByStoryIdForNew(storyID);
         [Route("api/[controller]/GetImageStorysInChap")]
         [HttpGet]
         public ActionResult<ChapInfo> GetImageStorysInChap([FromQuery] int storyID, int ChapId) =>
-            _storyService.GetImageStorysInChap(storyID, ChapId);
+            _storyService.GetImageStorysInChapForNew(storyID, ChapId);
         [Route("api/[controller]/GetAllStoryForSearch")]
         [HttpGet]
         public ActionResult<List<ImageStoryInfo>> GetAllStoryForSearch() =>
-            _storyService.GetAllStoryForSearch();
+            _storyService.GetAllStoryForSearchForNew();
     }
 }

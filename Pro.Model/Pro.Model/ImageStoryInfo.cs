@@ -7,15 +7,19 @@
         public string StoryNameShow { get; set; }
         public string StoryLink { get; set; }
         public string StoryPictureLink { get; set; }
-        public List<ChapInfoForHome> Chaps { get; set; }
+        public List<Chap> Chaps { get; set; }
+        public DateTime LastUpdateTime { get; set; }
+        public int View { get; set; }
     }
     public class HomePageInfo
     {
         public HomePageInfo()
         {
             ImageStoryInfos = new List<ImageStoryInfo>();
+            NewStorys = new List<NewStory>();
         }
         public List<ImageStoryInfo> ImageStoryInfos { get; set; }
+        public List<NewStory> NewStorys { get; set; }
         public int TotalPage { get; set; }
         public int CurrentPage { get; set; }
     }
@@ -40,7 +44,7 @@
         public string StoryName { get; set; }
         public string StoryNameShow { get; set; }
         public DateTime? LastModifyDatetime { get; set; }
-        public List<ImagesChap> ImageStoryLinks { get; set; }
+        public List<ImageData> ImageStoryLinks { get; set; }
         public List<ShortStoryInfo> StoryShortInfos { get; set; }
     }
 }

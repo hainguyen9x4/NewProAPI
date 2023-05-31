@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Pro.Common;
@@ -31,14 +30,17 @@ namespace xStory
 
             services.AddSingleton<IAppSettingData>(sp => sp.GetRequiredService<IOptions<AppSettingData>>().Value);
             //Repository
-            services.AddScoped<IStoryRepository, StoryRepository>();
-            services.AddScoped<IHotStoryRepository, HotStoryRepository>();
-            services.AddScoped<IChapRepository, ChapRepository>();
-            services.AddSingleton<IApplicationSettingRepository, ApplicationSettingRepository>();
+            services.AddScoped<INewStoryRepository, NewStoryRepository>();
+            services.AddScoped<IImageRepository, ImageRepository>();
             services.AddSingleton<ICacheProvider, InMemoryCacheProvider>();
+            services.AddSingleton<ICommentRepository, CommentRepository>();
+            services.AddSingleton<IUserRepository, UserRepository>();
             //Service
-            services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             services.AddScoped<IStorysService, StorysService>();
+            services.AddScoped<IUserService, UserService>();
+
+            services.AddAuthentication("tokenAuth")
+            .AddScheme<TokenAuthenticationSchemeOptions, TokenAuthenticationService>("tokenAuth", ops => { });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -67,6 +69,8 @@ namespace xStory
 
             app.UseCors(builder => builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader());
 
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

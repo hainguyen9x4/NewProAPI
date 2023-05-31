@@ -7,6 +7,7 @@
         public const string Log4netFolder = "Log4netFolder";
         public const string NumberPageForScanNewStory = "NumberPageForScanNewStory";
         public const string HomePage = "HomePage";
+        public const string DiskSaveImageLocal = "DiskSaveImageLocal";
         public const string SubDataForHomePage = "SubDataForHomePage";
         public const string UrlBaseApiExGetHtmlElement = "UrlBaseApiExecuteGetHtmlElement";
         public const string IsNeedReStart = "IsNeedReStartAfterFinishGetData";

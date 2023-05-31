@@ -2,7 +2,7 @@
 
 namespace Pro.Data.Repositorys
 {
-    public interface IChapRepository : IRepository<Chap>
+    public interface IImageRepository : IRepository<ImagesOneChap>
     {
     }
 }

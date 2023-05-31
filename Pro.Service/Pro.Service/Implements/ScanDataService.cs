@@ -82,13 +82,15 @@ namespace Pro.Service.Implements
 
                 if (rs_eachChaps.Count > chapPerFile)
                 {
-                    var newestChapModels = SplitNewestChapModel(newestChapModel[0], chapPerFile);
-                    for (var index = 0; index < newestChapModels.Count; index++)
-                    {
-                        var fullFilePath2 = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + $"_{index.ToString().PadLeft(5, '0')}" + ".json";
-                        FileReader.WriteDataToFile(fullFilePath2, new List<NewestChapModel>() { newestChapModels[index] }, 300);
-                        Thread.Sleep(100);
-                    }
+                    //var newestChapModels = SplitNewestChapModel(newestChapModel[0], chapPerFile);
+                    //for (var index = 0; index < newestChapModels.Count; index++)
+                    //{
+                    //    var fullFilePath2 = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + $"_{index.ToString().PadLeft(5, '0')}" + ".json";
+                    //    FileReader.WriteDataToFile(fullFilePath2, new List<NewestChapModel>() { newestChapModels[index] }, 300);
+                    //    Thread.Sleep(100);
+                    //}
+                    var fullFilePath2 = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + ".json";
+                    FileReader.WriteDataToFile(fullFilePath2, newestChapModel, 300);
                 }
                 else
                 {

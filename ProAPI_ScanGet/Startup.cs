@@ -33,8 +33,8 @@ namespace xStory
 
             services.AddSingleton<IAppSettingData>(sp => sp.GetRequiredService<IOptions<AppSettingData>>().Value);
 
-            services.AddScoped<IStoryRepository, StoryRepository>();
-            services.AddScoped<IChapRepository, ChapRepository>();
+            services.AddScoped<INewStoryRepository, NewStoryRepository>();
+            services.AddScoped<IImageRepository, ImageRepository>();
             services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
             services.AddScoped<ICacheProvider, InMemoryCacheProvider>();
 
@@ -44,6 +44,7 @@ namespace xStory
             services.AddScoped<IApplicationSettingService, ApplicationSettingService>();
             services.AddScoped<IPrepareService, PrepareService>();
             services.AddScoped<IGetRawDataService, GetRawDataService>();
+            services.AddScoped<ISaveImage2Local, SaveImage2Local>();
             services.AddScoped<IUpData2DBService, UpData2DBService>();
 
             services.AddControllers();
@@ -51,12 +52,12 @@ namespace xStory
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "xStory", Version = "v1" });
             });
-#if DEBUG
+//#if DEBUG
             LogHelper.InitLogHelper(@"C:\Logs\XStory\");
-#else
-            LogHelper.InitLogHelper();
-#endif
-            LogHelper.Info("App Started!");
+//#else
+//            LogHelper.InitLogHelper();
+//#endif
+//            LogHelper.Info("App Started!");
 
         }
 
