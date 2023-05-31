@@ -9,5 +9,6 @@ namespace Pro.Service
         List<ImageStoryInfo> GetAllStoryForSearchForNew(bool useCache = true);
         ImageStoryInfo GetAllChapByStoryIdForNew(int storyID, bool useCache = true);
         ChapInfo GetImageStorysInChapForNew(int storyID, int chapID, bool useCache = true);
+        List<ImageStoryInfo> GetFollowStorys(List<int> sotryIDs, int userID, bool useCache = true);
     }
 }

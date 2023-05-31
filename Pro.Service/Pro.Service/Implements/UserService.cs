@@ -11,9 +11,12 @@ namespace Pro.Service.Implements
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
+        private readonly IStorysService _storyService;
+        public UserService(IUserRepository userRepository,
+            IStorysService storysService)
         {
             _userRepository = userRepository;
+            _storyService = storysService;
         }
 
         public User GetUser(int userID, string accName = "")
@@ -24,9 +27,18 @@ namespace Pro.Service.Implements
                 if (ux != null) ux.Password = "";
                 return ux;
             }
-            var uxx = _userRepository.GetAll().Where(u => u.Id == userID).FirstOrDefault();
-            if (uxx != null) uxx.Password = "";
-            return uxx;
+            var userData = _userRepository.GetAll().Where(u => u.Id == userID).FirstOrDefault();
+
+            if (userData != null)
+            {
+                userData.Password = "";
+                //Get data following story info
+                if (userData.FollowStorys.Any())
+                {
+                    userData.FollowStoryLists = _storyService.GetFollowStorys(userData.FollowStorys, userID).ToList();
+                }
+            }
+            return userData;
         }
 
         public IResult AddNewUser(User user)
@@ -37,16 +49,13 @@ namespace Pro.Service.Implements
                 var uOlde = _userRepository.GetAll().Where(u => u.Email == user.Email).FirstOrDefault();
                 if (uOlde != null)
                 {
-                    if (uOlde.Email == user.Email)
-                    {
-                        rs.Result = Common.Enum.RESUTL_API.EXISTED_USER;
-                        var ts = GetEpoch();
-                        uOlde.Login(ts);
-                        _userRepository.Update(uOlde.Id, uOlde);
-                        uOlde.Password = "";
-                        rs.UserData = uOlde;
-                        return rs;
-                    }
+                    rs.Result = Common.Enum.RESUTL_API.EXISTED_USER;
+                    var ts = GetEpoch();
+                    uOlde.Login(ts);
+                    _userRepository.Update(uOlde.Id, uOlde);
+                    uOlde.Password = "";
+                    rs.UserData = uOlde;
+                    return rs;
                 }
 
                 if (!String.IsNullOrEmpty(user.Password))

@@ -208,5 +208,56 @@ namespace Pro.Service.Implements
                 return null;
             }
         }
+
+        public List<ImageStoryInfo> GetFollowStorys(List<int> storyIDs, int userID, bool useCache = true)
+        {
+            try
+            {
+                Func<List<ImageStoryInfo>> fetchFunc = () =>
+                {
+                    var results = new List<ImageStoryInfo>();
+
+                    var storys = _newStoryRepository.GetAll().Where(s => storyIDs.Contains(s.ID)).ToList();
+
+                    foreach (var topStory in storys)
+                    {
+                        var chapInfos = new List<Chap>();
+
+                        var chap = topStory.Chaps.OrderByDescending(ac => ac.ID).FirstOrDefault();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
+                        if (chap != null)
+                        {
+                            chapInfos.Add(new Chap()
+                            {
+                                ID = chap.ID,
+                                Link = chap.Link,
+                                Name = chap.Name,
+                            });
+                        }
+                        var imageStoryInfo = new ImageStoryInfo()
+                        {
+                            StoryID = topStory.ID,
+                            StoryLink = topStory.Link,
+                            StoryName = topStory.Name,
+                            StoryPictureLink = topStory.Picture,
+                            StoryNameShow = topStory.NameShow,
+                            Chaps = chapInfos,
+                            LastUpdateTime = topStory.UpdatedTime,
+                            View = topStory.OtherInfo.ViewTotal,
+                        };
+                        results.Add(imageStoryInfo);
+                    }
+
+                    return results;
+                };
+
+                return useCache ? _cacheProvider.Get<List<ImageStoryInfo>>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListFollowStorys, userID), fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when GetFollowStorys", ex);
+                return new List<ImageStoryInfo>();
+            }
+        }
     }
 }

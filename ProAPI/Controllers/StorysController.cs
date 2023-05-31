@@ -13,9 +13,9 @@ namespace xStory.Controllers
     {
         private readonly IStorysService _storyService;
 
-        public StorysController(IStorysService StorysService)
+        public StorysController(IStorysService storysService)
         {
-            _storyService = StorysService;
+            _storyService = storysService;
         }
 
         [Route("api/[controller]/GetTopHotStorys")]
