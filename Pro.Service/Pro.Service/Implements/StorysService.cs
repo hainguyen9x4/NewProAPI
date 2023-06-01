@@ -3,8 +3,6 @@ using Pro.Common;
 using Pro.Data.Repositorys;
 using Pro.Model;
 using Pro.Service.Caching;
-using System.Collections.Generic;
-using System.Xml.Linq;
 
 namespace Pro.Service.Implements
 {
@@ -12,14 +10,17 @@ namespace Pro.Service.Implements
     {
         private readonly INewStoryRepository _newStoryRepository;
         private readonly IImageRepository _imageRepository;
+        private readonly IStoryTypeRepository _typeRepository;
         private readonly ICacheProvider _cacheProvider;
 
         public StorysService(ICacheProvider cacheProvider
             , IImageRepository imageRepository
+            , IStoryTypeRepository typeRepository
             , INewStoryRepository newStoryRepository)
         {
             _cacheProvider = cacheProvider;
             _newStoryRepository = newStoryRepository;
+            _typeRepository = typeRepository;
             _imageRepository = imageRepository;
         }
 
@@ -93,7 +94,7 @@ namespace Pro.Service.Implements
                     StoryName = s.Name,
                     StoryPictureLink = s.Picture,
                     StoryNameShow = s.NameShow,
-
+                    StoryTypes = GetStoryTypeInfoByList(s.OtherInfo.TypeIDs),
                 });
                 return results.ToList();
             }
@@ -110,7 +111,7 @@ namespace Pro.Service.Implements
             {
                 Func<TempGetAllStoryData> fetchFunc = () =>
                 {
-                    var storys = _newStoryRepository.GetAll().ToList().OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
+                    var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList().OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
                     foreach (var s in storys)
                     {
                         s.Chaps = s.Chaps.OrderByDescending(t => t.ID).ToList();
@@ -257,6 +258,29 @@ namespace Pro.Service.Implements
             {
                 LogHelper.Error($"Error when GetFollowStorys", ex);
                 return new List<ImageStoryInfo>();
+            }
+        }
+
+        private List<StoryType> GetStoryTypeInfoByList(List<int> types)
+        {
+            return GetAllStoryType().Where(s => types.Contains(s.TypeID)).ToList();
+
+            List<StoryType> GetAllStoryType(bool useCache = true)
+            {
+                try
+                {
+                    Func<List<StoryType>> fetchFunc = () =>
+                    {
+                        return _typeRepository.GetAll().ToList();
+                    };
+                    return useCache ? _cacheProvider.Get<List<StoryType>>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListStoryTypes), fetchFunc, expiredTimeInSeconds: 4000) : fetchFunc();
+
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Error($"Error when caculate page", ex);
+                    return new List<StoryType>();
+                }
             }
         }
     }

@@ -88,7 +88,7 @@ namespace Pro.Service.SubScanDataService.Implements
 
         private void FakeDataOtherInfo(NewStory dataStory)
         {
-            dataStory.OtherInfo = new OtherInfo(new Star(4.5, RandomRate(3000, 9000)), new List<StoryType>() { }, "", "", RandomRate(80000, 99000), RandomRate(80000, 99000));
+            dataStory.OtherInfo = new OtherInfo(new Star(4.5, RandomRate(3000, 9000)), new List<int>() { }, "", "", RandomRate(80000, 99000), RandomRate(80000, 99000));
 
             int RandomRate(int start, int end)
             {

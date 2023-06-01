@@ -85,7 +85,7 @@ namespace Pro.Service.SubScanDataService.Implements
                     {
                         chaps.Add(new Chap("", chapLink, new List<ImageData>(), DateTime.UtcNow));
                     }
-                    var otherInfo = new OtherInfo(new Star(), new List<StoryType>(), dataNewstList.Author, "", 0, 0);
+                    var otherInfo = new OtherInfo(new Star(), new List<int>(), dataNewstList.Author, "", 0, 0);
                     resultDatas = new NewStory(dataNewstList.StoryName, dataNewstList.StoryNameShow, chaps, otherInfo, link: dataNewstList.StoryLink);
                 }
             }
