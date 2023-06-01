@@ -56,7 +56,7 @@ namespace xStory.Controllers
             return Ok();
         }
 
-        [Authorize]
+        
         [Route("api/[controller]/GetUserInfo")]
         [HttpGet]
         public ActionResult<User> GetUserInfo(int userID, string accName = "") =>

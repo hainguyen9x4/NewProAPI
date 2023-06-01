@@ -25,6 +25,7 @@
             public const string HomePageFornew = "HomePageFornew:{0}{1}";
             public const string TopHotStory = "TopHostStory";
             public const string SearchStoryData = "SearchStoryData";
+            public const string ListFollowStorys = "LostFollowStorys{0}";
         }
     }
 }

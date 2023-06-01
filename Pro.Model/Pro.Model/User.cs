@@ -10,7 +10,7 @@ namespace Pro.Model
     public class User
     {
         public User(string accName, string email, string password, List<int> followStorys, LevelUser levelInfo,
-            string firstName = "", string lastName = "", byte gt = 2, string avatar = "", bool isDeleted =false)
+            string firstName = "", string lastName = "", byte gt = 2, string avatar = "", bool isDeleted = false)
         {
             AccName = accName;
             Password = password;
@@ -69,6 +69,8 @@ namespace Pro.Model
         [BsonElement("LastLogin")]
         public DateTime? LastLogin { get; set; }
 
+        [NotMapped]
+        public List<ImageStoryInfo> FollowStoryLists { get; set; }
         public void Login(long ts)
         {
             AccessToken = Guid.NewGuid().ToString();
