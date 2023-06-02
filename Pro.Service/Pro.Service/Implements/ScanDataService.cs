@@ -244,7 +244,8 @@ namespace Pro.Service.Implements
                     rs.Add(new StoryTypeModel()
                     {
                         Name = storyType,
-                        NameShow = t.NameShow
+                        NameShow = t.NameShow,
+                        Des = t.Des,
                     });
                 }
             }
