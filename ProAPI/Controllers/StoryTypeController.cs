@@ -26,6 +26,6 @@ namespace xStory.Controllers
         [Route("api/[controller]/GetAllStoryType")]
         [HttpGet]
         public ActionResult<List<StoryType>> GetAllStoryType([FromQuery] int id, string nameType = "") =>
-                    _storyTypeService.GetAllStoryType(id, nameType);
+                    _storyTypeService.GetAllStoryTypebyID(id, nameType);
     }
 }

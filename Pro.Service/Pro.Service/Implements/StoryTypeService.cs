@@ -1,15 +1,21 @@
+using Pro.Common;
 using Pro.Data.Repositorys;
 using Pro.Model;
+using Pro.Service.Caching;
+using System.Runtime.CompilerServices;
 
 namespace Pro.Service.Implements
 {
     public class StoryTypeService : IStoryTypeService
     {
         private readonly IStoryTypeRepository _storyTypesitory;
+        private readonly ICacheProvider _cacheProvider;
 
-        public StoryTypeService(IStoryTypeRepository storyTypesitory)
+        public StoryTypeService(IStoryTypeRepository storyTypesitory
+            , ICacheProvider cacheProvider)
         {
             _storyTypesitory = storyTypesitory;
+            _cacheProvider = cacheProvider;
         }
 
         public bool CreateNewStoryType(StoryType type)
@@ -25,7 +31,7 @@ namespace Pro.Service.Implements
             }
         }
 
-        public List<StoryType> GetAllStoryType(int storyTypeID, string nameType)
+        public List<StoryType> GetAllStoryTypebyID(int storyTypeID, string nameType)
         {
             if (!String.IsNullOrEmpty(nameType))
             {
@@ -36,5 +42,23 @@ namespace Pro.Service.Implements
                 return _storyTypesitory.GetAll().Where(t => t.TypeID == storyTypeID).ToList();
             }
         }
+
+        public List<StoryType> GetAllStoryType(bool useCache = true)
+        {
+            try
+            {
+                Func<List<StoryType>> fetchFunc = () =>
+                {
+                    return _storyTypesitory.GetAll().ToList();
+                };
+                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.AllStoryType), fetchFunc) : fetchFunc();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when get the application setting with key: {CacheKeys.ImageStoryData.AllStoryType}", ex);
+                return new List<StoryType>();
+            }
+        }
+
     }
 }

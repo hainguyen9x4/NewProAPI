@@ -27,6 +27,7 @@
             public const string SearchStoryData = "SearchStoryData";
             public const string ListFollowStorys = "LostFollowStorys{0}";
             public const string ListStoryTypes = "ListStoryTypes";
+            public const string AllStoryType = "AllStoryType";
         }
     }
 }

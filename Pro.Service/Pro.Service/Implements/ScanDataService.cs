@@ -9,18 +9,22 @@ namespace Pro.Service.Implements
     public class ScanDataService : IScanDataService
     {
         private readonly IApplicationSettingService _applicationSettingService;
+        private readonly IStoryTypeService _storyTypeService;
 
         private readonly AppBuildDataSetting _setting;
         private readonly IAppSettingData _settingData;
 
         public ScanDataService(IApplicationSettingService applicationSettingService,
-            IAppSettingData appSettingData)
+            IAppSettingData appSettingData,
+            IStoryTypeService storyTypeService)
         {
             _applicationSettingService = applicationSettingService;
             _settingData = appSettingData;
+            _storyTypeService = storyTypeService;
 
             var settings = _applicationSettingService.GetValueGetScan(ApplicationSettingKey.AppsettingsScanGet, useOtherSetting: _settingData.UseSettingGetSetNumber);
             _setting = JsonManager.StringJson2Object<AppBuildDataSetting>(settings);
+            _storyTypeService = storyTypeService;
         }
 
         public bool StartScanData()
@@ -48,12 +52,11 @@ namespace Pro.Service.Implements
                     LogHelper.Info($"SCAN---lstStoryFollows(s):{lstStoryFollows.Count}");
                     var allCurrentStoryListStores = FileReader.ReadListDataFromFile<StorySaveInfo>(fileStoreData);
 
-                    var scan = new ScanWebForNew();
                     var all_rs_eachChaps = new List<string>();
                     foreach (var lstStoryFollow in lstStoryFollows)
                     {
                         var rs_eachChaps = new List<string>();
-                        var dataNewestChap = scan.FindNewChapInStory(allCurrentStoryListStores, lstStoryFollow, ref rs_eachChaps, urlBase);
+                        var dataNewestChap = FindNewChapInStory(allCurrentStoryListStores, lstStoryFollow, ref rs_eachChaps, urlBase);
                         SaveDataToFile(filePathNewInChap, rs_eachChaps, dataNewestChap);
                     }
                     FileReader.WriteDataToFile<StorySaveInfo>(fileStoreData, allCurrentStoryListStores);
@@ -171,6 +174,102 @@ namespace Pro.Service.Implements
         {
 
             return true;
+        }
+        private List<NewestChapModel> FindNewChapInStory(List<StorySaveInfo> allCurrentStoryListStores, string urlStory, ref List<string> rs_eachChaps, string urlBase = "")
+        {
+            var newestChapModel = new List<NewestChapModel>();
+            var storyName = "";
+            //rs_eachChaps = new List<string>();
+            try
+            {
+                //string storyNameShow = "";
+                var fetchedData = GetStoryInfoWithChapByAPI(urlStory, urlBase);
+                storyName = FileReader.GetStoryInfoFromUrlStory(urlStory);
+                var allNameStorySaved = allCurrentStoryListStores.Select(t => t.StoryName).ToList();
+                //LogHelper.Info($"fetchedChaps: {JsonConvert.SerializeObject(fetchedChaps)}");
+                newestChapModel.Add(new NewestChapModel()
+                {
+                    StoryName = storyName,
+                    StoryLink = FileReader.DeleteHomePage(urlStory),
+                    StoryNameShow = fetchedData.StoryName,
+                    Description = fetchedData.Description,
+                    StoryTypes = ConvertStoryTypes(fetchedData.StoryTypes),
+                });
+                //LogHelper.Info($"newestChapModel: {JsonConvert.SerializeObject(newestChapModel)}");
+                if (!allNameStorySaved.Contains(storyName))//new story
+                {
+                    allCurrentStoryListStores.Add(
+                        new StorySaveInfo()
+                        {
+                            StoryName = storyName,
+                            ChapStoredNewest = fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max(),
+                        });
+                    rs_eachChaps = fetchedData.ChapPluss.Select(t => t.ChapLink).ToList();
+                }
+                else//old story
+                {
+                    foreach (var stored in allCurrentStoryListStores)
+                    {
+                        if (stored.StoryName == storyName)
+                        {
+                            var newestChapIndexNumbere = fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max();
+                            if (newestChapIndexNumbere > stored.ChapStoredNewest)
+                            {
+                                //Has new chap
+                                var temps = fetchedData.ChapPluss.Where(c => c.ChapIndexNumber > stored.ChapStoredNewest).ToList();
+                                stored.ChapStoredNewest = newestChapIndexNumbere;
+                                rs_eachChaps = temps.Select(t => t.ChapLink).ToList();
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error_FindNewChapInStory :{urlStory}" + ex);
+            }
+            return newestChapModel;
+        }
+
+        private List<StoryTypeModel> ConvertStoryTypes(List<string> storyTypes)
+        {
+            var allTypes = _storyTypeService.GetAllStoryType();
+            var rs = new List<StoryTypeModel>();
+            foreach (var storyType in storyTypes)
+            {
+                var t = allTypes.Where(t => t.Name == storyType).FirstOrDefault();
+                if (t != null)
+                {
+                    rs.Add(new StoryTypeModel()
+                    {
+                        Name = storyType,
+                        NameShow = t.NameShow
+                    });
+                }
+            }
+            return rs;
+        }
+
+        public class StoryInfoWithChaps
+        {
+            public List<ChapPlus> ChapPluss { get; set; }
+            public string StoryName { get; set; }
+            public string Description { get; set; }
+            public List<string> StoryTypes { get; set; }
+        }
+        private StoryInfoWithChaps GetStoryInfoWithChapByAPI(string textUrl, string urlBase)
+        {
+            var data = new ApiHelper().Post<StoryInfoWithChaps>($"/api/GetStoryInfoWithChaps?textUrl={textUrl}", null, urlBase);
+            return data == null ? new StoryInfoWithChaps() : data;
+        }
+
+        private List<string> FindNewStoryByAPI(int numberPage, string homeUrl, string urlBase)
+        {
+            var rs = new List<string>();
+            //Call api to get data
+            var listStorys = new ApiHelper().Post<List<string>>($"/api/FindNewStoryInPageAPI?homeUrl={homeUrl}&numberPage={numberPage}", null, urlBase);
+            return listStorys ?? new List<string>();
         }
     }
 }

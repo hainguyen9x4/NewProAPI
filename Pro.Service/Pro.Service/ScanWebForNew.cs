@@ -22,6 +22,8 @@ namespace Pro.Service
                     StoryName = storyName,
                     StoryLink = FileReader.DeleteHomePage(urlStory),
                     StoryNameShow = fetchedData.StoryName,
+                    Description = fetchedData.Description,
+                    StoryTypes = ConvertStoryTypes(fetchedData.StoryTypes),
                 });
                 //LogHelper.Info($"newestChapModel: {JsonConvert.SerializeObject(newestChapModel)}");
                 if (!allNameStorySaved.Contains(storyName))//new story
@@ -59,12 +61,21 @@ namespace Pro.Service
             }
             return newestChapModel;
         }
+
+        private List<StoryTypeModel> ConvertStoryTypes(List<string> storyTypes)
+        {
+            foreach(var storyType in storyTypes)
+            {
+
+            }
+        }
+
         public class StoryInfoWithChaps
         {
             public List<ChapPlus> ChapPluss { get; set; }
             public string StoryName { get; set; }
             public string Description { get; set; }
-            public List<StoryTypeModel> StoryTypes { get; set; }
+            public List<string> StoryTypes { get; set; }
         }
         private StoryInfoWithChaps GetStoryInfoWithChapByAPI(string textUrl, string urlBase)
         {
