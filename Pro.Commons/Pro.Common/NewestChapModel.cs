@@ -12,6 +12,8 @@
         public string Author { get; set; }
         public List<string> ChapLinks { get; set; }
         public FileInfo FileDataNewestPathLocal { get; set; }
+        public string Description { get; set; }
+        public List<StoryTypeModel> StoryTypes { get; set; }
     }
 
     public class DataStoryForSave

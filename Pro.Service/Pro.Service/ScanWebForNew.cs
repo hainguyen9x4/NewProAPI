@@ -12,53 +12,45 @@ namespace Pro.Service
             //rs_eachChaps = new List<string>();
             try
             {
-                string storyNameShow = "";
-                var fetchedChaps = GetAllChapsByAPI(urlStory, urlBase, ref storyNameShow);
+                //string storyNameShow = "";
+                var fetchedData = GetStoryInfoWithChapByAPI(urlStory, urlBase);
                 storyName = FileReader.GetStoryInfoFromUrlStory(urlStory);
                 var allNameStorySaved = allCurrentStoryListStores.Select(t => t.StoryName).ToList();
-
-                if (fetchedChaps.Any())
+                //LogHelper.Info($"fetchedChaps: {JsonConvert.SerializeObject(fetchedChaps)}");
+                newestChapModel.Add(new NewestChapModel()
                 {
-                    //LogHelper.Info($"fetchedChaps: {JsonConvert.SerializeObject(fetchedChaps)}");
-                    newestChapModel.Add(new NewestChapModel()
-                    {
-                        StoryName = storyName,
-                        StoryLink = FileReader.DeleteHomePage(urlStory),
-                        StoryNameShow = storyNameShow,
-                    });
-                    //LogHelper.Info($"newestChapModel: {JsonConvert.SerializeObject(newestChapModel)}");
-                    if (!allNameStorySaved.Contains(storyName))//new story
-                    {
-                        allCurrentStoryListStores.Add(
-                            new StorySaveInfo()
-                            {
-                                StoryName = storyName,
-                                ChapStoredNewest = fetchedChaps.Select(t => t.ChapIndexNumber).Max(),
-                            });
-                        rs_eachChaps = fetchedChaps.Select(t => t.ChapLink).ToList();
-                    }
-                    else//old story
-                    {
-                        foreach (var stored in allCurrentStoryListStores)
+                    StoryName = storyName,
+                    StoryLink = FileReader.DeleteHomePage(urlStory),
+                    StoryNameShow = fetchedData.StoryName,
+                });
+                //LogHelper.Info($"newestChapModel: {JsonConvert.SerializeObject(newestChapModel)}");
+                if (!allNameStorySaved.Contains(storyName))//new story
+                {
+                    allCurrentStoryListStores.Add(
+                        new StorySaveInfo()
                         {
-                            if (stored.StoryName == storyName)
+                            StoryName = storyName,
+                            ChapStoredNewest = fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max(),
+                        });
+                    rs_eachChaps = fetchedData.ChapPluss.Select(t => t.ChapLink).ToList();
+                }
+                else//old story
+                {
+                    foreach (var stored in allCurrentStoryListStores)
+                    {
+                        if (stored.StoryName == storyName)
+                        {
+                            var newestChapIndexNumbere = fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max();
+                            if (newestChapIndexNumbere > stored.ChapStoredNewest)
                             {
-                                var newestChapIndexNumbere = fetchedChaps.Select(t => t.ChapIndexNumber).Max();
-                                if (newestChapIndexNumbere > stored.ChapStoredNewest)
-                                {
-                                    //Has new chap
-                                    var temps = fetchedChaps.Where(c => c.ChapIndexNumber > stored.ChapStoredNewest).ToList();
-                                    stored.ChapStoredNewest = newestChapIndexNumbere;
-                                    rs_eachChaps = temps.Select(t => t.ChapLink).ToList();
-                                }
-                                break;
+                                //Has new chap
+                                var temps = fetchedData.ChapPluss.Where(c => c.ChapIndexNumber > stored.ChapStoredNewest).ToList();
+                                stored.ChapStoredNewest = newestChapIndexNumbere;
+                                rs_eachChaps = temps.Select(t => t.ChapLink).ToList();
                             }
+                            break;
                         }
                     }
-                }
-                else
-                {
-                    //Get no data chap of a story
                 }
             }
             catch (Exception ex)
@@ -67,16 +59,17 @@ namespace Pro.Service
             }
             return newestChapModel;
         }
-
-        private List<ChapPlus> GetAllChapsByAPI(string textUrl, string urlBase, ref string storyNameShow)
+        public class StoryInfoWithChaps
         {
-            storyNameShow = "";
-            var chapDatas = new ApiHelper().Post<List<ChapPlus>>($"/api/GetAllChaps?textUrl={textUrl}", null, urlBase);
-            if (chapDatas != null && chapDatas.Any())
-            {
-                storyNameShow = chapDatas.FirstOrDefault().StoryNameShow;
-            }
-            return chapDatas == null || !chapDatas.Any() ? new List<ChapPlus>() : chapDatas;
+            public List<ChapPlus> ChapPluss { get; set; }
+            public string StoryName { get; set; }
+            public string Description { get; set; }
+            public List<StoryTypeModel> StoryTypes { get; set; }
+        }
+        private StoryInfoWithChaps GetStoryInfoWithChapByAPI(string textUrl, string urlBase)
+        {
+            var data = new ApiHelper().Post<StoryInfoWithChaps>($"/api/GetStoryInfoWithChaps?textUrl={textUrl}", null, urlBase);
+            return data == null ? new StoryInfoWithChaps() : data;
         }
 
         private List<string> FindNewStoryByAPI(int numberPage, string homeUrl, string urlBase)
