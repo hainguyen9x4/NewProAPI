@@ -232,21 +232,16 @@ namespace Pro.Service.Implements
             return newestChapModel;
         }
 
-        private List<StoryTypeModel> ConvertStoryTypes(List<string> storyTypes)
+        private List<int> ConvertStoryTypes(List<string> storyTypes)
         {
             var allTypes = _storyTypeService.GetAllStoryType();
-            var rs = new List<StoryTypeModel>();
+            var rs = new List<int>();
             foreach (var storyType in storyTypes)
             {
                 var t = allTypes.Where(t => t.Name == storyType).FirstOrDefault();
                 if (t != null)
                 {
-                    rs.Add(new StoryTypeModel()
-                    {
-                        Name = storyType,
-                        NameShow = t.NameShow,
-                        Des = t.Des,
-                    });
+                    rs.Add(t.TypeID);
                 }
             }
             return rs;
