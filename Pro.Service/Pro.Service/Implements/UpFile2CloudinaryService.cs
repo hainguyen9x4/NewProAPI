@@ -131,7 +131,7 @@ namespace Pro.Service.Implement
                         isOK = false;
                         try
                         {
-                            uploadResult = _cloudinary.Upload(uploadParams);
+                            uploadResult = _cloudinary.UploadAsync(uploadParams).Result;
                         }
                         catch (Exception ex)
                         {

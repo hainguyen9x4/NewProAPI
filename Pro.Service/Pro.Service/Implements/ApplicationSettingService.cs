@@ -268,6 +268,21 @@ namespace Pro.Service.Implements
 
         public ApplicationSetting Get(int id) => _appSettingRepository.GetById(id);
 
+        public class ApplicationSettingTemp
+        {
+            public int NumberAvailable { get; set; }
+            public List<ApplicationSetting> ListAvailables { get; set; }
+        }
+        public ApplicationSettingTemp GetAvailableClound(int number)
+        {
+            var lst = _appSettingRepository.GetAll().Where(s => s.AppSettingName.Contains("CloundSetting") && s.NumberImage <= number).ToList();
+            return new ApplicationSettingTemp()
+            {
+                ListAvailables = lst,
+                NumberAvailable = lst.Count,
+            };
+        }
+
         public ApplicationSetting Create(ApplicationSetting appSetting)
         {
             return _appSettingRepository.Create(appSetting);

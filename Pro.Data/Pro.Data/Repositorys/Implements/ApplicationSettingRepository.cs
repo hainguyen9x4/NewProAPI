@@ -22,7 +22,7 @@ namespace Pro.Data.Repositorys.Implements
 
         public ApplicationSetting Create(ApplicationSetting applicationSetting)
         {
-            var settingId = 1 + _applicationSettings.AsQueryable().Count();
+            var settingId = 1 + _applicationSettings.AsQueryable().Max(s => s.AppSettingId);
             applicationSetting.AppSettingId = settingId;
             _applicationSettings.InsertOne(applicationSetting);
             return applicationSetting;

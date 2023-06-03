@@ -10,6 +10,8 @@
         public List<Chap> Chaps { get; set; }
         public DateTime LastUpdateTime { get; set; }
         public int View { get; set; }
+        public List<StoryType> StoryTypes { get; set; }
+        public string Des { get; set; }
     }
     public class HomePageInfo
     {

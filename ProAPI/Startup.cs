@@ -35,9 +35,11 @@ namespace xStory
             services.AddSingleton<ICacheProvider, InMemoryCacheProvider>();
             services.AddSingleton<ICommentRepository, CommentRepository>();
             services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IStoryTypeRepository, StoryTypeRepository>();
             //Service
             services.AddScoped<IStorysService, StorysService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IStoryTypeService, StoryTypeService>();
 
             services.AddAuthentication("tokenAuth")
             .AddScheme<TokenAuthenticationSchemeOptions, TokenAuthenticationService>("tokenAuth", ops => { });

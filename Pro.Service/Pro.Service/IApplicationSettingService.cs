@@ -1,4 +1,5 @@
 ﻿using Pro.Model;
+using static Pro.Service.Implements.ApplicationSettingService;
 
 namespace Pro.Service
 {
@@ -21,6 +22,7 @@ namespace Pro.Service
 
         List<ApplicationSetting> Get();
         ApplicationSetting Get(int id);
+        ApplicationSettingTemp GetAvailableClound(int number);
         ApplicationSetting Create(ApplicationSetting appSetting);
         ApplicationSetting CreateCloundinary(string dataCreateCloundinary, string email, string c);
         void Delete(int id);

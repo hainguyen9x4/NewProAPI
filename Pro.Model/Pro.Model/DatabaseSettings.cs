@@ -13,6 +13,7 @@ namespace Pro.Model
         public string ConnectionStringMain { get; set; }
         public string DatabaseName { get; set; }
         public int UseSettingGetSetNumber { get; set; }
+        public string XStorysCollectionStoryType { get; set; }
     }
 
     public interface IAppSettingData
@@ -28,5 +29,6 @@ namespace Pro.Model
         string ConnectionStringMain { get; set; }
         string DatabaseName { get; set; }
         public int UseSettingGetSetNumber { get; set; }
+        string XStorysCollectionStoryType { get; set; }
     }
 }

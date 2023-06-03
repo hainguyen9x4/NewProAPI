@@ -47,18 +47,18 @@ namespace Pro.Model
     }
     public class OtherInfo
     {
-        public OtherInfo(Star star, List<StoryType> types, string author = "", string des = "", int viewTotal = 0, int followTotal = 0)
+        public OtherInfo(Star star, List<int> typeIDs, string author = "", string des = "", int viewTotal = 0, int followTotal = 0)
         {
             Star = star;
             Author = author;
             Des = des;
-            Types = types;
+            TypeIDs = typeIDs;
             ViewTotal = viewTotal;
             FollowTotal = followTotal;
         }
         public string Author { get; set; }
         public string Des { get; set; }
-        public List<StoryType> Types { get; set; }
+        public List<int> TypeIDs { get; set; }
         public Star Star { get; set; }
         public int ViewTotal { get; set; }
         public int FollowTotal { get; set; }
@@ -117,20 +117,5 @@ namespace Pro.Model
         public string Link { get; set; }
         public string OriginLink { get; set; }
         public string LocalLink { get; set; }
-    }
-
-    public class StoryType
-    {
-        public StoryType(int typeID, string typeName)
-        {
-            TypeID = typeID;
-            TypeName = typeName;
-        }
-        public StoryType()
-        {
-            TypeName = "";
-        }
-        public int TypeID { get; set; }
-        public string TypeName { get; set; }
     }
 }
