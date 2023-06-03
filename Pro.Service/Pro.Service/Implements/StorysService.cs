@@ -152,6 +152,8 @@ namespace Pro.Service.Implements
                     StoryNameShow = storyInfor.NameShow,
                     Chaps = new List<Chap>(),
                     LastUpdateTime = storyInfor.UpdatedTime,
+                    StoryTypes = GetStoryTypeInfoByList(storyInfor.OtherInfo.TypeIDs),
+                    Des = storyInfor.OtherInfo.Des
                 };
                 foreach (var chap in storyInfor.Chaps)
                 {
@@ -263,7 +265,11 @@ namespace Pro.Service.Implements
 
         private List<StoryType> GetStoryTypeInfoByList(List<int> types)
         {
-            return GetAllStoryType().Where(s => types.Contains(s.TypeID)).ToList();
+            return GetAllStoryType().Where(s => types.Contains(s.TypeID)).Select(t => new StoryType()
+            {
+                Name = t.Name,
+                NameShow = t.NameShow,
+            }).ToList();
 
             List<StoryType> GetAllStoryType(bool useCache = true)
             {
