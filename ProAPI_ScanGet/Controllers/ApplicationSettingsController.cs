@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Pro.Model;
 using Pro.Service;
 using System.Collections.Generic;
+using static Pro.Service.Implements.ApplicationSettingService;
 
 namespace xAppSetting.Controllers
 {
@@ -17,6 +18,7 @@ namespace xAppSetting.Controllers
         }
 
         [HttpGet]
+        [Route("Get")]
         public ActionResult<List<ApplicationSetting>> Get() =>
             _applicationSettingService.Get();
 
@@ -32,7 +34,19 @@ namespace xAppSetting.Controllers
 
             return applicationSetting;
         }
+        [HttpGet]
+        [Route("GetAvailableClound")]
+        public ActionResult<ApplicationSettingTemp> GetAvailableClound(int number = 0)
+        {
+            var applicationSetting = _applicationSettingService.GetAvailableClound(number);
 
+            if (applicationSetting == null)
+            {
+                return NotFound();
+            }
+
+            return applicationSetting;
+        }
         [HttpPost]
         public ActionResult<ApplicationSetting> Create(ApplicationSetting applicationSetting)
         {
