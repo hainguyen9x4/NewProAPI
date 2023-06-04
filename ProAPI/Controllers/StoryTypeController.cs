@@ -32,7 +32,7 @@ namespace xStory.Controllers
         public ActionResult<List<StoryType>> GetAllStoryType() =>
             _storyTypeService.GetAllStoryType();
         [Route("api/[controller]/UpdateStoryType")]
-        [HttpGet]
+        [HttpPost]
         public ActionResult<bool> UpdateStoryType(StoryType type) =>
             _storyTypeService.UpdateStoryType(type);
     }
