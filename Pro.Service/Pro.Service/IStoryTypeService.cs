@@ -7,5 +7,6 @@ namespace Pro.Service
         bool CreateNewStoryType(StoryType type);
         List<StoryType> GetAllStoryTypebyID(int storyTypeID, string nameType);
         List<StoryType> GetAllStoryType(bool useCache = true);
+        bool UpdateStoryType(StoryType type);
     }
 }

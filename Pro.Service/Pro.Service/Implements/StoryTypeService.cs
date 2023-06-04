@@ -59,6 +59,18 @@ namespace Pro.Service.Implements
                 return new List<StoryType>();
             }
         }
+        public bool UpdateStoryType(StoryType type)
+        {
+            try
+            {
+                _storyTypesitory.Update(type.TypeID, type);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
 
     }
 }

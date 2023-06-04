@@ -23,9 +23,17 @@ namespace xStory.Controllers
         public ActionResult<bool> CreateNewStoryType(StoryType type) =>
                             _storyTypeService.CreateNewStoryType(type);
 
-        [Route("api/[controller]/GetAllStoryType")]
+        [Route("api/[controller]/GetAllStoryTypeByID")]
         [HttpGet]
         public ActionResult<List<StoryType>> GetAllStoryType([FromQuery] int id, string nameType = "") =>
                     _storyTypeService.GetAllStoryTypebyID(id, nameType);
+        [Route("api/[controller]/GetAllStoryType")]
+        [HttpGet]
+        public ActionResult<List<StoryType>> GetAllStoryType() =>
+            _storyTypeService.GetAllStoryType();
+        [Route("api/[controller]/UpdateStoryType")]
+        [HttpGet]
+        public ActionResult<bool> UpdateStoryType(StoryType type) =>
+            _storyTypeService.UpdateStoryType(type);
     }
 }
