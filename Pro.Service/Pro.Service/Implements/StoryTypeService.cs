@@ -49,7 +49,7 @@ namespace Pro.Service.Implements
             {
                 Func<List<StoryType>> fetchFunc = () =>
                 {
-                    return _storyTypesitory.GetAll().ToList();
+                    return _storyTypesitory.GetAll().OrderBy(t => t.TypeID).ToList();
                 };
                 return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.AllStoryType), fetchFunc) : fetchFunc();
             }
