@@ -9,6 +9,7 @@ namespace Pro.Model
 {
     public class User
     {
+        public User();
         public User(string accName, string email, string password, List<int> followStorys, LevelUser levelInfo,
             string firstName = "", string lastName = "", byte gt = 2, string avatar = "", bool isDeleted = false)
         {

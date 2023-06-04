@@ -24,16 +24,19 @@ namespace xStory.Controllers
         public ActionResult<IResult> AddUser(User user) =>
             _userService.AddNewUser(user);
 
+        [Authorize]
         [Route("api/[controller]/UpdateLevelInfoUser1")]
         [HttpPost]
         public ActionResult<IResult> UpdateLevelInfoUser(int userID, int percent) =>
             _userService.UpdateLevelInfoUser(userID, percent);
 
+        [Authorize]
         [Route("api/[controller]/ChangePassword")]
         [HttpPost]
         public ActionResult<IResult> ChangePassword(ChangePasswordRequest data) =>
             _userService.ChangePassword(data);
 
+        [Authorize]
         [Route("api/[controller]/UpdateLevelInfoUser")]
         [HttpPost]
         public ActionResult<IResult> UpdateLevelInfoUser(int userID, LevelUser level) =>
@@ -56,7 +59,7 @@ namespace xStory.Controllers
             return Ok();
         }
 
-        
+        [Authorize]
         [Route("api/[controller]/GetUserInfo")]
         [HttpGet]
         public ActionResult<User> GetUserInfo(int userID, string accName = "") =>
