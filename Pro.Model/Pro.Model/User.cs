@@ -1,7 +1,5 @@
-﻿using Microsoft.VisualBasic;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Pro.Common.Const;
 using System.ComponentModel.DataAnnotations.Schema;
 using Constants = Pro.Common.Const.Constants;
 
@@ -9,7 +7,6 @@ namespace Pro.Model
 {
     public class User
     {
-        public User();
         public User(string accName, string email, string password, List<int> followStorys, LevelUser levelInfo,
             string firstName = "", string lastName = "", byte gt = 2, string avatar = "", bool isDeleted = false)
         {

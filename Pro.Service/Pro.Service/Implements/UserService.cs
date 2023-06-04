@@ -38,7 +38,7 @@ namespace Pro.Service.Implements
                     userData.FollowStoryLists = _storyService.GetFollowStorys(userData.FollowStorys, userID, useCache: false).ToList();
                 }
             }
-            return userData ?? new User();
+            return userData;
         }
 
         public IResult AddNewUser(User user)
