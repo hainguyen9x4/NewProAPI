@@ -252,11 +252,18 @@ namespace Pro.Service.Implements
                 var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
                 if (!ux.FollowStorys.Contains(storyID))
                 {
-                    ux.FollowStorys.Add(storyID);
-                    _userRepository.Update(ux.Id, ux);
+                    if (!ux.FollowStorys.Contains(storyID))
+                    {
+                        ux.FollowStorys.Add(storyID);
+                        _userRepository.Update(ux.Id, ux);
+                    }
+                    else
+                    {
+                        rs.Result = Common.Enum.RESUTL_API.ERROR;
+                    }
                 }
                 {
-                    rs.Result = Common.Enum.RESUTL_API.ERROR;
+                    rs.Result = Common.Enum.RESUTL_API.LOGIN_FAIL;
                 }
             }
             catch (Exception ex)
@@ -280,7 +287,7 @@ namespace Pro.Service.Implements
                 var ux = _userRepository.GetAll().Where(u => u.Id == userID).First();
                 if (ux.FollowStorys.Contains(storyID))
                 {
-                    ux.FollowStorys.Add(storyID);
+                    ux.FollowStorys.RemoveAll(x => x == storyID);
                     _userRepository.Update(ux.Id, ux);
                 }
                 else
