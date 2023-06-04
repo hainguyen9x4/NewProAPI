@@ -35,7 +35,7 @@ namespace Pro.Service.Implements
                 //Get data following story info
                 if (userData.FollowStorys.Any())
                 {
-                    userData.FollowStoryLists = _storyService.GetFollowStorys(userData.FollowStorys, userID).ToList();
+                    userData.FollowStoryLists = _storyService.GetFollowStorys(userData.FollowStorys, userID, useCache: false).ToList();
                 }
             }
             return userData ?? new User();
