@@ -293,11 +293,13 @@ namespace Pro.Service.Implements
         {
             public List<ImageStoryInfo> ImageStoryInfos { get; set; }
             public StoryType StoryType { get; set; }
+            public List<StoryType> StoryTypes { get; set; }
         }
         public TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, bool useCache = true)
         {
             var rs = new TempGetAllStoryByTypeName();
-            var type = GetAllStoryType().Where(s => s.Name.Equals(typeName)).FirstOrDefault();
+            var types = GetAllStoryType().ToList();
+            var type = types.Where(s => s.Name.Equals(typeName)).FirstOrDefault();
             if (type != null)
             {
                 var storys = GetTotalStoryForNew().NewStorys.Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID)).ToList();
@@ -334,6 +336,7 @@ namespace Pro.Service.Implements
                 }
                 rs.ImageStoryInfos = temp;
                 rs.StoryType = type;
+                rs.StoryTypes = types;
             }
             return rs;
         }
