@@ -289,14 +289,19 @@ namespace Pro.Service.Implements
                 return new List<StoryType>();
             }
         }
-        public List<ImageStoryInfo> GetAllStoryByTypeName(string typeName, bool useCache = true)
+        public class TempGetAllStoryByTypeName
         {
-            var rs = new List<ImageStoryInfo>();
+            public List<ImageStoryInfo> ImageStoryInfos { get; set; }
+            public StoryType StoryType { get; set; }
+        }
+        public TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, bool useCache = true)
+        {
+            var rs = new TempGetAllStoryByTypeName();
             var type = GetAllStoryType().Where(s => s.Name.Equals(typeName)).FirstOrDefault();
             if (type != null)
             {
                 var storys = GetTotalStoryForNew().NewStorys.Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID)).ToList();
-
+                var temp = new List<ImageStoryInfo>();
                 foreach (var story in storys)
                 {
                     var chapInfos = new List<Chap>();
@@ -325,8 +330,10 @@ namespace Pro.Service.Implements
                         LastUpdateTime = story.UpdatedTime,
                         View = story.OtherInfo.ViewTotal,
                     };
-                    rs.Add(imageStoryInfo);
+                    temp.Add(imageStoryInfo);
                 }
+                rs.ImageStoryInfos = temp;
+                rs.StoryType = type;
             }
             return rs;
         }
