@@ -270,24 +270,65 @@ namespace Pro.Service.Implements
                 Name = t.Name,
                 NameShow = t.NameShow,
             }).ToList();
-
-            List<StoryType> GetAllStoryType(bool useCache = true)
+        }
+        private List<StoryType> GetAllStoryType(bool useCache = true)
+        {
+            try
             {
-                try
+                Func<List<StoryType>> fetchFunc = () =>
                 {
-                    Func<List<StoryType>> fetchFunc = () =>
-                    {
-                        return _typeRepository.GetAll().ToList();
-                    };
-                    return useCache ? _cacheProvider.Get<List<StoryType>>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListStoryTypes), fetchFunc, expiredTimeInSeconds: 4000) : fetchFunc();
+                    return _typeRepository.GetAll().ToList();
+                };
+                var cachedKey = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListStoryTypes);
+                return useCache ? _cacheProvider.Get<List<StoryType>>(cachedKey, fetchFunc, expiredTimeInSeconds: 4000) : fetchFunc();
 
-                }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when caculate page", ex);
+                return new List<StoryType>();
+            }
+        }
+        public List<ImageStoryInfo> GetAllStoryByTypeName(string typeName, bool useCache = true)
+        {
+            var rs = new List<ImageStoryInfo>();
+            var type = GetAllStoryType().Where(s => s.Name.Equals(typeName)).FirstOrDefault();
+            if (type != null)
+            {
+                var storys = GetTotalStoryForNew().NewStorys.Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID)).ToList();
+
+                foreach (var story in storys)
                 {
-                    LogHelper.Error($"Error when caculate page", ex);
-                    return new List<StoryType>();
+                    var chapInfos = new List<Chap>();
+
+                    var chaps = story.Chaps.OrderByDescending(ac => ac.ID).Take(3).ToList();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
+                    if (chaps.Any())
+                    {
+                        foreach (var chap in chaps)
+                        {
+                            chapInfos.Add(new Chap()
+                            {
+                                ID = chap.ID,
+                                Link = chap.Link,
+                                Name = chap.Name,
+                            });
+                        }
+                    }
+                    var imageStoryInfo = new ImageStoryInfo()
+                    {
+                        StoryID = story.ID,
+                        StoryLink = story.Link,
+                        StoryName = story.Name,
+                        StoryPictureLink = story.Picture,
+                        StoryNameShow = story.NameShow,
+                        Chaps = chapInfos,
+                        LastUpdateTime = story.UpdatedTime,
+                        View = story.OtherInfo.ViewTotal,
+                    };
+                    rs.Add(imageStoryInfo);
                 }
             }
+            return rs;
         }
     }
 }

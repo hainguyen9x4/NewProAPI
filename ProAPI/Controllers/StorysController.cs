@@ -39,5 +39,9 @@ namespace xStory.Controllers
         [HttpGet]
         public ActionResult<List<ImageStoryInfo>> GetAllStoryForSearch() =>
             _storyService.GetAllStoryForSearchForNew();
+        [Route("api/[controller]/GetAllStoryByTypeName")]
+        [HttpGet]
+        public ActionResult<List<ImageStoryInfo>> GetAllStoryByTypeName(string nameType) =>
+            _storyService.GetAllStoryByTypeName(nameType);
     }
 }
