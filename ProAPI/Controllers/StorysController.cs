@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Pro.Common.Enum;
 using Pro.Model;
 using Pro.Service;
 using System.Collections.Generic;
@@ -44,5 +45,9 @@ namespace xStory.Controllers
         [HttpGet]
         public ActionResult<TempGetAllStoryByTypeName> GetAllStoryByTypeName([FromQuery] string nameType, int pageIndex, int storyPerPage) =>
             _storyService.GetAllStoryByTypeName(nameType, pageIndex, storyPerPage);
+        [Route("api/[controller]/RateStory")]
+        [HttpGet]
+        public ActionResult<TempGetAllStoryByTypeName> RateStory([FromQuery] RATE_TYPE rateType) =>
+            _storyService.RateStory(nameType);
     }
 }

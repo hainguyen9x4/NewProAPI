@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using Pro.Common;
+using Pro.Common.Enum;
 using Pro.Data.Repositorys;
 using Pro.Model;
 using Pro.Service.Caching;
@@ -49,34 +50,34 @@ namespace Pro.Service.Implements
             var storys = GetTotalStoryForNew().NewStorys;
 
             var topStorys = storys.OrderBy(x => Guid.NewGuid()).Take(78).ToList();
+            MakeMoreDetailStoryWithChaps(topStorys, results, 1);
+            //foreach (var topStory in topStorys)
+            //{
+            //    var chapInfos = new List<Chap>();
 
-            foreach (var topStory in topStorys)
-            {
-                var chapInfos = new List<Chap>();
-
-                var chap = topStory.Chaps.OrderByDescending(ac => ac.ID).FirstOrDefault();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
-                if (chap != null)
-                {
-                    chapInfos.Add(new Chap()
-                    {
-                        ID = chap.ID,
-                        Link = chap.Link,
-                        Name = chap.Name,
-                    });
-                }
-                var imageStoryInfo = new ImageStoryInfo()
-                {
-                    StoryID = topStory.ID,
-                    StoryLink = topStory.Link,
-                    StoryName = topStory.Name,
-                    StoryPictureLink = topStory.Picture,
-                    StoryNameShow = topStory.NameShow,
-                    Chaps = chapInfos,
-                    LastUpdateTime = topStory.UpdatedTime,
-                    View = topStory.OtherInfo.ViewTotal,
-                };
-                results.Add(imageStoryInfo);
-            }
+            //    var chap = topStory.Chaps.OrderByDescending(ac => ac.ID).FirstOrDefault();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
+            //    if (chap != null)
+            //    {
+            //        chapInfos.Add(new Chap()
+            //        {
+            //            ID = chap.ID,
+            //            Link = chap.Link,
+            //            Name = chap.Name,
+            //        });
+            //    }
+            //    var imageStoryInfo = new ImageStoryInfo()
+            //    {
+            //        StoryID = topStory.ID,
+            //        StoryLink = topStory.Link,
+            //        StoryName = topStory.Name,
+            //        StoryPictureLink = topStory.Picture,
+            //        StoryNameShow = topStory.NameShow,
+            //        Chaps = chapInfos,
+            //        LastUpdateTime = topStory.UpdatedTime,
+            //        View = topStory.OtherInfo.ViewTotal,
+            //    };
+            //    results.Add(imageStoryInfo);
+            //}
 
             return results;
         }
@@ -105,7 +106,7 @@ namespace Pro.Service.Implements
             }
         }
 
-        private TempGetAllStoryData GetTotalStoryForNew(int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true, string typeName = "")
+        private TempGetAllStoryData GetTotalStoryForNew(int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true, string typeName = "", string cachedKey = "")
         {
             try
             {
@@ -142,10 +143,18 @@ namespace Pro.Service.Implements
                         TotalStory = total
                     };
                 };
-                var cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPageStoryType, pageIndex / dataPerPage, dataPerPage, typeName);
-                if (dataPerPage == 0) cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory);
+                var cached = "";
+                if (!String.IsNullOrEmpty(cachedKey))
+                {
+                    cached = cachedKey;// CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPageStoryType, pageIndex / dataPerPage, dataPerPage, typeName);
+                }
+                else
+                {
+                    cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPage, pageIndex / dataPerPage, dataPerPage);
+                    if (dataPerPage == 0) cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory);
+                }
 
-                return useCache ? _cacheProvider.Get<TempGetAllStoryData>(cached, fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
+                return useCache ? _cacheProvider.Get<TempGetAllStoryData>(cached, fetchFunc, expiredTimeInSeconds: 433) : fetchFunc();
 
             }
             catch (Exception ex)
@@ -324,47 +333,99 @@ namespace Pro.Service.Implements
             if (type != null)
             {
                 var dataStory = GetTotalStoryForNew(pageIndex: pageIndex, typeName: typeName, dataPerPage: dataPerPage,
-                    numberStory: numberStory, useCache: useCache);
+                    numberStory: numberStory, useCache: useCache,
+                    cachedKey: CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPageStoryType, pageIndex / dataPerPage, dataPerPage, typeName));
                 var storys = dataStory.NewStorys.Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
 
                 var temp = new List<ImageStoryInfo>();
                 results.TotalPage = dataStory.TotalStory / dataPerPage + (dataStory.TotalStory % dataPerPage > 0 ? 1 : 0);
                 results.CurrentPage = pageIndex;
-
-                foreach (var story in storys)
-                {
-                    var chapInfos = new List<Chap>();
-
-                    var chaps = story.Chaps.OrderByDescending(ac => ac.ID).Take(3).ToList();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
-                    if (chaps.Any())
-                    {
-                        foreach (var chap in chaps)
-                        {
-                            chapInfos.Add(new Chap()
-                            {
-                                ID = chap.ID,
-                                Link = chap.Link,
-                                Name = chap.Name,
-                            });
-                        }
-                    }
-                    var imageStoryInfo = new ImageStoryInfo()
-                    {
-                        StoryID = story.ID,
-                        StoryLink = story.Link,
-                        StoryName = story.Name,
-                        StoryPictureLink = story.Picture,
-                        StoryNameShow = story.NameShow,
-                        Chaps = chapInfos,
-                        LastUpdateTime = story.UpdatedTime,
-                        View = story.OtherInfo.ViewTotal,
-                    };
-                    temp.Add(imageStoryInfo);
-                }
+                MakeMoreDetailStoryWithChaps(storys, temp, 3);
                 results.ImageStoryInfos = temp;
                 results.StoryType = type;
                 results.StoryTypes = types;
             }
+            return results;
+        }
+
+        private static void MakeMoreDetailStoryWithChaps(List<NewStory> storys, List<ImageStoryInfo> temp, int numberChap)
+        {
+            foreach (var story in storys)
+            {
+                var chapInfos = new List<Chap>();
+
+                var chaps = story.Chaps.OrderByDescending(ac => ac.ID).Take(numberChap).ToList();                                                                                                           //    LastModifyDatetime = c.LastModifyDatetime,
+                if (chaps.Any())
+                {
+                    foreach (var chap in chaps)
+                    {
+                        chapInfos.Add(new Chap()
+                        {
+                            ID = chap.ID,
+                            Link = chap.Link,
+                            Name = chap.Name,
+                        });
+                    }
+                }
+                var imageStoryInfo = new ImageStoryInfo()
+                {
+                    StoryID = story.ID,
+                    StoryLink = story.Link,
+                    StoryName = story.Name,
+                    StoryPictureLink = story.Picture,
+                    StoryNameShow = story.NameShow,
+                    Chaps = chapInfos,
+                    LastUpdateTime = story.UpdatedTime,
+                    View = story.OtherInfo.ViewTotal,
+                };
+                temp.Add(imageStoryInfo);
+            }
+        }
+
+        public TempGetAllStoryByTypeName RateStory(RATE_TYPE type, int pageIndex = 0, int dataPerPage = 16)
+        {
+            var results = new TempGetAllStoryByTypeName();
+            var types = GetAllStoryType().ToList();
+
+            var temp = new List<ImageStoryInfo>();
+            var story = new TempGetAllStoryData();
+            switch (type)
+            {
+                case
+                    RATE_TYPE.TOP_ALL:
+
+                    break;
+                case
+                    RATE_TYPE.TOP_MONTH:
+
+                    break;
+                case
+                    RATE_TYPE.TOP_WEEK:
+
+                    break;
+                case
+                    RATE_TYPE.TOP_DAY:
+
+                    break;
+                case
+                    RATE_TYPE.TOP_LIKE:
+
+                    break;
+                case
+                    RATE_TYPE.NEW_STORY:
+                    story = GetTotalStoryForNew(pageIndex, dataPerPage);
+                    story.NewStorys = story.NewStorys.OrderByDescending(s => s.ID).ToList();
+                    MakeMoreDetailStoryWithChaps(story.NewStorys, temp, 3);
+                    break;
+                case
+                    RATE_TYPE.NEWEST_UPDATED:
+                    story = GetTotalStoryForNew(pageIndex, dataPerPage);
+                    MakeMoreDetailStoryWithChaps(story.NewStorys, temp, 3);
+                    break;
+            }
+
+            results.ImageStoryInfos = temp;
+            results.StoryTypes = types;
             return results;
         }
     }
