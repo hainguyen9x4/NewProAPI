@@ -28,6 +28,7 @@
             public const string ListFollowStorys = "LostFollowStorys{0}";
             public const string ListStoryTypes = "ListStoryTypes";
             public const string AllStoryType = "AllStoryType";
+            public const string ListAllStoryOfPageStoryType = "ListAllStoryOfPageStoryType{0}{1}{2}";
         }
     }
 }

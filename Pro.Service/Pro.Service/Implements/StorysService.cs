@@ -112,6 +112,7 @@ namespace Pro.Service.Implements
                 Func<TempGetAllStoryData> fetchFunc = () =>
                 {
                     var storys = new List<NewStory>();
+                    var total = 0;
                     if (!String.IsNullOrEmpty(typeName))
                     {
                         var types = GetAllStoryType().ToList();
@@ -120,13 +121,16 @@ namespace Pro.Service.Implements
                         {
                             storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0)
                             .Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID))
-                            .ToList().OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
+                            .ToList();
+                            total = storys.Count();
+                            storys = storys.OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
                         }
                     }
                     else
                     {
                         storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList()
                         .OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
+                        total = _newStoryRepository.GetAll().Count();
                     }
                     foreach (var s in storys)
                     {
@@ -135,11 +139,10 @@ namespace Pro.Service.Implements
                     return new TempGetAllStoryData()
                     {
                         NewStorys = storys,
-                        TotalStory = _newStoryRepository.GetAll().Count()
-
+                        TotalStory = total
                     };
                 };
-                var cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPage, pageIndex / dataPerPage, dataPerPage);
+                var cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPageStoryType, pageIndex / dataPerPage, dataPerPage, typeName);
                 if (dataPerPage == 0) cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory);
 
                 return useCache ? _cacheProvider.Get<TempGetAllStoryData>(cached, fetchFunc, expiredTimeInSeconds: 400) : fetchFunc();
@@ -310,20 +313,25 @@ namespace Pro.Service.Implements
             public List<ImageStoryInfo> ImageStoryInfos { get; set; }
             public StoryType StoryType { get; set; }
             public List<StoryType> StoryTypes { get; set; }
+            public int TotalPage { get; set; }
+            public int CurrentPage { get; set; }
         }
         public TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true)
         {
-            var rs = new TempGetAllStoryByTypeName();
+            var results = new TempGetAllStoryByTypeName();
             var types = GetAllStoryType().ToList();
             var type = types.Where(s => s.Name.Equals(typeName)).FirstOrDefault();
             if (type != null)
             {
-                //var storys = GetTotalStoryForNew().NewStorys.Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID)).ToList();
-                var storys = GetTotalStoryForNew(pageIndex: pageIndex, typeName: typeName, dataPerPage: dataPerPage,
+                var dataStory = GetTotalStoryForNew(pageIndex: pageIndex, typeName: typeName, dataPerPage: dataPerPage,
                     numberStory: numberStory, useCache: useCache);
+                var storys = dataStory.NewStorys.Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
 
                 var temp = new List<ImageStoryInfo>();
-                foreach (var story in storys.NewStorys)
+                results.TotalPage = dataStory.TotalStory / dataPerPage + (dataStory.TotalStory % dataPerPage > 0 ? 1 : 0);
+                results.CurrentPage = pageIndex;
+
+                foreach (var story in storys)
                 {
                     var chapInfos = new List<Chap>();
 
@@ -353,11 +361,11 @@ namespace Pro.Service.Implements
                     };
                     temp.Add(imageStoryInfo);
                 }
-                rs.ImageStoryInfos = temp;
-                rs.StoryType = type;
-                rs.StoryTypes = types;
+                results.ImageStoryInfos = temp;
+                results.StoryType = type;
+                results.StoryTypes = types;
             }
-            return rs;
+            return results;
         }
     }
 }
