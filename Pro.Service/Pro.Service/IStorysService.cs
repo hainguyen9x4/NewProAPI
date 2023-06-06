@@ -13,6 +13,6 @@ namespace Pro.Service
         ChapInfo GetImageStorysInChapForNew(int storyID, int chapID, bool useCache = true);
         List<ImageStoryInfo> GetFollowStorys(List<int> sotryIDs, int userID, bool useCache = true);
         TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true);
-        TempGetAllStoryByTypeName RateStory(RATE_TYPE type);
+        TempGetAllStoryByTypeName RateStory(RATE_TYPE type, int pageIndex = 0, int dataPerPage = 16);
     }
 }

@@ -47,7 +47,7 @@ namespace xStory.Controllers
             _storyService.GetAllStoryByTypeName(nameType, pageIndex, storyPerPage);
         [Route("api/[controller]/RateStory")]
         [HttpGet]
-        public ActionResult<TempGetAllStoryByTypeName> RateStory([FromQuery] RATE_TYPE rateType) =>
-            _storyService.RateStory(nameType);
+        public ActionResult<TempGetAllStoryByTypeName> RateStory([FromQuery] RATE_TYPE rateType, int pageIndex = 0, int dataPerPage = 16) =>
+            _storyService.RateStory(rateType, pageIndex, dataPerPage);
     }
 }
