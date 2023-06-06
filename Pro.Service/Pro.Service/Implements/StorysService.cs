@@ -105,13 +105,29 @@ namespace Pro.Service.Implements
             }
         }
 
-        private TempGetAllStoryData GetTotalStoryForNew(int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true)
+        private TempGetAllStoryData GetTotalStoryForNew(int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true, string typeName = "")
         {
             try
             {
                 Func<TempGetAllStoryData> fetchFunc = () =>
                 {
-                    var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList().OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
+                    var storys = new List<NewStory>();
+                    if (!String.IsNullOrEmpty(typeName))
+                    {
+                        var types = GetAllStoryType().ToList();
+                        var type = types.Where(s => s.Name.Equals(typeName)).FirstOrDefault();
+                        if (type != null)
+                        {
+                            storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0)
+                            .Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID))
+                            .ToList().OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
+                        }
+                    }
+                    else
+                    {
+                        storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList()
+                        .OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
+                    }
                     foreach (var s in storys)
                     {
                         s.Chaps = s.Chaps.OrderByDescending(t => t.ID).ToList();
@@ -295,16 +311,19 @@ namespace Pro.Service.Implements
             public StoryType StoryType { get; set; }
             public List<StoryType> StoryTypes { get; set; }
         }
-        public TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, bool useCache = true)
+        public TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true)
         {
             var rs = new TempGetAllStoryByTypeName();
             var types = GetAllStoryType().ToList();
             var type = types.Where(s => s.Name.Equals(typeName)).FirstOrDefault();
             if (type != null)
             {
-                var storys = GetTotalStoryForNew().NewStorys.Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID)).ToList();
+                //var storys = GetTotalStoryForNew().NewStorys.Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID)).ToList();
+                var storys = GetTotalStoryForNew(pageIndex: pageIndex, typeName: typeName, dataPerPage: dataPerPage,
+                    numberStory: numberStory, useCache: useCache);
+
                 var temp = new List<ImageStoryInfo>();
-                foreach (var story in storys)
+                foreach (var story in storys.NewStorys)
                 {
                     var chapInfos = new List<Chap>();
 

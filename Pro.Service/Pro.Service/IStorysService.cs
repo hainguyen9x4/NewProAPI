@@ -11,6 +11,6 @@ namespace Pro.Service
         ImageStoryInfo GetAllChapByStoryIdForNew(int storyID, bool useCache = true);
         ChapInfo GetImageStorysInChapForNew(int storyID, int chapID, bool useCache = true);
         List<ImageStoryInfo> GetFollowStorys(List<int> sotryIDs, int userID, bool useCache = true);
-        TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, bool useCache = true);
+        TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true);
     }
 }

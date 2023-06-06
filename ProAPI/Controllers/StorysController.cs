@@ -42,7 +42,7 @@ namespace xStory.Controllers
             _storyService.GetAllStoryForSearchForNew();
         [Route("api/[controller]/GetAllStoryByTypeName")]
         [HttpGet]
-        public ActionResult<TempGetAllStoryByTypeName> GetAllStoryByTypeName(string nameType) =>
-            _storyService.GetAllStoryByTypeName(nameType);
+        public ActionResult<TempGetAllStoryByTypeName> GetAllStoryByTypeName([FromQuery] string nameType, int pageIndex, int storyPerPage) =>
+            _storyService.GetAllStoryByTypeName(nameType, pageIndex, storyPerPage);
     }
 }
