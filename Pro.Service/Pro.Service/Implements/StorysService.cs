@@ -424,6 +424,7 @@ namespace Pro.Service.Implements
                             ID = chap.ID,
                             Link = chap.Link,
                             Name = chap.Name,
+                            UpdatedTime = chap.UpdatedTime,
                         });
                     }
                 }
