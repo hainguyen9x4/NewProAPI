@@ -49,5 +49,18 @@ namespace xStory.Controllers
         [HttpGet]
         public ActionResult<TempGetAllStoryByTypeName> RateStory([FromQuery] RATE_TYPE rateType, int pageIndex = 0, int dataPerPage = 16) =>
             _storyService.RateStory(rateType, pageIndex, dataPerPage);
+
+
+        public class TempObject
+        {
+            public List<int> TypeIDs { get; set; }
+            public int PageIndex { get; set; }
+            public int StoryPerPage { get; set; }
+        }
+        [Route("api/[controller]/GetAllStoryByTypeIDs")]
+        [HttpPost]
+        public ActionResult<TempGetAllStoryByTypeName> GetAllStoryByTypeIDs(TempObject data) =>
+            _storyService.GetAllStoryByTypeIDs(data.TypeIDs, data.PageIndex, data.StoryPerPage);
+
     }
 }

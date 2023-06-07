@@ -14,5 +14,6 @@ namespace Pro.Service
         List<ImageStoryInfo> GetFollowStorys(List<int> sotryIDs, int userID, bool useCache = true);
         TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true);
         TempGetAllStoryByTypeName RateStory(RATE_TYPE type, int pageIndex = 0, int dataPerPage = 16);
+        TempGetAllStoryByTypeName GetAllStoryByTypeIDs(List<int> typeIDs, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true);
     }
 }

@@ -106,7 +106,7 @@ namespace Pro.Service.Implements
             }
         }
 
-        private TempGetAllStoryData GetTotalStoryForNew(int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true, string typeName = "", string cachedKey = "")
+        private TempGetAllStoryData GetTotalStoryForNew(int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true, int typeID = 0, string cachedKey = "")
         {
             try
             {
@@ -114,10 +114,10 @@ namespace Pro.Service.Implements
                 {
                     var storys = new List<NewStory>();
                     var total = 0;
-                    if (!String.IsNullOrEmpty(typeName))
+                    if (typeID > 0)
                     {
                         var types = GetAllStoryType().ToList();
-                        var type = types.Where(s => s.Name.Equals(typeName)).FirstOrDefault();
+                        var type = types.Where(s => s.TypeID == typeID).FirstOrDefault();
                         if (type != null)
                         {
                             storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0)
@@ -329,23 +329,83 @@ namespace Pro.Service.Implements
         {
             var results = new TempGetAllStoryByTypeName();
             var types = GetAllStoryType().ToList();
-            var type = types.Where(s => s.Name.Equals(typeName)).FirstOrDefault();
-            if (type != null)
+            var typeID = 1;
+            var listTypeIDs = new List<int>();
+            var type = new StoryType();
+            if (typeName == "tim-truyen")
             {
-                var dataStory = GetTotalStoryForNew(pageIndex: pageIndex, typeName: typeName, dataPerPage: dataPerPage,
-                    numberStory: numberStory, useCache: useCache,
-                    cachedKey: CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPageStoryType, pageIndex / dataPerPage, dataPerPage, typeName));
-                var storys = dataStory.NewStorys.Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
-
-                var temp = new List<ImageStoryInfo>();
-                results.TotalPage = dataStory.TotalStory / dataPerPage + (dataStory.TotalStory % dataPerPage > 0 ? 1 : 0);
-                results.CurrentPage = pageIndex;
-                MakeMoreDetailStoryWithChaps(storys, temp, 3);
-                results.ImageStoryInfos = temp;
-                results.StoryType = type;
-                results.StoryTypes = types;
+                listTypeIDs = types.Select(x => x.TypeID).ToList();
+                results.StoryType = types.Where(s => s.TypeID == 1).First();
+                typeID = 0;
             }
+            else
+            {
+                type = types.Where(s => s.Name.Equals(typeName)).FirstOrDefault();
+                if (type != null)
+                {
+                    listTypeIDs.Add(type.TypeID);
+                    results.StoryType = type;
+                    typeID = type.TypeID;
+                }
+            }
+            results.ImageStoryInfos = new List<ImageStoryInfo>();
+
+            var dataStory = GetTotalStoryForNew(pageIndex: pageIndex, typeID: typeID, dataPerPage: dataPerPage,
+                numberStory: numberStory, useCache: useCache,
+                cachedKey: CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPageStoryType, pageIndex / dataPerPage, dataPerPage, typeID));
+            var storys = dataStory.NewStorys.Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
+
+            var temp = new List<ImageStoryInfo>();
+            results.TotalPage = dataStory.TotalStory / dataPerPage + (dataStory.TotalStory % dataPerPage > 0 ? 1 : 0);
+            results.CurrentPage = pageIndex;
+            MakeMoreDetailStoryWithChaps(storys, temp, 3);
+
+            results.ImageStoryInfos = temp;
+            results.StoryTypes = types;
+            results.StoryType = type;
             return results;
+        }
+
+        public TempGetAllStoryByTypeName GetAllStoryByTypeIDs(List<int> typeIDs, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true)
+        {
+            try
+            {
+                Func<TempGetAllStoryByTypeName> fetchFunc = () =>
+                {
+                    var results = new TempGetAllStoryByTypeName();
+
+                    results.ImageStoryInfos = new List<ImageStoryInfo>();
+
+                    var types = GetAllStoryType().ToList();
+                    if (!typeIDs.Any())
+                    {
+                        typeIDs = types.Select(t => t.TypeID).ToList();
+                    }
+
+                    var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0 && typeIDs.Contains(s.ID)).ToList()
+                    .OrderByDescending(s => s.UpdatedTime).Skip(pageIndex* dataPerPage).Take(dataPerPage).ToList();
+                    var total = _newStoryRepository.GetAll().Count();
+
+                    var temp = new List<ImageStoryInfo>();
+                    MakeMoreDetailStoryWithChaps(storys, temp, 3);
+                    results.ImageStoryInfos.AddRange(temp);
+
+                    results.TotalPage = total / dataPerPage + (total % dataPerPage > 0 ? 1 : 0);
+                    results.CurrentPage = pageIndex;
+                    results.StoryTypes = types;
+
+                    return results;
+                };
+
+                var cachedKey = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListStoryGenderType, pageIndex, dataPerPage, !typeIDs.Any() ? 1 : 0);
+
+                return useCache ? _cacheProvider.Get<TempGetAllStoryByTypeName>(cachedKey, fetchFunc, expiredTimeInSeconds: 4000) : fetchFunc();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when caculate page", ex);
+                return new TempGetAllStoryByTypeName();
+            }
         }
 
         private static void MakeMoreDetailStoryWithChaps(List<NewStory> storys, List<ImageStoryInfo> temp, int numberChap)
@@ -450,7 +510,7 @@ namespace Pro.Service.Implements
                         TotalStory = total
                     };
                 };
-                var cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfRateType, pageIndex / dataPerPage, dataPerPage, Convert.ToInt32(type));
+                var cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfRateType, pageIndex, dataPerPage, Convert.ToInt32(type));
 
                 return useCache ? _cacheProvider.Get<TempGetAllStoryData>(cached, fetchFunc, expiredTimeInSeconds: 433) : fetchFunc();
 

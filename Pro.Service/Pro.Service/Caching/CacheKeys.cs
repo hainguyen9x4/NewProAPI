@@ -30,6 +30,7 @@
             public const string AllStoryType = "AllStoryType";
             public const string ListAllStoryOfPageStoryType = "ListAllStoryOfPageStoryType{0}{1}{2}";
             public const string ListAllStoryOfRateType = "ListAllStoryOfRateType{0}{1}{2}";
+            public const string ListStoryGenderType = "ListStoryGenderType{0}{1}{2}";
         }
     }
 }
