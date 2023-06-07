@@ -150,7 +150,7 @@ namespace Pro.Service.Implements
                 }
                 else
                 {
-                    cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPage, pageIndex / dataPerPage, dataPerPage);
+                    cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfPage, pageIndex, dataPerPage);
                     if (dataPerPage == 0) cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStory);
                 }
 
@@ -383,7 +383,7 @@ namespace Pro.Service.Implements
                     }
 
                     var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0 && typeIDs.Contains(s.ID)).ToList()
-                    .OrderByDescending(s => s.UpdatedTime).Skip(pageIndex* dataPerPage).Take(dataPerPage).ToList();
+                    .OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
                     var total = _newStoryRepository.GetAll().Count();
 
                     var temp = new List<ImageStoryInfo>();
@@ -450,6 +450,7 @@ namespace Pro.Service.Implements
 
             var temp = new List<ImageStoryInfo>();
             var story = new TempGetAllStoryData();
+            var cached = CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.ListAllStoryOfRateType, pageIndex, dataPerPage, Convert.ToInt32(type));
             switch (type)
             {
                 case
@@ -463,17 +464,19 @@ namespace Pro.Service.Implements
                 case
                     RATE_TYPE.TOP_LIKE:
                     story = GetTotalStoryForNew2(pageIndex, dataPerPage, type: type);
+                    story.NewStorys = story.NewStorys.OrderByDescending(s => s.ID).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
                     MakeMoreDetailStoryWithChaps(story.NewStorys, temp, 3);
                     break;
                 case
                     RATE_TYPE.NEW_STORY:
-                    story = GetTotalStoryForNew(pageIndex, dataPerPage);
-                    story.NewStorys = story.NewStorys.OrderByDescending(s => s.ID).ToList();
+                    story = GetTotalStoryForNew(pageIndex, dataPerPage, cachedKey: cached);
+                    story.NewStorys = story.NewStorys.OrderByDescending(s => s.ID).Skip(pageIndex* dataPerPage).Take(dataPerPage).ToList();
                     MakeMoreDetailStoryWithChaps(story.NewStorys, temp, 3);
                     break;
                 case
                     RATE_TYPE.NEWEST_UPDATED:
-                    story = GetTotalStoryForNew(pageIndex, dataPerPage);
+                    story = GetTotalStoryForNew(pageIndex, dataPerPage, cachedKey: cached);
+                    story.NewStorys = story.NewStorys.OrderByDescending(s => s.ID).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
                     MakeMoreDetailStoryWithChaps(story.NewStorys, temp, 3);
                     break;
             }
