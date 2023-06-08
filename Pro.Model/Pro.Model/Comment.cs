@@ -5,13 +5,10 @@ namespace Pro.Model
 {
     public class Comment
     {
-        public Comment(int userID, int chapID, int storyID, List<CommentDetail> comments, string content = "")
+        public Comment(int storyID, List<CommentDetail> commentDetails)
         {
-            //UserID = userID;
             StoryID = storyID;
-            //ChapID = chapID;
-            //Content = content;
-            CommentDetails = comments;
+            CommentDetails = commentDetails;
         }
 
         [BsonId]
