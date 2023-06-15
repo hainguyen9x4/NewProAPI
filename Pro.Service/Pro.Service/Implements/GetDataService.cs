@@ -46,7 +46,7 @@ namespace Pro.Service.Implements
                     if (newestChapDatas.Chaps != null && newestChapDatas.Chaps.Any())
                     {
                         _getRawDataService.GetRawDatasForNew(newestChapDatas);
-                        SaveData2File($@"D:\Debug\RawData{newestChapDatas.Name}.json", newestChapDatas);
+                        //SaveData2File($@"D:\Debug\RawData{newestChapDatas.Name}.json", newestChapDatas);
 
                         //Save to file
                         //newestChapDatas = ReadDataFromFile($@"D:\Debug\RawData{newestChapDatas.Name}.json");
@@ -58,7 +58,7 @@ namespace Pro.Service.Implements
                         //newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
                         LogHelper.Info($"GET---Start UploadLink2StoreWith3ThreadsForNew");
                         _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
-                        SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
+                        //SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
 
                         //Save to DB
                         _upData2DBService.UpData2DBForNew(newestChapDatas);
