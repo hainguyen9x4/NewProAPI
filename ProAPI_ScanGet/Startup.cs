@@ -48,6 +48,7 @@ namespace xStory
             services.AddScoped<ISaveImage2Local, SaveImage2Local>();
             services.AddScoped<IUpData2DBService, UpData2DBService>();
             services.AddScoped<IStoryTypeService, StoryTypeService>();
+            services.AddScoped<ILogService, LogService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

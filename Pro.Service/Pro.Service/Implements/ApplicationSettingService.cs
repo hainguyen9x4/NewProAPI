@@ -324,5 +324,22 @@ namespace Pro.Service.Implements
         public void Delete(ApplicationSetting appSettingForDeletion) => _appSettingRepository.Delete(appSettingForDeletion);
 
         public void Delete(int id) => _appSettingRepository.Delete(id);
+        
+        public class TempCloudinaryData
+        {
+            public int NumberCloudinary { get; set; }
+            public int NumberImage { get; set; }
+        }
+        public TempCloudinaryData CaculateNumberCloudinaryUsed()
+        {
+            var rs = new TempCloudinaryData();
+            var datas = _appSettingRepository.GetAll().Where(s => s.AppSettingName == "CloundSetting" && s.NumberImage > 0).ToList();
+            if (datas.Any())
+            {
+                rs.NumberCloudinary = datas.Count();
+                datas.ForEach(data => rs.NumberImage += data.NumberImage);
+            }
+            return rs;
+        }
     }
 }

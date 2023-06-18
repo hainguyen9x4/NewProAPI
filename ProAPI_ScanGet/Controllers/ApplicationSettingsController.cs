@@ -91,5 +91,13 @@ namespace xAppSetting.Controllers
 
             return NoContent();
         }
+        [HttpGet]
+        [Route("CaculateNumberCloudinaryUsed")]
+        public ActionResult<TempCloudinaryData> CaculateNumberCloudinaryUsed()
+        {
+            var data = _applicationSettingService.CaculateNumberCloudinaryUsed();
+
+            return data;
+        }
     }
 }

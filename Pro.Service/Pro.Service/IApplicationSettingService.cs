@@ -28,5 +28,6 @@ namespace Pro.Service
         void Delete(int id);
         void Delete(ApplicationSetting appSettingForDeletion);
         void Update(int id, ApplicationSetting updatedAppSetting);
+        public TempCloudinaryData CaculateNumberCloudinaryUsed();
     }
 }
