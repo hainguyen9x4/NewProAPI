@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Pro.Common;
+using Pro.Common.Const;
 using Pro.Data.Repositorys;
 using Pro.Data.Repositorys.Implements;
 using Pro.Model;
@@ -56,7 +57,7 @@ namespace xStory
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "xStory", Version = "v1" });
             });
 #if DEBUG
-            LogHelper.InitLogHelper(@"C:\Logs\XStory\");
+            LogHelper.InitLogHelper(Constants.DEBUG_LOG_FOLDER);
 #else
             LogHelper.InitLogHelper();
 #endif

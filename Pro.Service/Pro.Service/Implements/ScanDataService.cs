@@ -25,6 +25,9 @@ namespace Pro.Service.Implements
             var settings = _applicationSettingService.GetValueGetScan(ApplicationSettingKey.AppsettingsScanGet, useOtherSetting: _settingData.UseSettingGetSetNumber);
             _setting = JsonManager.StringJson2Object<AppBuildDataSetting>(settings);
             _storyTypeService = storyTypeService;
+#if DEBUG
+            _setting.FolderSaveData = Constants.DEBUG_DATA_FOLDER;
+#endif
         }
 
         public bool StartScanData()

@@ -18,6 +18,9 @@ namespace Pro.Service.SubScanDataService.Implements
             _settingData = appSettingData;
             var settings = _applicationSettingService.GetValueGetScan(ApplicationSettingKey.AppsettingsScanGet, useOtherSetting: _settingData.UseSettingGetSetNumber);
             _setting = JsonManager.StringJson2Object<AppBuildDataSetting>(settings);
+#if DEBUG
+            _setting.FolderSaveData = Constants.DEBUG_DATA_FOLDER;
+#endif
         }
 
         public NewestChapModel PrepareNewestChapDatas()
