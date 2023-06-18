@@ -228,6 +228,10 @@ namespace Pro.Service.Implement
             if (clound != null)
             {
                 clound.NumberImage += newNumberImages;
+                if(clound.NumberImage >= Constants.MAX_IMAGE)
+                {
+                    clound.AppSettingIsActive = false;
+                }
                 _applicationSettingService.Update(clound.AppSettingId, clound);
                 if (clound.NumberImage >= Constants.MAX_IMAGE)
                 {
