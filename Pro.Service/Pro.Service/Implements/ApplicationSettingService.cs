@@ -242,7 +242,7 @@ namespace Pro.Service.Implements
                     var settings = new List<string>();
                     foreach (var key in keys)
                     {
-                        settings.Add(_appSettingRepository.GetAll().Where(i => i.AppSettingId == key.AppSettingId).Select(i => i.AppSettingValue).FirstOrDefault());
+                        settings.Add(key.AppSettingValue);
                     }
                     return settings;
                 };
@@ -298,7 +298,13 @@ namespace Pro.Service.Implements
                 appSetting.AppSettingIsActive = true;
                 appSetting.Descriptions = email;
             }
-            return _appSettingRepository.Create(appSetting);
+            //CheckValid before create:
+            if (_appSettingRepository.GetAll().Where(s => s.AppSettingIsActive == true && s.AppSettingName == "CloundSetting"
+            && s.AppSettingValue.Contains(clound[0])).FirstOrDefault() == null)
+            {
+                return _appSettingRepository.Create(appSetting);
+            }
+            return new ApplicationSetting();
         }
         private List<string> GetData(string dataCreateCloundinary, string c)
         {
