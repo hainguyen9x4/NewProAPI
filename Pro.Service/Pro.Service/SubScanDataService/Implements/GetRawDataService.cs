@@ -22,10 +22,8 @@ namespace Pro.Service.SubScanDataService.Implements
 #endif
         }
 
-        public void GetRawDatasForNew(NewStory newestData)
+        public bool GetRawDatasForNew(NewStory newestData)
         {
-            var resultDatas = new DataStoryForSave();
-
             string nameTruyen, chapName = "";
             foreach (var chap in newestData.Chaps)
             {
@@ -39,6 +37,11 @@ namespace Pro.Service.SubScanDataService.Implements
             }
             newestData.Picture = GetPictureLinkFormStoryLinkByAPI(newestData.Link);
 
+            if (newestData.Chaps.Where(data => data.Images.Any()).Any())
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool FindNewStory(int numberPage, string homeUrl)

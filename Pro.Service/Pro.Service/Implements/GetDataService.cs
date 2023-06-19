@@ -45,33 +45,40 @@ namespace Pro.Service.Implements
                     var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew(ref localPath);
                     if (newestChapDatas.Chaps != null && newestChapDatas.Chaps.Any())
                     {
-                        _getRawDataService.GetRawDatasForNew(newestChapDatas);
-                        //SaveData2File($@"D:\Debug\RawData{newestChapDatas.Name}.json", newestChapDatas);
-
-                        //Save to file
-                        //newestChapDatas = ReadDataFromFile($@"D:\Debug\RawData{newestChapDatas.Name}.json");
-                        //LogHelper.Info($"GET---Start SaveImage2LocalFunc");
-                        //_saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
-                        //SaveData2File($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json", newestChapDatas);
-
-                        //Uplpad to Clound
-                        //newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
-                        LogHelper.Info($"GET---Start UploadLink2StoreWith3ThreadsForNew");
-                        _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
-                        //SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
-
-                        //Save to DB
-                        _upData2DBService.UpData2DBForNew(newestChapDatas);
-                        //Delete file
-                        try
+                        if (_getRawDataService.GetRawDatasForNew(newestChapDatas))
                         {
-                            FileReader.DeleteFile(localPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            LogHelper.Error($"DeleteFile/Move {localPath}" + ex);
-                        }
+                            //SaveData2File($@"D:\Debug\RawData{newestChapDatas.Name}.json", newestChapDatas);
 
+                            //Save to file
+                            //newestChapDatas = ReadDataFromFile($@"D:\Debug\RawData{newestChapDatas.Name}.json");
+                            //LogHelper.Info($"GET---Start SaveImage2LocalFunc");
+                            //_saveImage2Local.SaveImage2LocalFunc(newestChapDatas);
+                            //SaveData2File($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json", newestChapDatas);
+
+                            //Uplpad to Clound
+                            //newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
+                            if (_uploadImageService.HasValidCloudinary())
+                            {
+                                LogHelper.Info($"GET---Start UploadLink2StoreWith3ThreadsForNew");
+                                _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
+                                //SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
+                                //Save to DB
+                                _upData2DBService.UpData2DBForNew(newestChapDatas);
+                                //Delete file
+                                try
+                                {
+                                    FileReader.DeleteFile(localPath);
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogHelper.Error($"DeleteFile/Move {localPath}" + ex);
+                                }
+                            }
+                            else
+                            {
+                                LogHelper.Error($"No valid cloudinary!");
+                            }
+                        }
                     }
                     statusGetData2 = true;
                     LogHelper.Info($"GET---Stop GetDataService");

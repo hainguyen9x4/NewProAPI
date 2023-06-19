@@ -26,7 +26,6 @@ namespace Pro.Service.Implement
             var allSettings = _applicationSettingService.GetAllCloudarySettings(ApplicationSettingKey.CloundSetting, useCache: false);
             if (allSettings.Any())
             {
-
                 var cloudinarySettings = JsonManager.StringJson2Object<CloudinarySettings>(allSettings.First());
                 Account acc = new Account(cloudinarySettings.CloudName, cloudinarySettings.ApiKey, cloudinarySettings.ApiSecret);
                 _cloudinary = new Cloudinary(acc);
@@ -35,7 +34,6 @@ namespace Pro.Service.Implement
             else
             {
             }
-
         }
         private IResultUpload UploadImage(string fileName, string localLink, string pathSave = "", bool isNeedConvert = false, int retryTimes = 2, int sleepNextRetryTime = 15 * 1000)
         {
@@ -122,51 +120,51 @@ namespace Pro.Service.Implement
                         DisplayName = fileName,
                         UseFilename = true,
                     };
-                try
-                {
-                    bool isOK = false;
-                    var uploadResult = new ImageUploadResult();
-                    for (int retry = 1; retry <= retryTimes; retry++)
+                    try
                     {
-                        isOK = false;
-                        try
+                        bool isOK = false;
+                        var uploadResult = new ImageUploadResult();
+                        for (int retry = 1; retry <= retryTimes; retry++)
                         {
-                            uploadResult = _cloudinary.UploadAsync(uploadParams).Result;
-                        }
-                        catch (Exception ex)
-                        {
-                            if (retry == retryTimes)
+                            isOK = false;
+                            try
                             {
-                                LogHelper.Error($"UploadImage-Exception-Retrytime:{retry},{link},pathSave:{pathSave}" + ex);
-                                //throw;
+                                uploadResult = _cloudinary.UploadAsync(uploadParams).Result;
+                            }
+                            catch (Exception ex)
+                            {
+                                if (retry == retryTimes)
+                                {
+                                    LogHelper.Error($"UploadImage-Exception-Retrytime:{retry},{link},pathSave:{pathSave}" + ex);
+                                    //throw;
+                                }
+                            }
+                            isOK = IsUploadResultOK(uploadResult);
+                            if (isOK) break;
+                            System.Threading.Thread.Sleep(sleepNextRetryTime);
+                            acc.WaitInternetAccess("Uploadcloudinary");
+                        }
+
+                        if (isOK)
+                        {
+                            var rs = uploadResult.JsonObj.ToObject<JsonObj>();
+                            if (rs != null && !String.IsNullOrEmpty(rs.url))
+                            {
+                                result.ResultStatus = 1;
+                                result.Url = rs.url;
                             }
                         }
-                        isOK = IsUploadResultOK(uploadResult);
-                        if (isOK) break;
-                        System.Threading.Thread.Sleep(sleepNextRetryTime);
-                        acc.WaitInternetAccess("Uploadcloudinary");
-                    }
-
-                    if (isOK)
-                    {
-                        var rs = uploadResult.JsonObj.ToObject<JsonObj>();
-                        if (rs != null && !String.IsNullOrEmpty(rs.url))
+                        else
                         {
-                            result.ResultStatus = 1;
-                            result.Url = rs.url;
+                            //LogHelper.Info($"UploadImage-allResult:{JsonConvert.SerializeObject(uploadResult)}");
+                            result.ErrorMessage = uploadResult.Error?.Message;
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        //LogHelper.Info($"UploadImage-allResult:{JsonConvert.SerializeObject(uploadResult)}");
-                        result.ErrorMessage = uploadResult.Error?.Message;
+                        LogHelper.Error($"UploadImage-Exception-url={link}" + ex);
+                        result.ErrorMessage = ex.Message;
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogHelper.Error($"UploadImage-Exception-url={link}" + ex);
-                    result.ErrorMessage = ex.Message;
-                }
                 }
             }
             return result;
@@ -228,7 +226,7 @@ namespace Pro.Service.Implement
             if (clound != null)
             {
                 clound.NumberImage += newNumberImages;
-                if(clound.NumberImage >= Constants.MAX_IMAGE)
+                if (clound.NumberImage >= Constants.MAX_IMAGE)
                 {
                     clound.AppSettingIsActive = false;
                 }
@@ -250,7 +248,15 @@ namespace Pro.Service.Implement
             }
             return null;
         }
-
+        public bool HasValidCloudinary()
+        {
+            var allSettings = _applicationSettingService.GetAllCloudarySettings(ApplicationSettingKey.CloundSetting, useCache: false);
+            if (!allSettings.Any())
+            {
+                return false;
+            }
+            return true;
+        }
         public void UploadLink2StoreWith3ThreadsForNew(NewStory dataStory)
         {
             var listDatas = DividingObject(dataStory, 15);
