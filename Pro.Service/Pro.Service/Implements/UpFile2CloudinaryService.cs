@@ -209,15 +209,17 @@ namespace Pro.Service.Implement
             _cloudinary = UploadDataToAppSetting(_cloudinary, totalImages);
             return dataStory;
         }
-        private Cloudinary GetCloudinary()
+        private Cloudinary GetCloudinary(Cloudinary cloudinary)
         {
             var allSettings = _applicationSettingService.GetAllCloudarySettings(ApplicationSettingKey.CloundSetting, useCache: false);
-
-            var cloudinarySettings = JsonManager.StringJson2Object<CloudinarySettings>(allSettings.First());
-            Account acc = new Account(cloudinarySettings.CloudName, cloudinarySettings.ApiKey, cloudinarySettings.ApiSecret);
-            var cloudinary = new Cloudinary(acc);
-            cloudinary.Api.Timeout = 60000;//60s
-
+            if (allSettings.Any())
+            {
+                var cloudinarySettings = JsonManager.StringJson2Object<CloudinarySettings>(allSettings.First());
+                Account acc = new Account(cloudinarySettings.CloudName, cloudinarySettings.ApiKey, cloudinarySettings.ApiSecret);
+                var cloudinaryX = new Cloudinary(acc);
+                cloudinaryX.Api.Timeout = 60000;//60s
+                return cloudinaryX;
+            }
             return cloudinary;
         }
         private Cloudinary UploadDataToAppSetting(Cloudinary cloudinary, int newNumberImages)
@@ -233,7 +235,7 @@ namespace Pro.Service.Implement
                 _applicationSettingService.Update(clound.AppSettingId, clound);
                 if (clound.NumberImage >= Constants.MAX_IMAGE)
                 {
-                    return GetCloudinary();
+                    return GetCloudinary(cloudinary);
                 }
             }
             return cloudinary;
