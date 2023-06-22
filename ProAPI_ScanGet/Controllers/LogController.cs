@@ -19,7 +19,7 @@ namespace xStory.Controllers
 
         [Route("api/[controller]/ListLogFile")]
         [HttpGet]
-        public ActionResult<List<string>> ListLogFile(string folderLog)
+        public ActionResult<List<string>> ListLogFile(string folderLog = "d:/www2/scangetapi/data/appdata/")
         {
             return _logService.GetLogFiles(folderLog);
         }
