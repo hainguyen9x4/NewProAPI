@@ -220,7 +220,15 @@ namespace Pro.Service.Implement
                 cloudinaryX.Api.Timeout = 60000;//60s
                 return cloudinaryX;
             }
-            return cloudinary;
+            else
+            {
+                while (HasValidCloudinary())
+                {
+                    LogHelper.Warn("Waiting to add new clound Acc");
+                    Thread.Sleep(3000);
+                }
+                return GetCloudinary(cloudinary);
+            }
         }
         private Cloudinary UploadDataToAppSetting(Cloudinary cloudinary, int newNumberImages)
         {
@@ -228,12 +236,12 @@ namespace Pro.Service.Implement
             if (clound != null)
             {
                 clound.NumberImage += newNumberImages;
-                if (clound.NumberImage >= Constants.MAX_IMAGE)
+                if (clound.NumberImage >= _applicationSettingService.GetIntValue("MaxImageClound", 6000, true))
                 {
                     clound.AppSettingIsActive = false;
                 }
                 _applicationSettingService.Update(clound.AppSettingId, clound);
-                if (clound.NumberImage >= Constants.MAX_IMAGE)
+                if (clound.NumberImage >= _applicationSettingService.GetIntValue("MaxImageClound", 6000, true))
                 {
                     return GetCloudinary(cloudinary);
                 }

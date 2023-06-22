@@ -2,8 +2,6 @@
 {
     public static class Constants
     {
-        public const int MAX_IMAGE = 6000;
-
         public const string AUTHORIZATION = "Authorization";
         public const string TOKEN_PREFIX = "xStory";
         public const string VERSION_INFO = "VersionInfo";
