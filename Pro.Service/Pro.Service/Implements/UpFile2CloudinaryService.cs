@@ -222,7 +222,7 @@ namespace Pro.Service.Implement
             }
             else
             {
-                while (HasValidCloudinary())
+                while (!HasValidCloudinary())
                 {
                     LogHelper.Warn("Waiting to add new clound Acc");
                     Thread.Sleep(3000);
@@ -236,12 +236,12 @@ namespace Pro.Service.Implement
             if (clound != null)
             {
                 clound.NumberImage += newNumberImages;
-                if (clound.NumberImage >= _applicationSettingService.GetIntValue("MaxImageClound", 6000, true))
+                if (clound.NumberImage >= _applicationSettingService.GetIntValue(ApplicationSettingKey.MaxImageClound, 6000, true))
                 {
                     clound.AppSettingIsActive = false;
                 }
                 _applicationSettingService.Update(clound.AppSettingId, clound);
-                if (clound.NumberImage >= _applicationSettingService.GetIntValue("MaxImageClound", 6000, true))
+                if (clound.NumberImage >= _applicationSettingService.GetIntValue(ApplicationSettingKey.MaxImageClound, 6000, true))
                 {
                     return GetCloudinary(cloudinary);
                 }

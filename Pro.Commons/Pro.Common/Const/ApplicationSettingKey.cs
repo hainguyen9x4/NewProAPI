@@ -11,5 +11,6 @@
         public const string SubDataForHomePage = "SubDataForHomePage";
         public const string UrlBaseApiExGetHtmlElement = "UrlBaseApiExecuteGetHtmlElement";
         public const string IsNeedReStart = "IsNeedReStartAfterFinishGetData";
+        public const string MaxImageClound = "MaxImageClound";
     }
 }

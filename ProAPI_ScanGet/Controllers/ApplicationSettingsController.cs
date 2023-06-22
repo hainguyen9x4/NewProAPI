@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Pro.Model;
 using Pro.Service;
 using System.Collections.Generic;
+using System.Linq;
 using static Pro.Service.Implements.ApplicationSettingService;
 
 namespace xAppSetting.Controllers
@@ -77,17 +78,20 @@ namespace xAppSetting.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpPost]
+        [Route("DeleteByIds")]
+        public IActionResult DeleteByIds(List<int> ids)
         {
-            var applicationSetting = _applicationSettingService.Get(id);
+            var applicationSettings = _applicationSettingService.Get().Where(s=>ids.Contains(s.AppSettingId)).ToList();
 
-            if (applicationSetting == null)
+            if (!applicationSettings.Any())
             {
                 return NotFound();
             }
-
-            _applicationSettingService.Delete(applicationSetting.AppSettingId);
+            foreach(var appSetting in applicationSettings)
+            {
+                _applicationSettingService.Delete(appSetting.AppSettingId);
+            }
 
             return NoContent();
         }

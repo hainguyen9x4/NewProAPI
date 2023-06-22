@@ -239,7 +239,7 @@ namespace Pro.Service.Implements
                 Func<List<string>> fetchFunc = () =>
                 {
                     var keys = _appSettingRepository.GetAll().Where(k => k.AppSettingIsActive
-                    && k.AppSettingName.Contains(settingKey) && k.NumberImage < GetIntValue("MaxImageClound", 6000, true)).Take(1).ToArray();
+                    && k.AppSettingName.Contains(settingKey) && k.NumberImage < GetIntValue(ApplicationSettingKey.MaxImageClound, 6000, true)).Take(1).ToArray();
                     var settings = new List<string>();
                     foreach (var key in keys)
                     {

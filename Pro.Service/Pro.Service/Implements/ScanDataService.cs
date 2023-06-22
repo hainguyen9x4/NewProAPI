@@ -205,7 +205,7 @@ namespace Pro.Service.Implements
                         new StorySaveInfo()
                         {
                             StoryName = storyName,
-                            ChapStoredNewest = fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max(),
+                            ChapStoredNewest = fetchedData.ChapPluss.Any() ? fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max() : 0,
                         });
                     rs_eachChaps = fetchedData.ChapPluss.Select(t => t.ChapLink).ToList();
                 }
