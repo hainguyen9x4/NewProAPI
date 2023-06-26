@@ -84,10 +84,6 @@ namespace xAppSetting.Controllers
         {
             var applicationSettings = _applicationSettingService.Get().Where(s=>ids.Contains(s.AppSettingId)).ToList();
 
-            if (!applicationSettings.Any())
-            {
-                return NotFound();
-            }
             foreach(var appSetting in applicationSettings)
             {
                 _applicationSettingService.Delete(appSetting.AppSettingId);
