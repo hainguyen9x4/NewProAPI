@@ -80,7 +80,7 @@ namespace xAppSetting.Controllers
 
         [HttpPost]
         [Route("DeleteByIds")]
-        public IActionResult DeleteByIds(List<int> ids)
+        public IActionResult DeleteByIds(List<int> ids, bool isCleanNotActiveCloundinay = false)
         {
             var applicationSettings = _applicationSettingService.Get().Where(s=>ids.Contains(s.AppSettingId)).ToList();
 
@@ -92,7 +92,15 @@ namespace xAppSetting.Controllers
             {
                 _applicationSettingService.Delete(appSetting.AppSettingId);
             }
-
+            if (isCleanNotActiveCloundinay)
+            {
+                var idss = _applicationSettingService.Get().Where(s=>s.AppSettingIsActive == false && s.AppSettingName == "CloundSetting")
+                    .Select(s=>s.AppSettingId).ToArray();
+                foreach (var id in idss)
+                {
+                    _applicationSettingService.Delete(id);
+                }
+            }
             return NoContent();
         }
         [HttpGet]
