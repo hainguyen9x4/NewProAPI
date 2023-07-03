@@ -32,6 +32,8 @@
             Copy = new Button();
             txtMail = new TextBox();
             txtNumber = new TextBox();
+            btnSend = new Button();
+            txtEmail = new TextBox();
             SuspendLayout();
             // 
             // Take
@@ -67,11 +69,30 @@
             txtNumber.Size = new Size(38, 23);
             txtNumber.TabIndex = 3;
             // 
+            // btnSend
+            // 
+            btnSend.Location = new Point(12, 161);
+            btnSend.Name = "btnSend";
+            btnSend.Size = new Size(75, 23);
+            btnSend.TabIndex = 4;
+            btnSend.Text = "Send";
+            btnSend.UseVisualStyleBackColor = true;
+            btnSend.Click += btnSend_Click;
+            // 
+            // txtEmail
+            // 
+            txtEmail.Location = new Point(12, 132);
+            txtEmail.Name = "txtEmail";
+            txtEmail.Size = new Size(160, 23);
+            txtEmail.TabIndex = 5;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(766, 450);
+            Controls.Add(txtEmail);
+            Controls.Add(btnSend);
             Controls.Add(txtNumber);
             Controls.Add(txtMail);
             Controls.Add(Copy);
@@ -88,5 +109,7 @@
         private Button Copy;
         private TextBox txtMail;
         private TextBox txtNumber;
+        private Button btnSend;
+        private TextBox txtEmail;
     }
 }

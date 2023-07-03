@@ -6,6 +6,6 @@ namespace Pro.Service
     public interface IUploadImageService
     {
         void UploadLink2StoreWith3ThreadsForNew(NewStory dataStory);
-        bool HasValidCloudinary();
+        bool HasValidCloudinary(bool isNotify = false);
     }
 }

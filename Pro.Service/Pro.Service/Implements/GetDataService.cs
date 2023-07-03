@@ -57,13 +57,13 @@ namespace Pro.Service.Implements
 
                             //Uplpad to Clound
                             //newestChapDatas = ReadDataFromFile($@"D:\Debug\SavedLocal_{newestChapDatas.Name}.json");
-                            if (_uploadImageService.HasValidCloudinary())
+                            if (_uploadImageService.HasValidCloudinary(isNotify: true))
                             {
                                 LogHelper.Info($"GET---Start UploadLink2StoreWith3ThreadsForNew");
                                 _uploadImageService.UploadLink2StoreWith3ThreadsForNew(newestChapDatas);
                                 //SaveData2File($@"D:\Debug\HasClound_{newestChapDatas.Name}.json", newestChapDatas);
                                 //Save to DB
-                                _upData2DBService.UpData2DBForNew(newestChapDatas);
+                                //_upData2DBService.UpData2DBForNew(newestChapDatas);
                                 //Delete file
                                 try
                                 {

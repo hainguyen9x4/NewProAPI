@@ -258,12 +258,19 @@ namespace Pro.Service.Implement
             }
             return null;
         }
-        public bool HasValidCloudinary()
+        public bool HasValidCloudinary(bool isNotify = false)
         {
             var allSettings = _applicationSettingService.GetAllCloudarySettings(ApplicationSettingKey.CloundSetting, useCache: false);
             if (!allSettings.Any())
             {
                 return false;
+            }
+            else
+            {
+                if (allSettings.Count <= 10 && isNotify)
+                {
+                    SendEmailFunc.SendEmail($"Number available cloundinay: {allSettings.Count}","Warning!");
+                }
             }
             return true;
         }
