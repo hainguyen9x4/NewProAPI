@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Pro.Model;
 using Pro.Service;
+using System.Collections.Generic;
 
 namespace xStory.Controllers
 {
@@ -22,5 +24,10 @@ namespace xStory.Controllers
         [HttpGet]
         public ActionResult<bool> FindNewStory(int numberPage, string homeUrl) =>
             _getDataService.FindNewStory(numberPage, homeUrl);
+
+        [Route("api/[controller]/GetInvalidImageLink")]
+        [HttpGet]
+        public ActionResult<List<ImageStoryInvalidData>> GetInvalidImageLink(int limitNumberStoty = 5) =>
+            _getDataService.GetInvalidImageLink(limitNumberStoty);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using FileManager;
 using Pro.Common;
 using Pro.Data.Repositorys;
-using Pro.Data.Repositorys.Implements;
 using Pro.Model;
 
 namespace Pro.Service.SubScanDataService.Implements
@@ -84,6 +83,50 @@ namespace Pro.Service.SubScanDataService.Implements
                 }
                 _imageRepository.Creates(imagesOnChap);
             }
+        }
+
+        public List<ImageStoryInvalidData> GetDataInvalid(int limitNumberStoty = 5)
+        {
+            var dataInvalids = new List<ImageStoryInvalidData>();
+            var allStoryIDs = _newStoryRepository.GetAll().Select(story => story.ID).ToList();
+            foreach (var storyID in allStoryIDs)
+            {
+                var chapIDs = _imageRepository.GetAll().Where(i => i.StoryID == storyID).Select(i => i.ChapID).ToArray();
+                var listChaps = new List<ImagesOneChap>();
+                foreach (var chapID in chapIDs)
+                {
+                    var chapData = _imageRepository.GetAll().Where(i => i.StoryID == storyID && i.ChapID == chapID).First();
+                    var hasInvalidImage = false;
+                    for (int index = 0; index < chapData.Images.Count; index++)
+                    {
+                        if (!String.IsNullOrEmpty(chapData.Images[index].OriginLink))
+                        {
+                            hasInvalidImage = true;
+                            break;
+                        }
+                    }
+                    if (hasInvalidImage)
+                    {
+                        listChaps.Add(chapData);
+                    }
+                }
+                if (listChaps.Any())
+                {
+                    var storyInValid = new ImageStoryInvalidData();
+                    var storyData = _newStoryRepository.GetAll().Where(s => s.ID == storyID).First();
+
+                    storyInValid.ID = storyData.ID;
+                    storyInValid.Name = storyData.Name;
+                    storyInValid.StatusID = storyData.StatusID;
+                    storyInValid.NameShow = storyData.NameShow;
+                    storyInValid.Link = storyData.Link;
+
+                    storyInValid.Chaps = listChaps;
+                    dataInvalids.Add(storyInValid);
+                }
+                if (dataInvalids.Count >= limitNumberStoty) break;
+            }
+            return dataInvalids;
         }
 
         private void FakeDataOtherInfo(NewStory dataStory)
