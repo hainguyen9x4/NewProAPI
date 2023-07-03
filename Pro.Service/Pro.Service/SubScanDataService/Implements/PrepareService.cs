@@ -94,5 +94,17 @@ namespace Pro.Service.SubScanDataService.Implements
             }
             return resultDatas;
         }
+        public bool IsValidHomePage(bool isNotify = false)
+        {
+            var urlBase = _applicationSettingService.GetValue(ApplicationSettingKey.UrlBaseApiExGetHtmlElement);
+            var homeUrl = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage);
+            var rs = new ApiHelper().Get<List<string>>($"/api/FindNewStoryInPageAPI?numberPage={1}&homeUrl={homeUrl}", urlBase);
+            var valid = rs.Any();
+            if (isNotify && valid == false)
+            {
+                SendEmailFunc.SendEmail(strMessage: $"Need check the HomePage: {homeUrl}, get no data","Warning-HomePage");
+            }
+            return valid;
+        }
     }
 }

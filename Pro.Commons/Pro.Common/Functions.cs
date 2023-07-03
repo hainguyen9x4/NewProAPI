@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Pro.Common.Const;
+using System.Security.Cryptography;
 
 namespace Pro.Common
 {
