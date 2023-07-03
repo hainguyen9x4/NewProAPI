@@ -115,7 +115,11 @@ namespace Pro.Service.Implements
 
         public bool FindNewStory(int numberPage, string homeUrl)
         {
-            return _getRawDataService.FindNewStory(numberPage, homeUrl);
+            if (_prepareService.IsValidHomePage(true))
+            {
+                return _getRawDataService.FindNewStory(numberPage, homeUrl);
+            }
+            return false;
         }
         private void SaveData2File(string path, NewStory data)
         {
