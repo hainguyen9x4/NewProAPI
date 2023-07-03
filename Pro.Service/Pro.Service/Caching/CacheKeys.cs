@@ -32,5 +32,11 @@
             public const string ListAllStoryOfRateType = "ListAllStoryOfRateType{0}{1}{2}";
             public const string ListStoryGenderType = "ListStoryGenderType{0}{1}{2}";
         }
+        public static class ScanGetData
+        {
+            public const string ListStoryIDForCheckInvalid = "ListStoryIDForCheckInvalid";
+            public const string ListStoryIDChecked = "ListStoryIDChecked";
+            public const string ListChapIDChecked = "ListChapIDChecked{0}";
+        }
     }
 }

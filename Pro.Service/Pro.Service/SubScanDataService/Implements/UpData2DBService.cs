@@ -1,7 +1,9 @@
-﻿using FileManager;
+﻿using Amazon.Runtime.Internal.Util;
+using FileManager;
 using Pro.Common;
 using Pro.Data.Repositorys;
 using Pro.Model;
+using Pro.Service.Caching;
 
 namespace Pro.Service.SubScanDataService.Implements
 {
@@ -9,12 +11,15 @@ namespace Pro.Service.SubScanDataService.Implements
     {
         private readonly IImageRepository _imageRepository;
         private readonly INewStoryRepository _newStoryRepository;
+        private readonly ICacheProvider _cacheProvider;
 
         public UpData2DBService(IImageRepository image
-            , INewStoryRepository newStory)
+            , INewStoryRepository newStory
+            , ICacheProvider cacheProvider)
         {
             _imageRepository = image;
             _newStoryRepository = newStory;
+            _cacheProvider = cacheProvider;
         }
 
         private NewStory GetStoryIdFromStoryNameForNew(NewStory dataStoryForSave)
@@ -88,13 +93,34 @@ namespace Pro.Service.SubScanDataService.Implements
         public List<ImageStoryInvalidData> GetDataInvalid(int limitNumberStoty = 5)
         {
             var dataInvalids = new List<ImageStoryInvalidData>();
-            var allStoryIDs = _newStoryRepository.GetAll().Select(story => story.ID).ToList();
+            var allStoryIDs = GetAllStoryIds();
+
+            var listIdsCheckNeedToCache = _cacheProvider.Get<List<int>>(CacheKeys.ScanGetData.ListStoryIDChecked);
+            if (listIdsCheckNeedToCache == null)
+            {
+                listIdsCheckNeedToCache = new List<int>();
+            }
             foreach (var storyID in allStoryIDs)
             {
+                if (listIdsCheckNeedToCache.Contains(storyID))
+                {
+                    continue;
+                }
+
                 var chapIDs = _imageRepository.GetAll().Where(i => i.StoryID == storyID).Select(i => i.ChapID).ToArray();
                 var listChaps = new List<ImagesOneChap>();
+                var listChapIdsCheckNeedToCache = _cacheProvider.Get<List<int>>(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListChapIDChecked, storyID));
+                if (listChapIdsCheckNeedToCache == null)
+                {
+                    listChapIdsCheckNeedToCache = new List<int>();
+                }
                 foreach (var chapID in chapIDs)
                 {
+                    if (listChapIdsCheckNeedToCache.Contains(chapID))
+                    {
+                        continue;
+                    }
+
                     var chapData = _imageRepository.GetAll().Where(i => i.StoryID == storyID && i.ChapID == chapID).First();
                     var hasInvalidImage = false;
                     for (int index = 0; index < chapData.Images.Count; index++)
@@ -108,6 +134,11 @@ namespace Pro.Service.SubScanDataService.Implements
                     if (hasInvalidImage)
                     {
                         listChaps.Add(chapData);
+                    }
+                    else
+                    {
+                        listChapIdsCheckNeedToCache.Add(chapID);
+                        _cacheProvider.Set(key: CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListChapIDChecked, storyID), data: listChapIdsCheckNeedToCache, expiredTimeInSeconds: 600);
                     }
                 }
                 if (listChaps.Any())
@@ -124,11 +155,33 @@ namespace Pro.Service.SubScanDataService.Implements
                     storyInValid.Chaps = listChaps;
                     dataInvalids.Add(storyInValid);
                 }
-                if (dataInvalids.Count >= limitNumberStoty) break;
+                else
+                {
+                    listIdsCheckNeedToCache.Add(storyID);
+                    _cacheProvider.Set(key: CacheKeys.ScanGetData.ListStoryIDChecked, data: listIdsCheckNeedToCache, expiredTimeInSeconds: 600);
+                }
+                if (listChaps.Count >= limitNumberStoty) break;
             }
             return dataInvalids;
         }
+        public List<int> GetAllStoryIds()
+        {
+            try
+            {
+                Func<List<int>> fetchFunc = () =>
+                {
+                    return _newStoryRepository.GetAll().Select(story => story.ID).ToList();
+                };
 
+                return _cacheProvider.Get<List<int>>(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListStoryIDForCheckInvalid), fetchFunc, expiredTimeInSeconds: 600);
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"Error when GetAllStoryIds", ex);
+                return new List<int>();
+            }
+        }
         private void FakeDataOtherInfo(NewStory dataStory)
         {
             dataStory.OtherInfo = new OtherInfo(new Star(4.5, RandomRate(3000, 9000)), new List<int>(dataStory.OtherInfo.TypeIDs), "", des: dataStory.OtherInfo.Des, RandomRate(80000, 99000), RandomRate(80000, 99000));
