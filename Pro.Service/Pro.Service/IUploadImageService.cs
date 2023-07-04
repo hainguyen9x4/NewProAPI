@@ -7,5 +7,6 @@ namespace Pro.Service
     {
         void UploadLink2StoreWith3ThreadsForNew(NewStory dataStory);
         bool HasValidCloudinary(bool isNotify = false);
+        string UploadToCloud(string imgUrl, string info = "", string info2 = "");
     }
 }

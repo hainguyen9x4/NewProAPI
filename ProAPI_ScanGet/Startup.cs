@@ -50,6 +50,7 @@ namespace xStory
             services.AddScoped<IUpData2DBService, UpData2DBService>();
             services.AddScoped<IStoryTypeService, StoryTypeService>();
             services.AddScoped<ILogService, LogService>();
+            services.AddScoped<ICorrectInvalidDataService, CorrectInvalidDataService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -269,10 +269,25 @@ namespace Pro.Service.Implement
             {
                 if (allSettings.Count <= 10 && isNotify)
                 {
-                    SendEmailFunc.SendEmail($"Number available cloundinay: {allSettings.Count}","Warning!");
+                    SendEmailFunc.SendEmail($"Number available cloundinay: {allSettings.Count}", "Warning!");
                 }
             }
             return true;
+        }
+        public string UploadToCloud(string imgUrl, string info = "info_", string info2 = "info2_")
+        {
+            var rs = "";
+            var savePath = $"/Truyen-tranh2/{info}/{info2}/";//Folder save on clound
+            var rsUp = UploadImageByLink("0", imgUrl, savePath, true);
+            if (rsUp.ResultStatus > 0)//Success
+            {
+                rs = rsUp.Url;
+            }
+            else
+            {
+                LogHelper.Error($"Error UpLoadDataAsyn- cannot cloud link:{imgUrl}");
+            }
+            return rs;
         }
         public void UploadLink2StoreWith3ThreadsForNew(NewStory dataStory)
         {

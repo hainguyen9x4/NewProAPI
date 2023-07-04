@@ -161,7 +161,9 @@ namespace Pro.Service.SubScanDataService.Implements
                     {
                         var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
                         var chapLink = homeLinkWithSub + storyData.Chaps.Where(c => c.ID == lst.ChapID).First().Link;
-                        lstFinal.Add(new ImagesOneChapForUpdate(lst.Id, lst.ChapID, lst.Images, chapLink));
+                        var temp = new ImagesOneChapForUpdate(storyID, lst.ChapID, lst.Images, chapLink);
+                        temp.Id = lst.Id;
+                        lstFinal.Add(temp);
                     }
                     storyInValid.Chaps = lstFinal;
                     dataInvalids.Add(storyInValid);
@@ -192,6 +194,22 @@ namespace Pro.Service.SubScanDataService.Implements
                 LogHelper.Error($"Error when GetAllStoryIds", ex);
                 return new List<int>();
             }
+        }
+        public bool UploadInvalidImageLink(List<ImageStoryInvalidData> dataUploads)
+        {
+            var idStorys = dataUploads.Select(story => story.ID).ToList();
+            foreach (var idStory in idStorys)
+            {
+                var chapNeedUpdates = dataUploads.Where(d => d.ID == idStory).First().Chaps;
+                foreach(var chapNeedUpdate in chapNeedUpdates)
+                {
+                    var imageData = _imageRepository.GetAll().Where(i => i.StoryID == idStory && i.ChapID == chapNeedUpdate.ChapID).First();
+                    var chapDataUpdate = new ImagesOneChap(idStory, chapNeedUpdate.ChapID, chapNeedUpdate.Images);
+                    chapDataUpdate.Id = imageData.Id;
+                    _imageRepository.Update(imageData.Id, chapDataUpdate);
+                }
+            }
+            return true;
         }
         private void FakeDataOtherInfo(NewStory dataStory)
         {
