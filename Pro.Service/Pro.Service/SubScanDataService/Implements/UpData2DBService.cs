@@ -1,6 +1,7 @@
 ﻿using Amazon.Runtime.Internal.Util;
 using FileManager;
 using Pro.Common;
+using Pro.Common.Const;
 using Pro.Data.Repositorys;
 using Pro.Model;
 using Pro.Service.Caching;
@@ -12,14 +13,17 @@ namespace Pro.Service.SubScanDataService.Implements
         private readonly IImageRepository _imageRepository;
         private readonly INewStoryRepository _newStoryRepository;
         private readonly ICacheProvider _cacheProvider;
+        private readonly IApplicationSettingService _applicationSettingService;
 
         public UpData2DBService(IImageRepository image
             , INewStoryRepository newStory
-            , ICacheProvider cacheProvider)
+            , ICacheProvider cacheProvider
+            , IApplicationSettingService applicationSettingService)
         {
             _imageRepository = image;
             _newStoryRepository = newStory;
             _cacheProvider = cacheProvider;
+            _applicationSettingService = applicationSettingService;
         }
 
         private NewStory GetStoryIdFromStoryNameForNew(NewStory dataStoryForSave)
@@ -152,7 +156,14 @@ namespace Pro.Service.SubScanDataService.Implements
                     storyInValid.NameShow = storyData.NameShow;
                     storyInValid.Link = storyData.Link;
 
-                    storyInValid.Chaps = listChaps;
+                    var lstFinal = new List<ImagesOneChapForUpdate>();
+                    foreach (var lst in listChaps)
+                    {
+                        var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
+                        var chapLink = homeLinkWithSub + storyData.Chaps.Where(c => c.ID == lst.ChapID).First().Link;
+                        lstFinal.Add(new ImagesOneChapForUpdate(lst.Id, lst.ChapID, lst.Images, chapLink));
+                    }
+                    storyInValid.Chaps = lstFinal;
                     dataInvalids.Add(storyInValid);
                 }
                 else

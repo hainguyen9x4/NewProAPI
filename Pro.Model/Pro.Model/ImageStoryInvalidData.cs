@@ -7,6 +7,6 @@
         public string NameShow { get; set; }
         public string Link { get; set; }
         public int StatusID { get; set; }
-        public List<ImagesOneChap> Chaps { get; set; }
+        public List<ImagesOneChapForUpdate> Chaps { get; set; }
     }
 }

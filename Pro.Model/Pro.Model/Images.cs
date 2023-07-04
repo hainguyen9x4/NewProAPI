@@ -25,4 +25,20 @@ namespace Pro.Model
         [BsonElement("Images")]
         public List<ImageData> Images { get; set; }
     }
+    public class ImagesOneChapForUpdate
+    {
+        public ImagesOneChapForUpdate(int storyID, int chapID, List<ImageData> images, string chapLink)
+        {
+            Images = images;
+            StoryID = storyID;
+            ChapID = chapID;
+            ChapLink = chapLink;
+        }
+
+        public int Id { get; set; }
+        public int StoryID { get; set; }
+        public int ChapID { get; set; }
+        public List<ImageData> Images { get; set; }
+        public string ChapLink { get; set; }
+    }
 }
