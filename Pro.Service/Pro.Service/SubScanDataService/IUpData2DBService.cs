@@ -6,6 +6,5 @@ namespace Pro.Service.SubScanDataService
     {
         void UpData2DBForNew(NewStory dataStorys);
         List<ImageStoryInvalidData> GetDataInvalid(int limitNumberStoty = 5);
-        bool UploadInvalidImageLink(List<ImageStoryInvalidData> dataUploads);
     }
 }

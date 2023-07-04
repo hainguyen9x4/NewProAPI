@@ -54,5 +54,48 @@ namespace Pro.Service.Implements
                 return false;
             }
         }
+
+        public bool UploadInvalidImageLink(List<ImageStoryInvalidData> dataUploads)
+        {
+            foreach (var dataUpload in dataUploads)
+            {
+                foreach (var chap in dataUpload.Chaps)
+                {
+                    if (chap.Images.Any())
+                    {
+                        foreach (var image in chap.Images)
+                        {
+                            if (!String.IsNullOrEmpty(image.OriginLink) && String.IsNullOrEmpty(image.Link))
+                            {
+                                var cloudUrl = _uploadImageService.UploadToCloud(image.OriginLink);
+                                if (!String.IsNullOrEmpty(cloudUrl))
+                                {
+                                    image.Link = cloudUrl;
+                                    image.OriginLink = "";
+                                }
+                                else
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            var idStorys = dataUploads.Select(story => story.ID).ToList();
+            foreach (var idStory in idStorys)
+            {
+                var chapNeedUpdates = dataUploads.Where(d => d.ID == idStory).First().Chaps;
+                foreach (var chapNeedUpdate in chapNeedUpdates)
+                {
+                    var imageData = _imageRepository.GetAll().Where(i => i.StoryID == idStory && i.ChapID == chapNeedUpdate.ChapID).First();
+                    var chapDataUpdate = new ImagesOneChap(idStory, chapNeedUpdate.ChapID, chapNeedUpdate.Images);
+                    chapDataUpdate.Id = imageData.Id;
+                    _imageRepository.Update(imageData.Id, chapDataUpdate);
+                }
+            }
+            return true;
+        }
     }
 }

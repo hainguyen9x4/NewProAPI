@@ -17,13 +17,13 @@ namespace xStory.Controllers
             _upData2DBService = upData2DBService;
             _correctInvalidDataService = correctInvalidDataService;
         }
-        [Route("api/[controller]/UploadInvalidImageLink")]
-        [HttpPost]
-        public ActionResult<bool> UploadInvalidImageLink(List<ImageStoryInvalidData> dataUploads) =>
-            _upData2DBService.UploadInvalidImageLink(dataUploads);
         [Route("api/[controller]/UploadImageLinkByChapLink")]
         [HttpPost]
         public ActionResult<bool> UploadImageLinkByChapLink(int imageId, string chapUrl) =>
             _correctInvalidDataService.UploadImageLinkByChapLink(imageId, chapUrl);
+        [Route("api/[controller]/UploadInvalidImageLink")]
+        [HttpPost]
+        public ActionResult<bool> UploadInvalidImageLink(List<ImageStoryInvalidData> dataUploads) =>
+            _correctInvalidDataService.UploadInvalidImageLink(dataUploads);
     }
 }

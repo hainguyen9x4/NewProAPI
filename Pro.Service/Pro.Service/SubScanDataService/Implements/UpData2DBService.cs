@@ -195,22 +195,7 @@ namespace Pro.Service.SubScanDataService.Implements
                 return new List<int>();
             }
         }
-        public bool UploadInvalidImageLink(List<ImageStoryInvalidData> dataUploads)
-        {
-            var idStorys = dataUploads.Select(story => story.ID).ToList();
-            foreach (var idStory in idStorys)
-            {
-                var chapNeedUpdates = dataUploads.Where(d => d.ID == idStory).First().Chaps;
-                foreach(var chapNeedUpdate in chapNeedUpdates)
-                {
-                    var imageData = _imageRepository.GetAll().Where(i => i.StoryID == idStory && i.ChapID == chapNeedUpdate.ChapID).First();
-                    var chapDataUpdate = new ImagesOneChap(idStory, chapNeedUpdate.ChapID, chapNeedUpdate.Images);
-                    chapDataUpdate.Id = imageData.Id;
-                    _imageRepository.Update(imageData.Id, chapDataUpdate);
-                }
-            }
-            return true;
-        }
+
         private void FakeDataOtherInfo(NewStory dataStory)
         {
             dataStory.OtherInfo = new OtherInfo(new Star(4.5, RandomRate(3000, 9000)), new List<int>(dataStory.OtherInfo.TypeIDs), "", des: dataStory.OtherInfo.Des, RandomRate(80000, 99000), RandomRate(80000, 99000));
