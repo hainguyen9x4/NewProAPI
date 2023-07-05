@@ -74,7 +74,7 @@ namespace Pro.Service.Implements
                     {
                         foreach (var image in chap.Images)
                         {
-                            if (!String.IsNullOrEmpty(image.OriginLink) && String.IsNullOrEmpty(image.Link))
+                            if (image.Status == IMAGE_STATUS.ERROR)
                             {
                                 var cloudUrl = _uploadImageService.UploadToCloud(image.OriginLink);
                                 if (!String.IsNullOrEmpty(cloudUrl))
@@ -82,10 +82,6 @@ namespace Pro.Service.Implements
                                     image.Link = cloudUrl;
                                     image.OriginLink = "";
                                     image.Status = IMAGE_STATUS.OK;
-                                }
-                                else
-                                {
-                                    image.Status = IMAGE_STATUS.ERROR;
                                 }
                             }
                         }
