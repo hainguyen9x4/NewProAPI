@@ -209,5 +209,33 @@ namespace Pro.Service.Implements
                 return new List<int>();
             }
         }
+        public bool AddStatus(int skip = 0, int take = 1000)
+        {
+            var imageDatas = _imageRepository.GetAll().Skip(skip).Take(take).ToList();
+            var imageNeedUpdates = new List<ImagesOneChap>();
+            foreach (var imageData in imageDatas)
+            {
+                foreach (var image in imageData.Images)
+                {
+                    if (!String.IsNullOrEmpty(image.OriginLink))
+                    {
+                        image.Status = IMAGE_STATUS.ERROR;
+                    }
+                    else
+                    {
+                        image.Status = IMAGE_STATUS.OK;
+                    }
+                }
+                imageNeedUpdates.Add(imageData);
+            }
+            if (imageNeedUpdates.Any())
+            {
+                foreach (var imageNeedUpdate in imageNeedUpdates)
+                {
+                    _imageRepository.Update(imageNeedUpdate.Id, imageNeedUpdate);
+                }
+            }
+            return true;
+        }
     }
 }
