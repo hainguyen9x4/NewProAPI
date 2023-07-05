@@ -27,8 +27,8 @@ namespace xStory.Controllers
             _correctInvalidDataService.UploadInvalidImageLink(dataUploads);
         [Route("api/[controller]/GetInvalidImageLink")]
         [HttpGet]
-        public ActionResult<List<ImageStoryInvalidData>> GetInvalidImageLink(int limitNumberStoty = 2) =>
-            _correctInvalidDataService.GetInvalidImageLink(limitNumberStoty);
+        public ActionResult<List<ImageStoryInvalidData>> GetInvalidImageLink(int skip = 0, int take = 50) =>
+            _correctInvalidDataService.GetInvalidImageLink(skip, take);
         [Route("api/[controller]/AddStatus")]
         [HttpPost]
         public ActionResult<bool> AddStatus(int skip = 0, int take = 1000) =>
