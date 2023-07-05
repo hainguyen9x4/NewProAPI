@@ -1,5 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Pro.Common.Enum;
 
 namespace Pro.Model
 {
@@ -102,20 +103,23 @@ namespace Pro.Model
 
     public class ImageData
     {
-        public ImageData(string link = "", string originLink = "", string localLink = "")
+        public ImageData(string link = "", string originLink = "", string localLink = "", IMAGE_STATUS status = IMAGE_STATUS.OK)
         {
             Link = link;
             OriginLink = originLink;
             LocalLink = localLink;
+            Status = status;
         }
         public ImageData()
         {
             Link = "";
             OriginLink = "";
             LocalLink = "";
+            Status = IMAGE_STATUS.OK;
         }
         public string Link { get; set; }
         public string OriginLink { get; set; }
         public string LocalLink { get; set; }
+        public IMAGE_STATUS Status { get; set; }
     }
 }

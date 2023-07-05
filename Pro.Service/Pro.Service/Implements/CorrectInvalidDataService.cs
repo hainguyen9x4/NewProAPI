@@ -1,5 +1,6 @@
 using Pro.Common;
 using Pro.Common.Const;
+using Pro.Common.Enum;
 using Pro.Data.Repositorys;
 using Pro.Model;
 using Pro.Service.Caching;
@@ -47,7 +48,7 @@ namespace Pro.Service.Implements
                     }
                     else
                     {
-                        imageCloudinays.Add(new ImageData(originLink: dataUrlImage));
+                        imageCloudinays.Add(new ImageData(originLink: dataUrlImage, status: IMAGE_STATUS.ERROR));
                     }
                 }
                 //Update to DB
@@ -83,6 +84,7 @@ namespace Pro.Service.Implements
                                 }
                                 else
                                 {
+                                    image.Status = IMAGE_STATUS.ERROR;
                                 }
                             }
                         }

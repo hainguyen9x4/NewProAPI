@@ -18,4 +18,9 @@
         NEW_STORY = 5,
         NEWEST_UPDATED = 6
     }
+    public enum IMAGE_STATUS
+    {
+        OK = 0,
+        ERROR = 1,
+    }
 }
