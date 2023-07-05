@@ -81,6 +81,7 @@ namespace Pro.Service.Implements
                                 {
                                     image.Link = cloudUrl;
                                     image.OriginLink = "";
+                                    image.Status = IMAGE_STATUS.OK;
                                 }
                                 else
                                 {
@@ -143,7 +144,8 @@ namespace Pro.Service.Implements
                     var hasInvalidImage = false;
                     for (int index = 0; index < chapData.Images.Count; index++)
                     {
-                        if (!String.IsNullOrEmpty(chapData.Images[index].OriginLink))
+                        if (chapData.Images[index].Status == IMAGE_STATUS.ERROR)
+                        //if (!String.IsNullOrEmpty(chapData.Images[index].OriginLink))
                         {
                             hasInvalidImage = true;
                             break;
