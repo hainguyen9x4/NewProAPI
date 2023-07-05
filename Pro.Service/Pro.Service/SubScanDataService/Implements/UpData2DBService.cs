@@ -1,7 +1,5 @@
-﻿using Amazon.Runtime.Internal.Util;
-using FileManager;
+﻿using FileManager;
 using Pro.Common;
-using Pro.Common.Const;
 using Pro.Data.Repositorys;
 using Pro.Model;
 using Pro.Service.Caching;
@@ -91,108 +89,6 @@ namespace Pro.Service.SubScanDataService.Implements
                     c.StoryID = newStory.ID;
                 }
                 _imageRepository.Creates(imagesOnChap);
-            }
-        }
-
-        public List<ImageStoryInvalidData> GetDataInvalid(int limitNumberStoty = 5)
-        {
-            var dataInvalids = new List<ImageStoryInvalidData>();
-            var allStoryIDs = GetAllStoryIds();
-
-            var listIdsCheckNeedToCache = _cacheProvider.Get<List<int>>(CacheKeys.ScanGetData.ListStoryIDChecked);
-            if (listIdsCheckNeedToCache == null)
-            {
-                listIdsCheckNeedToCache = new List<int>();
-            }
-            foreach (var storyID in allStoryIDs)
-            {
-                if (listIdsCheckNeedToCache.Contains(storyID))
-                {
-                    continue;
-                }
-
-                var chapIDs = _imageRepository.GetAll().Where(i => i.StoryID == storyID).Select(i => i.ChapID).ToArray();
-                var listChaps = new List<ImagesOneChap>();
-                var listChapIdsCheckNeedToCache = _cacheProvider.Get<List<int>>(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListChapIDChecked, storyID));
-                if (listChapIdsCheckNeedToCache == null)
-                {
-                    listChapIdsCheckNeedToCache = new List<int>();
-                }
-                foreach (var chapID in chapIDs)
-                {
-                    if (listChapIdsCheckNeedToCache.Contains(chapID))
-                    {
-                        continue;
-                    }
-
-                    var chapData = _imageRepository.GetAll().Where(i => i.StoryID == storyID && i.ChapID == chapID).First();
-                    var hasInvalidImage = false;
-                    for (int index = 0; index < chapData.Images.Count; index++)
-                    {
-                        if (!String.IsNullOrEmpty(chapData.Images[index].OriginLink))
-                        {
-                            hasInvalidImage = true;
-                            break;
-                        }
-                    }
-                    if (hasInvalidImage)
-                    {
-                        listChaps.Add(chapData);
-                    }
-                    else
-                    {
-                        listChapIdsCheckNeedToCache.Add(chapID);
-                        _cacheProvider.Set(key: CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListChapIDChecked, storyID), data: listChapIdsCheckNeedToCache, expiredTimeInSeconds: 600);
-                    }
-                }
-                if (listChaps.Any())
-                {
-                    var storyInValid = new ImageStoryInvalidData();
-                    var storyData = _newStoryRepository.GetAll().Where(s => s.ID == storyID).First();
-
-                    storyInValid.ID = storyData.ID;
-                    storyInValid.Name = storyData.Name;
-                    storyInValid.StatusID = storyData.StatusID;
-                    storyInValid.NameShow = storyData.NameShow;
-                    storyInValid.Link = storyData.Link;
-
-                    var lstFinal = new List<ImagesOneChapForUpdate>();
-                    foreach (var lst in listChaps)
-                    {
-                        var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
-                        var chapLink = homeLinkWithSub + storyData.Chaps.Where(c => c.ID == lst.ChapID).First().Link;
-                        var temp = new ImagesOneChapForUpdate(storyID, lst.ChapID, lst.Images, chapLink);
-                        temp.Id = lst.Id;
-                        lstFinal.Add(temp);
-                    }
-                    storyInValid.Chaps = lstFinal;
-                    dataInvalids.Add(storyInValid);
-                }
-                else
-                {
-                    listIdsCheckNeedToCache.Add(storyID);
-                    _cacheProvider.Set(key: CacheKeys.ScanGetData.ListStoryIDChecked, data: listIdsCheckNeedToCache, expiredTimeInSeconds: 600);
-                }
-                if (listChaps.Count >= limitNumberStoty) break;
-            }
-            return dataInvalids;
-        }
-        public List<int> GetAllStoryIds()
-        {
-            try
-            {
-                Func<List<int>> fetchFunc = () =>
-                {
-                    return _newStoryRepository.GetAll().Select(story => story.ID).ToList();
-                };
-
-                return _cacheProvider.Get<List<int>>(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListStoryIDForCheckInvalid), fetchFunc, expiredTimeInSeconds: 600);
-
-            }
-            catch (Exception ex)
-            {
-                LogHelper.Error($"Error when GetAllStoryIds", ex);
-                return new List<int>();
             }
         }
 

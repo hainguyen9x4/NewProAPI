@@ -121,10 +121,7 @@ namespace Pro.Service.Implements
             }
             return false;
         }
-        public List<ImageStoryInvalidData> GetInvalidImageLink(int limitNumberStoty = 5)
-        {
-            return _upData2DBService.GetDataInvalid(limitNumberStoty);
-        }
+
         private void SaveData2File(string path, NewStory data)
         {
             FileReader.WriteDataToFile2<NewStory>(path, data);
