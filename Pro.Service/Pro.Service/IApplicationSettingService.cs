@@ -18,7 +18,7 @@ namespace Pro.Service
         bool GetBoolValue(string settingKey, bool defaultValue = false);
         bool AddKeyValue(string settingKey, string value, bool isActive);
         bool IsActiveAppSettingByKey(string settingKey);
-        List<string> GetAllCloudarySettings(string settingKey, bool useCache = true);
+        List<string> GetAllCloudarySettings(string settingKey,int numberTake = 1, bool useCache = true);
 
         List<ApplicationSetting> Get();
         ApplicationSetting Get(int id);

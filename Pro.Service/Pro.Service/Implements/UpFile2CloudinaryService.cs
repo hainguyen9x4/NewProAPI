@@ -260,7 +260,7 @@ namespace Pro.Service.Implement
         }
         public bool HasValidCloudinary(bool isNotify = false)
         {
-            var allSettings = _applicationSettingService.GetAllCloudarySettings(ApplicationSettingKey.CloundSetting, useCache: false);
+            var allSettings = _applicationSettingService.GetAllCloudarySettings(ApplicationSettingKey.CloundSetting, numberTake: 11, useCache: false);
             if (!allSettings.Any())
             {
                 return false;
