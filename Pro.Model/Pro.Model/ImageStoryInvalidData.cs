@@ -9,4 +9,11 @@
         public int StatusID { get; set; }
         public List<ImagesOneChapForUpdate> Chaps { get; set; }
     }
+    public class StoryInvalidData
+    {
+        public int Take { get; set; }
+        public int Page { get; set; }
+        public int TotalPage { get; set; }
+        public List<ImageStoryInvalidData> ImageStoryInvalidDatas { get; set; }
+    }
 }

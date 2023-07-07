@@ -27,12 +27,13 @@ namespace Pro.Model
     }
     public class ImagesOneChapForUpdate
     {
-        public ImagesOneChapForUpdate(int storyID, int chapID, List<ImageData> images, string chapLink)
+        public ImagesOneChapForUpdate(int storyID, int chapID, List<ImageData> images, string chapLink, string myChapLink)
         {
             Images = images;
             StoryID = storyID;
             ChapID = chapID;
             ChapLink = chapLink;
+            MyChapLink = myChapLink;
         }
 
         public int Id { get; set; }
@@ -40,5 +41,6 @@ namespace Pro.Model
         public int ChapID { get; set; }
         public List<ImageData> Images { get; set; }
         public string ChapLink { get; set; }
+        public string MyChapLink { get; set; }
     }
 }

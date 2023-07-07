@@ -64,51 +64,45 @@ namespace Pro.Service.Implements
             }
         }
 
-        public bool UploadInvalidImageLink(List<ImageStoryInvalidData> dataUploads)
+        public bool UploadInvalidImageLink(ImageStoryInvalidData dataUpload)
         {
-            foreach (var dataUpload in dataUploads)
+
+            foreach (var chap in dataUpload.Chaps)
             {
-                foreach (var chap in dataUpload.Chaps)
+                if (chap.Images.Any())
                 {
-                    if (chap.Images.Any())
+                    foreach (var image in chap.Images)
                     {
-                        foreach (var image in chap.Images)
+                        if (image.Status == IMAGE_STATUS.ERROR)
                         {
-                            if (image.Status == IMAGE_STATUS.ERROR)
+                            var cloudUrl = _uploadImageService.UploadToCloud(image.OriginLink);
+                            if (!String.IsNullOrEmpty(cloudUrl))
                             {
-                                var cloudUrl = _uploadImageService.UploadToCloud(image.OriginLink);
-                                if (!String.IsNullOrEmpty(cloudUrl))
-                                {
-                                    image.Link = cloudUrl;
-                                    image.OriginLink = "";
-                                    image.Status = IMAGE_STATUS.OK;
-                                }
+                                image.Link = cloudUrl;
+                                image.OriginLink = "";
+                                image.Status = IMAGE_STATUS.OK;
                             }
                         }
                     }
                 }
             }
 
-
-            var idStorys = dataUploads.Select(story => story.ID).ToList();
-            foreach (var idStory in idStorys)
+            var chapNeedUpdates = dataUpload.Chaps;
+            var idStory = dataUpload.ID;
+            foreach (var chapNeedUpdate in chapNeedUpdates)
             {
-                var chapNeedUpdates = dataUploads.Where(d => d.ID == idStory).First().Chaps;
-                foreach (var chapNeedUpdate in chapNeedUpdates)
-                {
-                    var imageData = _imageRepository.GetAll().Where(i => i.StoryID == idStory && i.ChapID == chapNeedUpdate.ChapID).First();
-                    var chapDataUpdate = new ImagesOneChap(idStory, chapNeedUpdate.ChapID, chapNeedUpdate.Images);
-                    chapDataUpdate.Id = imageData.Id;
-                    _imageRepository.Update(imageData.Id, chapDataUpdate);
-                }
+                var imageData = _imageRepository.GetAll().Where(i => i.StoryID == idStory && i.ChapID == chapNeedUpdate.ChapID).First();
+                var chapDataUpdate = new ImagesOneChap(idStory, chapNeedUpdate.ChapID, chapNeedUpdate.Images);
+                chapDataUpdate.Id = imageData.Id;
+                _imageRepository.Update(imageData.Id, chapDataUpdate);
             }
             return true;
         }
 
-        public List<ImageStoryInvalidData> GetInvalidImageLink(int skip = 0, int take = 50)
+        public StoryInvalidData GetInvalidImageLink(int page = 0, int take = 50)
         {
             var dataInvalids = new List<ImageStoryInvalidData>();
-            var allStoryIDs = GetAllStoryIds().Skip(skip).Take(take).ToList();
+            var allStoryIDs = GetAllStoryIds().Skip(page * take).Take(take).ToList();
 
             var listIdsCheckNeedToCache = _cacheProvider.Get<List<int>>(CacheKeys.ScanGetData.ListStoryIDChecked);
             if (listIdsCheckNeedToCache == null)
@@ -172,9 +166,12 @@ namespace Pro.Service.Implements
                     var lstFinal = new List<ImagesOneChapForUpdate>();
                     foreach (var lst in listChaps)
                     {
+                        var getChapOrigin = storyData.Chaps.Where(c => c.ID == lst.ChapID).First();
+                        var myChapLink = storyData.Link + $"/{storyData.ID}/{lst.ChapID}";
+
                         var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
-                        var chapLink = homeLinkWithSub + storyData.Chaps.Where(c => c.ID == lst.ChapID).First().Link;
-                        var temp = new ImagesOneChapForUpdate(storyID, lst.ChapID, lst.Images, chapLink);
+                        var chapLink = homeLinkWithSub + getChapOrigin.Link;
+                        var temp = new ImagesOneChapForUpdate(storyID, lst.ChapID, lst.Images, chapLink, myChapLink);
                         temp.Id = lst.Id;
                         lstFinal.Add(temp);
                     }
@@ -188,7 +185,14 @@ namespace Pro.Service.Implements
                 }
             }
             //Save Data to table
-            return dataInvalids;
+            var totalPage = (GetAllStoryIds().Count / take) + (GetAllStoryIds().Count % take > 0 ? 1 : 0);
+            return new StoryInvalidData()
+            {
+                ImageStoryInvalidDatas = dataInvalids,
+                Page = page,
+                Take = take,
+                TotalPage = totalPage
+            };
         }
         public List<int> GetAllStoryIds()
         {
