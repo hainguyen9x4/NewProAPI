@@ -30,11 +30,12 @@ namespace Pro.Data.Repositorys.Implements
             _newStorys.InsertMany(storys);
             return storys;
         }
-        public void Update(int id, NewStory updatedStory)// => _newStorys.ReplaceOne(newStory => newStory.ID == id, updatedStory);
+        public void Update(int id, NewStory updatedStory)
         {
             foreach (var chap in updatedStory.Chaps)
                 AddToChap(id, chap);
             UpdateLastModifyTime(id);
+            //_newStorys.ReplaceOne(newStory => newStory.ID == id, updatedStory);
         }
         public void Delete(NewStory storyForDeletion) => _newStorys.DeleteOne(newStory => newStory.ID == storyForDeletion.ID);
 

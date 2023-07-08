@@ -1,4 +1,5 @@
 ﻿using Pro.Model;
+using static Pro.Service.Implements.CorrectInvalidDataService;
 
 namespace Pro.Service
 {
@@ -9,5 +10,6 @@ namespace Pro.Service
         StoryInvalidData GetInvalidImageLink(int page = 0, int take = 50);
         bool AddStatus(int skip = 0, int take = 1000);
         bool AddStatuByChap(int skip = 0, int take = 1000);
+        List<ChapInvalideEmptyImgage> FindInvalidChap();
     }
 }

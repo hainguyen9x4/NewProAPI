@@ -3,6 +3,7 @@ using Pro.Model;
 using Pro.Service;
 using Pro.Service.SubScanDataService;
 using System.Collections.Generic;
+using static Pro.Service.Implements.CorrectInvalidDataService;
 
 namespace xStory.Controllers
 {
@@ -42,6 +43,11 @@ namespace xStory.Controllers
         [HttpPost]
         public ActionResult<bool> AddStatuByChap(int skip = 0, int take = 1000) =>
             _correctInvalidDataService.AddStatuByChap(skip, take);
+
+        [Route("api/[controller]/FindInvalidChap")]
+        [HttpPost]
+        public ActionResult<List<ChapInvalideEmptyImgage>> FindInvalidChapHasEmpltyImages() =>
+            _correctInvalidDataService.FindInvalidChap();
 
     }
 }

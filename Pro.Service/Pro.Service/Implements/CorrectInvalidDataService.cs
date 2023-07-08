@@ -270,5 +270,69 @@ namespace Pro.Service.Implements
             }
             return true;
         }
+        public class ChapInvalideEmptyImgage
+        {
+            public int StoryId { get; set; }
+            public int ChapId { get; set; }
+            public int ImageId { get; set; }
+            public string ChapLink { get; set; }
+        }
+        public List<ChapInvalideEmptyImgage> FindInvalidChap()
+        {
+            var dataTemps = new List<ChapInvalideEmptyImgage>();
+            //var allStorys = _newStoryRepository.GetAll()/*.Where(s => s.ID >= 56)*/.ToList();
+            for (int id = 1; id <= 204; id++)
+            {
+                var imageDatas = _imageRepository.GetAll().Where(i => i.StoryID == id).ToList();
+                foreach (var imageData in imageDatas)
+                {
+                    if (!imageData.Images.Any())
+                    {
+                        dataTemps.Add(new ChapInvalideEmptyImgage()
+                        {
+                            StoryId = imageData.StoryID,
+                            ChapId = imageData.ChapID,
+                            ImageId = imageData.Id
+                        });
+                    }
+                }
+            }
+
+            //Get chap link
+            var allStorys = _newStoryRepository.GetAll().ToList();
+            var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
+            foreach (var dataTemp in dataTemps)
+            {
+                foreach (var story in allStorys)
+                {
+                    if (story.ID == dataTemp.StoryId)
+                    {
+                        var link = story.Chaps.Where(c => c.ID == dataTemp.ChapId).Select(c => c.Link).First();
+                        dataTemp.ChapLink = homeLinkWithSub + link;
+                    }
+                }
+            }
+
+            //Note GetStatus = Error
+            foreach (var dataTemp in dataTemps)
+            {
+                foreach (var story in allStorys)
+                {
+                    if (story.ID == dataTemp.StoryId)
+                    {
+                        var chapIds = dataTemps.Where(s => s.StoryId == story.ID).Select(s => s.ChapId).ToList();
+                        foreach (var chap in story.Chaps)
+                        {
+                            if (chapIds.Contains(chap.ID))
+                            {
+                                chap.GetStatus = IMAGE_STATUS.ERROR;
+                            }
+                        }
+                        _newStoryRepository.Update(story.ID, story);
+                    }
+                }
+            }
+            return dataTemps;
+        }
     }
 }

@@ -58,11 +58,14 @@ namespace Pro.Service.SubScanDataService.Implements
                 foreach (var chapSaveData in dataStory.Chaps)
                 {
                     imagesOnChap.Add(new ImagesOneChap(story.ID, chapSaveData.ID, chapSaveData.Images));
+                    if (!chapSaveData.Images.Any())
+                    {
+                        chapSaveData.GetStatus = Common.Enum.IMAGE_STATUS.ERROR;
+                    }
                     chapSaveData.Images = new List<Model.ImageData>();
                 }
                 _imageRepository.Creates(imagesOnChap);
 
-                LogHelper.Info($"UpData2DBForNew: _1");
 
                 story.Chaps.AddRange(dataStory.Chaps);
                 _newStoryRepository.Update(story.ID, dataStory);
