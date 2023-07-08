@@ -51,7 +51,7 @@ namespace Pro.Service.Implements
                 {
                     return _storyTypesitory.GetAll().OrderBy(t => t.TypeID).ToList();
                 };
-                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.AllStoryType), fetchFunc) : fetchFunc();
+                return useCache ? _cacheProvider.Get<List<StoryType>>(CacheKeys.GetCacheKey(CacheKeys.ImageStoryData.AllStoryType), fetchFunc) : fetchFunc();
             }
             catch (Exception ex)
             {

@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.IdGenerators;
+using Pro.Common.Enum;
 
 namespace Pro.Model
 {

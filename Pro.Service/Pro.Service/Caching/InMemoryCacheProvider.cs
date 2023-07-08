@@ -40,7 +40,7 @@ namespace Pro.Service.Caching
             }
             catch (Exception ex)
             {
-               //ex.WriteLog($"InMemoryCacheProvider Get {key}");
+                //ex.WriteLog($"InMemoryCacheProvider Get {key}");
                 return default(T);
             }
         }
@@ -55,14 +55,15 @@ namespace Pro.Service.Caching
             if (CheckExist(key))
             {
                 var item = Get<T>(key);
-                return item;
+                if (item != null)
+                {
+                    return item;
+                }
             }
-            else
-            {
-                var item = callback();
-                Set(key, item, expiredTimeInSeconds);
-                return item;
-            }
+
+            var item2 = callback();
+            Set(key, item2, expiredTimeInSeconds);
+            return item2;
         }
 
         public void Remove(string key)

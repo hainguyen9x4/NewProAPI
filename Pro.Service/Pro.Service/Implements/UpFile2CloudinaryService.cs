@@ -3,6 +3,7 @@ using CloudinaryDotNet.Actions;
 using FileManager;
 using Pro.Common;
 using Pro.Common.Const;
+using Pro.Common.Enum;
 using Pro.Model;
 using System.Net;
 
@@ -187,24 +188,31 @@ namespace Pro.Service.Implement
             var totalImages = 0;
             foreach (var chapSave in dataStory.Chaps)
             {
+                var hasInvalidData = false;
                 var savePath = $"/Truyen-tranh2/{dataStory.Name}/{chapSave.Name}/";//Folder save on clound
-                foreach (var link in chapSave.Images)
+                foreach (var img in chapSave.Images)
                 {
-                    var rsUp = UploadImageByLink("0", link.OriginLink, savePath, true);
+                    var rsUp = UploadImageByLink("0", img.OriginLink, savePath, true);
 
                     if (rsUp.ResultStatus > 0)//Success
                     {
-                        link.Link = rsUp.Url;
-                        link.OriginLink = "";
-                        link.LocalLink = link.LocalLink;
+                        img.Link = rsUp.Url;
+                        img.OriginLink = "";
+                        img.LocalLink = img.LocalLink;
                     }
                     else
                     {
-                        LogHelper.Error($"Error UpLoadDataAsyn- cannot cloud link:{link.OriginLink};{dataStory.Name}/{chapSave.Name},ErrorMes:{rsUp.ErrorMessage}");
+                        hasInvalidData = true;
+                        LogHelper.Error($"Error UpLoadDataAsyn- cannot cloud link:{img.OriginLink};{dataStory.Name}/{chapSave.Name},ErrorMes:{rsUp.ErrorMessage}");
                     }
                 }
                 totalImages += chapSave.Images.Count();
                 chapSave.Link = FileReader.DeleteHomePage(chapSave.Link);
+
+                if (hasInvalidData)
+                {
+                    chapSave.GetStatus = IMAGE_STATUS.ERROR;
+                }
             }
             _cloudinary = UploadDataToAppSetting(_cloudinary, totalImages);
             return dataStory;

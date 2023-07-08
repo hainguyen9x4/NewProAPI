@@ -37,5 +37,11 @@ namespace xStory.Controllers
         [HttpPost]
         public ActionResult<bool> AddStatus(int skip = 0, int take = 1000) =>
             _correctInvalidDataService.AddStatus(skip, take);
+
+        [Route("api/[controller]/AddStatuByChap")]
+        [HttpPost]
+        public ActionResult<bool> AddStatuByChap(int skip = 0, int take = 1000) =>
+            _correctInvalidDataService.AddStatuByChap(skip, take);
+
     }
 }

@@ -78,13 +78,14 @@ namespace Pro.Model
 
     public class Chap
     {
-        public Chap(string name, string link, List<ImageData> images, DateTime updateTime, int statusID = 1)
+        public Chap(string name, string link, List<ImageData> images, DateTime updateTime, int statusID = 1, IMAGE_STATUS getStatus = IMAGE_STATUS.OK)
         {
             Name = name;
             Link = link;
             Images = images;
             StatusID = statusID;
             UpdatedTime = updateTime;
+            GetStatus = getStatus;
         }
 
         public Chap()
@@ -92,6 +93,7 @@ namespace Pro.Model
             Name = "";
             Link = "";
             Images = new List<ImageData>();
+            GetStatus = IMAGE_STATUS.OK;
         }
         public int ID { get; set; }
         public string Name { get; set; }
@@ -99,6 +101,8 @@ namespace Pro.Model
         public int StatusID { get; set; }
         public List<ImageData> Images { get; set; }
         public DateTime UpdatedTime { get; set; }
+        public IMAGE_STATUS GetStatus { get; set; }
+
     }
 
     public class ImageData
