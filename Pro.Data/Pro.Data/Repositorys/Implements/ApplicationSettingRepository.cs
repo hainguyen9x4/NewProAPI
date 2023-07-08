@@ -39,5 +39,9 @@ namespace Pro.Data.Repositorys.Implements
 
         public void Delete(int id) => _applicationSettings.DeleteOne(applicationSetting => applicationSetting.AppSettingId == id);
 
+        public void Update2(int id, ApplicationSetting updatedentity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

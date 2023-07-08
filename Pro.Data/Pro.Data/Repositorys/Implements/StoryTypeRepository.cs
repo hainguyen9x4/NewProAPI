@@ -37,5 +37,10 @@ namespace Pro.Data.Repositorys.Implements
         public void Delete(StoryType storyForDeletion) => _storyType.DeleteOne(storyType => storyType.TypeID == storyForDeletion.TypeID);
 
         public void Delete(int id) => _storyType.DeleteOne(storyType => storyType.TypeID == id);
+
+        public void Update2(int id, StoryType updatedentity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

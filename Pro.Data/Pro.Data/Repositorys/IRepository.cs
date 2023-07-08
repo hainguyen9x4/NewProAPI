@@ -11,5 +11,6 @@ namespace Pro.Data.Repositorys
         void Delete(int id);
         void Delete(T entityForDeletion);
         void Update(int id, T updatedentity);
+        void Update2(int id, T updatedentity);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Pro.Common.Enum;
 using Pro.Model;
 using Pro.Service;
 using Pro.Service.SubScanDataService;
@@ -37,7 +38,7 @@ namespace xStory.Controllers
         [Route("api/[controller]/AddStatus")]
         [HttpPost]
         public ActionResult<bool> AddStatus(int skip = 0, int take = 1000) =>
-            _correctInvalidDataService.AddStatus(skip, take);
+            _correctInvalidDataService.AddStatusToImagesInEachChap(skip, take);
 
         [Route("api/[controller]/AddStatuByChap")]
         [HttpPost]
@@ -48,6 +49,11 @@ namespace xStory.Controllers
         [HttpPost]
         public ActionResult<List<ChapInvalideEmptyImgage>> FindInvalidChapHasEmpltyImages() =>
             _correctInvalidDataService.FindInvalidChap();
+
+        [Route("api/[controller]/OnlyChangeFlagGetStatus")]
+        [HttpPost]
+        public ActionResult<bool> OnlyChangeFlagGetStatus(int storyId, int chapid, IMAGE_STATUS flagStatus = IMAGE_STATUS.OK) =>
+            _correctInvalidDataService.OnlyChangeFlagGetStatus(storyId, chapid, flagStatus);
 
     }
 }

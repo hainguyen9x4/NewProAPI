@@ -39,6 +39,7 @@ namespace Pro.Service.Implements
                 var datas = _getRawDataService.GetImageDatasFromWeb(chapUrl);
                 //Get data to cloudinay
                 var imageCloudinays = new List<ImageData>();//
+                var allSeccessFix = true;
                 foreach (var dataUrlImage in datas)
                 {
                     var cloudUrl = _uploadImageService.UploadToCloud(dataUrlImage);
@@ -49,6 +50,7 @@ namespace Pro.Service.Implements
                     else
                     {
                         imageCloudinays.Add(new ImageData(originLink: dataUrlImage, status: IMAGE_STATUS.ERROR));
+                        allSeccessFix = false;
                     }
                 }
                 //Update to DB
@@ -56,6 +58,22 @@ namespace Pro.Service.Implements
                 var dataUpdate = new ImagesOneChap(image.StoryID, image.ChapID, imageCloudinays);
                 dataUpdate.Id = image.Id;
                 _imageRepository.Update(image.Id, dataUpdate);
+
+                //Update GetStatus to story table
+                if (allSeccessFix)
+                {
+                    var story = _newStoryRepository.GetAll().Where(s => s.ID == image.StoryID).First();
+                    foreach (var chap in story.Chaps)
+                    {
+                        if (chap.ID == image.ChapID)
+                        {
+                            chap.GetStatus = IMAGE_STATUS.OK;
+                        }
+                    }
+
+                    _newStoryRepository.Update2(story.ID, story);
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -120,39 +138,7 @@ namespace Pro.Service.Implements
                 var chapIDs = chapHasInvalidDatas.Select(s => s.ChapID).ToList();
 
                 var listChaps = chapHasInvalidDatas;
-                //var listChapIdsCheckNeedToCache = _cacheProvider.Get<List<int>>(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListChapIDChecked, storyIdWithInvalidChapId));
-                //if (listChapIdsCheckNeedToCache == null)
-                //{
-                //    listChapIdsCheckNeedToCache = new List<int>();
-                //}
-                //foreach (var chapID in chapIDs)
-                //{
-                //    if (listChapIdsCheckNeedToCache.Contains(chapID))
-                //    {
-                //        continue;
-                //    }
 
-                //    var chapData = chapHasInvalidDatas.Where(i => i.StoryID == storyIdWithInvalidChapId.StoryId && i.ChapID == chapID).First();
-                //    var hasInvalidImage = false;
-                //    for (int index = 0; index < chapData.Images.Count; index++)
-                //    {
-                //        if (chapData.Images[index].Status == IMAGE_STATUS.ERROR)
-                //        {
-                //            hasInvalidImage = true;
-                //            break;
-                //        }
-                //    }
-                //    if (hasInvalidImage)
-                //    {
-                //        listChaps.Add(chapData);
-                //    }
-                //    else
-                //    {
-                //        listChapIdsCheckNeedToCache.Add(chapID);
-                //        _cacheProvider.Set(key: CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListChapIDChecked, storyIdWithInvalidChapId), data: listChapIdsCheckNeedToCache, expiredTimeInSeconds: 600);
-                //    }
-                //    //if (listChaps.Count >= limitNumberStoty) break;
-                //}
                 if (listChaps.Any())
                 {
                     var storyInValid = new ImageStoryInvalidData();
@@ -220,7 +206,7 @@ namespace Pro.Service.Implements
                     return rs;
                 };
 
-                return _cacheProvider.Get<List<StoryWithInvalidChap>>(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListStoryIDForCheckInvalid), fetchFunc, expiredTimeInSeconds: 600);
+                return _cacheProvider.Get<List<StoryWithInvalidChap>>(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListStoryIDForCheckInvalid), fetchFunc, expiredTimeInSeconds: 120);
 
             }
             catch (Exception ex)
@@ -229,7 +215,7 @@ namespace Pro.Service.Implements
                 return new List<StoryWithInvalidChap>();
             }
         }
-        public bool AddStatus(int skip = 0, int take = 1000)
+        public bool AddStatusToImagesInEachChap(int skip = 0, int take = 1000)
         {
             var imageDatas = _imageRepository.GetAll().Skip(skip).Take(take).ToList();
             var imageNeedUpdates = new List<ImagesOneChap>();
@@ -328,11 +314,34 @@ namespace Pro.Service.Implements
                                 chap.GetStatus = IMAGE_STATUS.ERROR;
                             }
                         }
-                        _newStoryRepository.Update(story.ID, story);
+                        _newStoryRepository.Update2(story.ID, story);
                     }
                 }
             }
             return dataTemps;
+        }
+        public bool OnlyChangeFlagGetStatus(int storyId, int chapId, IMAGE_STATUS flagStatus = IMAGE_STATUS.OK)
+        {
+            try
+            {
+                var story = _newStoryRepository.GetAll().Where(s => s.ID == storyId).FirstOrDefault();
+                if (story != null)
+                {
+                    foreach (var chap in story.Chaps)
+                    {
+                        if (chap.ID == chapId)
+                        {
+                            chap.GetStatus = flagStatus;
+                        }
+                    }
+                    _newStoryRepository.Update2(story.ID, story);
+                    return true;
+                }
+
+            }
+            catch { return false; }
+
+            return false;
         }
     }
 }

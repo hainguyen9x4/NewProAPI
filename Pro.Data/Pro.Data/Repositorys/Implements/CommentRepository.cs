@@ -41,5 +41,10 @@ namespace Pro.Data.Repositorys.Implements
         public void Delete(Comment commentForDeletion) => _comment.DeleteOne(comment => comment.Id == commentForDeletion.Id);
 
         public void Delete(int id) => _comment.DeleteOne(comment => comment.Id == id);
+
+        public void Update2(int id, Comment updatedentity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

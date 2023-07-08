@@ -40,5 +40,10 @@ namespace Pro.Data.Repositorys.Implements
         public void Delete(ImagesOneChap storyForDeletion) => _images.DeleteOne(story => story.Id == storyForDeletion.Id);
 
         public void Delete(int id) => _images.DeleteOne(story => story.Id == id);
+
+        public void Update2(int id, ImagesOneChap updatedentity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

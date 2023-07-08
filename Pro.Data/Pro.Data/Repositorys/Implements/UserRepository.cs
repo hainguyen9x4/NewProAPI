@@ -41,5 +41,10 @@ namespace Pro.Data.Repositorys.Implements
         public void Delete(User userForDeletion) => _users.DeleteOne(user => user.Id == userForDeletion.Id);
 
         public void Delete(int id) => _users.DeleteOne(user => user.Id == id);
+
+        public void Update2(int id, User updatedentity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
