@@ -86,7 +86,7 @@ namespace Pro.Service.Implements
         {
             try
             {
-                var storys = GetTotalStoryForNew().NewStorys;
+                var storys = GetTotalStoryForNew(dataPerPage: 0).NewStorys;
 
                 var results = storys.Select(s => new ImageStoryInfo
                 {
@@ -96,6 +96,7 @@ namespace Pro.Service.Implements
                     StoryPictureLink = s.Picture,
                     StoryNameShow = s.NameShow,
                     StoryTypes = GetStoryTypeInfoByList(s.OtherInfo.TypeIDs),
+                    Chaps = new List<Chap>() { s.Chaps.First() }
                 });
                 return results.ToList();
             }
@@ -129,9 +130,16 @@ namespace Pro.Service.Implements
                     }
                     else
                     {
-                        storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList()
-                        .OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
-                        total = _newStoryRepository.GetAll().Count();
+                        if (dataPerPage * numberStory == 0)//For search
+                        {
+                            storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList();
+                        }
+                        else
+                        {
+                            storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList()
+                            .OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
+                            total = _newStoryRepository.GetAll().Count();
+                        }
                     }
                     foreach (var s in storys)
                     {
@@ -470,7 +478,7 @@ namespace Pro.Service.Implements
                 case
                     RATE_TYPE.NEW_STORY:
                     story = GetTotalStoryForNew(pageIndex, dataPerPage, cachedKey: cached);
-                    story.NewStorys = story.NewStorys.OrderByDescending(s => s.ID).Skip(pageIndex* dataPerPage).Take(dataPerPage).ToList();
+                    story.NewStorys = story.NewStorys.OrderByDescending(s => s.ID).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
                     MakeMoreDetailStoryWithChaps(story.NewStorys, temp, 3);
                     break;
                 case
