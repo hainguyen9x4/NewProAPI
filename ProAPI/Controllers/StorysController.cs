@@ -29,27 +29,31 @@ namespace xStory.Controllers
         [HttpGet]
         public ActionResult<HomePageInfo> GetHomeStorys([FromQuery] int pageIndex, int storyPerPage) =>
                     _storyService.GetHomeStoryForNews(pageIndex, storyPerPage);
+
         [Route("api/[controller]/GetAllChapByStoryId")]
         [HttpGet]
         public ActionResult<ImageStoryInfo> GetAllChapByStoryId([FromQuery] int storyID) =>
             _storyService.GetAllChapByStoryIdForNew(storyID);
+
         [Route("api/[controller]/GetImageStorysInChap")]
         [HttpGet]
         public ActionResult<ChapInfo> GetImageStorysInChap([FromQuery] int storyID, int ChapId) =>
             _storyService.GetImageStorysInChapForNew(storyID, ChapId);
+
         [Route("api/[controller]/GetAllStoryForSearch")]
         [HttpGet]
         public ActionResult<List<ImageStoryInfo>> GetAllStoryForSearch() =>
             _storyService.GetAllStoryForSearchForNew();
+
         [Route("api/[controller]/GetAllStoryByTypeName")]
         [HttpGet]
         public ActionResult<TempGetAllStoryByTypeName> GetAllStoryByTypeName([FromQuery] string nameType, int pageIndex, int storyPerPage) =>
             _storyService.GetAllStoryByTypeName(nameType, pageIndex, storyPerPage);
+
         [Route("api/[controller]/RateStory")]
         [HttpGet]
         public ActionResult<TempGetAllStoryByTypeName> RateStory([FromQuery] RATE_TYPE rateType, int pageIndex = 0, int dataPerPage = 16) =>
             _storyService.RateStory(rateType, pageIndex, dataPerPage);
-
 
         public class TempObject
         {
@@ -62,5 +66,12 @@ namespace xStory.Controllers
         public ActionResult<TempGetAllStoryByTypeName> GetAllStoryByTypeIDs(TempObject data) =>
             _storyService.GetAllStoryByTypeIDs(data.TypeIDs, data.PageIndex, data.StoryPerPage);
 
+        [Route("api/[controller]/GetAllStoryByTypeIDs")]
+        [HttpGet]
+        public ActionResult<bool> GetAllStory()
+        {
+            if (_storyService.GetAllStory().Count > 0) return true;
+            return false;
+        }
     }
 }

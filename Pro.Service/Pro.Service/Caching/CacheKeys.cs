@@ -26,6 +26,8 @@
             public const string ListAllStoryOfPageStoryType = "ListAllStoryOfPageStoryType{0}{1}{2}";
             public const string ListAllStoryOfRateType = "ListAllStoryOfRateType{0}{1}{2}";
             public const string ListStoryGenderType = "ListStoryGenderType{0}{1}{2}";
+            public const string CountAllStory = "CountAllStory";
+            public const string ListAllStorys = "ListAllStorys";
         }
         public static class ScanGetData
         {

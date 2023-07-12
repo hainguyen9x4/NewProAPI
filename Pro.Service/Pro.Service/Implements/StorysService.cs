@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using MongoDB.Driver;
 using Pro.Common;
 using Pro.Common.Enum;
@@ -121,7 +122,7 @@ namespace Pro.Service.Implements
                         var type = types.Where(s => s.TypeID == typeID).FirstOrDefault();
                         if (type != null)
                         {
-                            storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0)
+                            storys = GetAllStory().Where(s => s.StatusID != 0)
                             .Where(s => s.OtherInfo.TypeIDs.Contains(type.TypeID))
                             .ToList();
                             total = storys.Count();
@@ -132,13 +133,13 @@ namespace Pro.Service.Implements
                     {
                         if (dataPerPage * numberStory == 0)//For search
                         {
-                            storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList();
+                            storys = GetAllStory().Where(s => s.StatusID != 0).ToList();
                         }
                         else
                         {
-                            storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList()
+                            storys = GetAllStory()
                             .OrderByDescending(s => s.UpdatedTime).Take(dataPerPage * numberStory).ToList();
-                            total = _newStoryRepository.GetAll().Count();
+                            total = GetAllStory().Count();
                         }
                     }
                     foreach (var s in storys)
@@ -171,12 +172,25 @@ namespace Pro.Service.Implements
                 return new TempGetAllStoryData();
             }
         }
-
+        public List<NewStory> GetAllStory()
+        {
+            var totalStorts = _cacheProvider.Get<List<NewStory>>(CacheKeys.ImageStoryData.ListAllStorys);
+            if (totalStorts != null && totalStorts.Any())
+            {
+                return totalStorts;
+            }
+            else
+            {
+                var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList();
+                _cacheProvider.Set<List<NewStory>>(CacheKeys.ImageStoryData.ListAllStorys, storys);
+                return storys;
+            }
+        }
         public ImageStoryInfo GetAllChapByStoryIdForNew(int storyID, bool useCache = true)
         {
             try
             {
-                var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
+                var storyInfor = GetAllStory().Where(s => s.ID == storyID).FirstOrDefault();
                 if (storyInfor == null) return null;
 
                 var imageStoryInfo = new ImageStoryInfo()
@@ -214,7 +228,7 @@ namespace Pro.Service.Implements
         {
             try
             {
-                var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
+                var storyInfor = GetAllStory().Where(s => s.ID == storyID).FirstOrDefault();
                 if (storyInfor == null) return null;
 
                 var storyShortInfos = storyInfor.Chaps.Select(a => new ShortStoryInfo()
@@ -256,7 +270,7 @@ namespace Pro.Service.Implements
                 {
                     var results = new List<ImageStoryInfo>();
 
-                    var storys = _newStoryRepository.GetAll().Where(s => storyIDs.Contains(s.ID)).ToList();
+                    var storys = GetAllStory().Where(s => storyIDs.Contains(s.ID)).ToList();
 
                     foreach (var topStory in storys)
                     {
@@ -390,9 +404,9 @@ namespace Pro.Service.Implements
                         typeIDs = types.Select(t => t.TypeID).ToList();
                     }
 
-                    var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0 && typeIDs.Contains(s.ID)).ToList()
+                    var storys = GetAllStory().Where(s => s.StatusID != 0 && typeIDs.Contains(s.ID)).ToList()
                     .OrderByDescending(s => s.UpdatedTime).Skip(pageIndex * dataPerPage).Take(dataPerPage).ToList();
-                    var total = _newStoryRepository.GetAll().Count();
+                    var total = GetAllStory().Count();
 
                     var temp = new List<ImageStoryInfo>();
                     MakeMoreDetailStoryWithChaps(storys, temp, 3);
@@ -506,7 +520,7 @@ namespace Pro.Service.Implements
                     var storys = new List<NewStory>();
                     var total = 0;
 
-                    storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0 && s.OtherInfo.ViewTotal > 1000).Take(1000).ToList();
+                    storys = GetAllStory().Where(s => s.StatusID != 0 && s.OtherInfo.ViewTotal > 1000).Take(1000).ToList();
 
                     total = storys.Count();
 
