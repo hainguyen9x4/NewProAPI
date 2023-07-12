@@ -66,7 +66,7 @@ namespace xStory.Controllers
         public ActionResult<TempGetAllStoryByTypeName> GetAllStoryByTypeIDs(TempObject data) =>
             _storyService.GetAllStoryByTypeIDs(data.TypeIDs, data.PageIndex, data.StoryPerPage);
 
-        [Route("api/[controller]/GetAllStoryByTypeIDs")]
+        [Route("api/[controller]/GetAllStory")]
         [HttpGet]
         public ActionResult<bool> GetAllStory()
         {

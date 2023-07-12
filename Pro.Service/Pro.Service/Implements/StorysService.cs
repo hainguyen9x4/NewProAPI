@@ -182,7 +182,7 @@ namespace Pro.Service.Implements
             else
             {
                 var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList();
-                _cacheProvider.Set<List<NewStory>>(CacheKeys.ImageStoryData.ListAllStorys, storys);
+                _cacheProvider.Set<List<NewStory>>(CacheKeys.ImageStoryData.ListAllStorys, storys, expiredTimeInSeconds: 60 * 6);
                 return storys;
             }
         }
