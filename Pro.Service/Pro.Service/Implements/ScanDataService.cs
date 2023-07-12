@@ -9,6 +9,7 @@ namespace Pro.Service.Implements
     public class ScanDataService : IScanDataService
     {
         private readonly IApplicationSettingService _applicationSettingService;
+        private readonly IStoryFollowsService _storyFollowsService;
         private readonly IStoryTypeService _storyTypeService;
 
         private readonly AppBuildDataSetting _setting;
@@ -16,10 +17,12 @@ namespace Pro.Service.Implements
 
         public ScanDataService(IApplicationSettingService applicationSettingService,
             IAppSettingData appSettingData,
+            IStoryFollowsService storyFollowsService,
             IStoryTypeService storyTypeService)
         {
             _applicationSettingService = applicationSettingService;
             _settingData = appSettingData;
+            _storyFollowsService = storyFollowsService;
             _storyTypeService = storyTypeService;
 
             var settings = _applicationSettingService.GetValueGetScan(ApplicationSettingKey.AppsettingsScanGet, useOtherSetting: _settingData.UseSettingGetSetNumber);
@@ -33,12 +36,17 @@ namespace Pro.Service.Implements
         public bool StartScanData()
         {
             var fileStoryFollowPath = Path.Combine(_setting.FolderSaveData, _setting.DataStoryFollowsFile);
-            var lstStoryForllows = FileReader.ReadListDataFromFile<string>(fileStoryFollowPath);
-            StartScanJob(lstStoryForllows.Where(t => !String.IsNullOrEmpty(t)).ToList());
-            return true;
+            //var lstStoryForllows = FileReader.ReadListDataFromFile<string>(fileStoryFollowPath);
+            var lstStoryForllows = _storyFollowsService.GetAllStoryFollows();
+            if (lstStoryForllows.Any())
+            {
+                StartScanJob(lstStoryForllows.Where(t => !String.IsNullOrEmpty(t.Link)).ToList());
+                return true;
+            }
+            return false;
         }
         private static bool statusScan = true;
-        private void StartScanJob(List<string> lstStoryFollows)
+        private void StartScanJob(List<StoryFollow> lstStoryFollows)
         {
             if (statusScan)
             {
