@@ -215,13 +215,21 @@ namespace Pro.Service.Implements
                     {
                         if (stored.StoryName == storyName)
                         {
-                            var newestChapIndexNumbere = fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max();
+                            var newestChapIndexNumbere = fetchedData.ChapPluss.Any() ? fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max() : stored.ChapStoredNewest;
                             if (newestChapIndexNumbere > stored.ChapStoredNewest)
                             {
                                 //Has new chap
                                 var temps = fetchedData.ChapPluss.Where(c => c.ChapIndexNumber > stored.ChapStoredNewest).ToList();
                                 stored.ChapStoredNewest = newestChapIndexNumbere;
                                 rs_eachChaps = temps.Select(t => t.ChapLink).ToList();
+                            }
+                            else
+                            {
+                                if (!fetchedData.ChapPluss.Any())
+                                {
+                                    //Error get chap info:
+
+                                }
                             }
                             break;
                         }
