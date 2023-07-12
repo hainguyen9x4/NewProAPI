@@ -34,6 +34,7 @@
             public const string ListStoryIDForCheckInvalid = "ListStoryIDForCheckInvalid";
             public const string ListStoryIDChecked = "ListStoryIDChecked";
             public const string ListChapIDChecked = "ListChapIDChecked{0}";
+            public const string ListStoryFollows = "ListStoryFollows";
         }
     }
 }
