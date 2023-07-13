@@ -2,6 +2,7 @@ using FileManager;
 using MongoDB.Driver;
 using Pro.Common;
 using Pro.Common.Const;
+using Pro.Common.Enum;
 using Pro.Model;
 
 namespace Pro.Service.Implements
@@ -37,10 +38,26 @@ namespace Pro.Service.Implements
         {
             var fileStoryFollowPath = Path.Combine(_setting.FolderSaveData, _setting.DataStoryFollowsFile);
             //var lstStoryForllows = FileReader.ReadListDataFromFile<string>(fileStoryFollowPath);
-            var lstStoryForllows = _storyFollowsService.GetAllStoryFollows();
+            var lstStoryForllows = _storyFollowsService.GetAllStoryFollows(STATUS_FOLLOW.ALL);
+            var orignalLstStoryForllows = new List<StoryFollow>();
+            foreach (var lst in lstStoryForllows)
+            {
+                var s = new StoryFollow(lst.Link, lst.Status);
+                s.Id = lst.Id;
+                orignalLstStoryForllows.Add(s);
+            }
             if (lstStoryForllows.Any())
             {
-                StartScanJob(lstStoryForllows.Where(t => !String.IsNullOrEmpty(t.Link)).ToList());
+                StartScanJob(lstStoryForllows);
+                //Update flowStoryStatus
+                foreach (var lst in lstStoryForllows)
+                {
+                    if (orignalLstStoryForllows.Any(l => l.Id == lst.Id && l.Status != lst.Status))
+                    {
+                        _storyFollowsService.UpdateStoryFollows(lst.Id, lst.Link, lst.Status);
+
+                    }
+                }
                 return true;
             }
             return false;
@@ -59,16 +76,23 @@ namespace Pro.Service.Implements
                     var fileStoreData = Path.Combine(_setting.FolderSaveData, _setting.DataFile);
                     var filePathNewInChap = _setting.FolderSaveData + _setting.FolderNewestData + _setting.NewestDataFile;
 
-                    lstStoryFollows = FileReader.AddHomeUrlLink(lstStoryFollows, homeLinkWithSub);
+                    foreach (var lstStoryFollow in lstStoryFollows)
+                    {
+                        lstStoryFollow.Link = FileReader.AddHomeUrlLink(lstStoryFollow.Link, homeLinkWithSub);
+                    }
+
                     LogHelper.Info($"SCAN---lstStoryFollows(s):{lstStoryFollows.Count}");
                     var allCurrentStoryListStores = FileReader.ReadListDataFromFile<StorySaveInfo>(fileStoreData);
 
                     var all_rs_eachChaps = new List<string>();
-                    foreach (var lstStoryFollow in lstStoryFollows)
+                    foreach (var storyFollow in lstStoryFollows)
                     {
                         var rs_eachChaps = new List<string>();
-                        var dataNewestChap = FindNewChapInStory(allCurrentStoryListStores, lstStoryFollow, ref rs_eachChaps, urlBase);
-                        SaveDataToFile(filePathNewInChap, rs_eachChaps, dataNewestChap);
+                        var dataNewestChap = FindNewChapInStory(allCurrentStoryListStores, storyFollow, ref rs_eachChaps, urlBase);
+                        if (storyFollow.Status != STATUS_FOLLOW.DISABLE)
+                        {
+                            SaveDataToFile(filePathNewInChap, rs_eachChaps, dataNewestChap);
+                        }
                     }
                     FileReader.WriteDataToFile<StorySaveInfo>(fileStoreData, allCurrentStoryListStores);
                     LogHelper.Info($"SCAN---Found CHAP newest:" + $"--:{""}");
@@ -186,7 +210,7 @@ namespace Pro.Service.Implements
 
             return true;
         }
-        private List<NewestChapModel> FindNewChapInStory(List<StorySaveInfo> allCurrentStoryListStores, string urlStory, ref List<string> rs_eachChaps, string urlBase = "")
+        private List<NewestChapModel> FindNewChapInStory(List<StorySaveInfo> allCurrentStoryListStores, StoryFollow storyFollow, ref List<string> rs_eachChaps, string urlBase = "")
         {
             var newestChapModel = new List<NewestChapModel>();
             var storyName = "";
@@ -194,59 +218,67 @@ namespace Pro.Service.Implements
             try
             {
                 //string storyNameShow = "";
-                var fetchedData = GetStoryInfoWithChapByAPI(urlStory, urlBase);
-                storyName = FileReader.GetStoryInfoFromUrlStory(urlStory);
-                var allNameStorySaved = allCurrentStoryListStores.Select(t => t.StoryName).ToList();
-                //LogHelper.Info($"fetchedChaps: {JsonConvert.SerializeObject(fetchedChaps)}");
-                newestChapModel.Add(new NewestChapModel()
+                var fetchedData = GetStoryInfoWithChapByAPI(storyFollow.Link, urlBase);
+                if (fetchedData.ChapPluss.Any())
                 {
-                    StoryName = storyName,
-                    StoryLink = FileReader.DeleteHomePage(urlStory),
-                    StoryNameShow = fetchedData.StoryName,
-                    Description = fetchedData.Description,
-                    StoryTypes = ConvertStoryTypes(fetchedData.StoryTypes),
-                });
-                //LogHelper.Info($"newestChapModel: {JsonConvert.SerializeObject(newestChapModel)}");
-                if (!allNameStorySaved.Contains(storyName))//new story
-                {
-                    allCurrentStoryListStores.Add(
-                        new StorySaveInfo()
-                        {
-                            StoryName = storyName,
-                            ChapStoredNewest = fetchedData.ChapPluss.Any() ? fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max() : 0,
-                        });
-                    rs_eachChaps = fetchedData.ChapPluss.Select(t => t.ChapLink).ToList();
-                }
-                else//old story
-                {
-                    foreach (var stored in allCurrentStoryListStores)
-                    {
-                        if (stored.StoryName == storyName)
-                        {
-                            var newestChapIndexNumbere = fetchedData.ChapPluss.Any() ? fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max() : stored.ChapStoredNewest;
-                            if (newestChapIndexNumbere > stored.ChapStoredNewest)
-                            {
-                                //Has new chap
-                                var temps = fetchedData.ChapPluss.Where(c => c.ChapIndexNumber > stored.ChapStoredNewest).ToList();
-                                stored.ChapStoredNewest = newestChapIndexNumbere;
-                                rs_eachChaps = temps.Select(t => t.ChapLink).ToList();
-                            }
-                            else
-                            {
-                                if (!fetchedData.ChapPluss.Any())
-                                {
-                                    //Error get chap info:
 
+                    storyName = FileReader.GetStoryInfoFromUrlStory(storyFollow.Link);
+                    var allNameStorySaved = allCurrentStoryListStores.Select(t => t.StoryName).ToList();
+                    //LogHelper.Info($"fetchedChaps: {JsonConvert.SerializeObject(fetchedChaps)}");
+                    newestChapModel.Add(new NewestChapModel()
+                    {
+                        StoryName = storyName,
+                        StoryLink = FileReader.DeleteHomePage(storyFollow.Link),
+                        StoryNameShow = fetchedData.StoryName,
+                        Description = fetchedData.Description,
+                        StoryTypes = ConvertStoryTypes(fetchedData.StoryTypes),
+                    });
+                    //LogHelper.Info($"newestChapModel: {JsonConvert.SerializeObject(newestChapModel)}");
+                    if (!allNameStorySaved.Contains(storyName))//new story
+                    {
+                        allCurrentStoryListStores.Add(
+                            new StorySaveInfo()
+                            {
+                                StoryName = storyName,
+                                ChapStoredNewest = fetchedData.ChapPluss.Any() ? fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max() : 0,
+                            });
+                        rs_eachChaps = fetchedData.ChapPluss.Select(t => t.ChapLink).ToList();
+                    }
+                    else//old story
+                    {
+                        foreach (var stored in allCurrentStoryListStores)
+                        {
+                            if (stored.StoryName == storyName)
+                            {
+                                var newestChapIndexNumbere = fetchedData.ChapPluss.Any() ? fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max() : stored.ChapStoredNewest;
+                                if (newestChapIndexNumbere > stored.ChapStoredNewest)
+                                {
+                                    //Has new chap
+                                    var temps = fetchedData.ChapPluss.Where(c => c.ChapIndexNumber > stored.ChapStoredNewest).ToList();
+                                    stored.ChapStoredNewest = newestChapIndexNumbere;
+                                    rs_eachChaps = temps.Select(t => t.ChapLink).ToList();
                                 }
+                                else
+                                {
+                                    if (!fetchedData.ChapPluss.Any())
+                                    {
+                                        //Error get chap info:
+
+                                    }
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
+                }
+                else//Cant get data from link
+                {
+                    storyFollow.Status = STATUS_FOLLOW.DISABLE;
                 }
             }
             catch (Exception ex)
             {
-                LogHelper.Error($"Error_FindNewChapInStory :{urlStory}" + ex);
+                LogHelper.Error($"Error_FindNewChapInStory :{storyFollow}" + ex);
             }
             return newestChapModel;
         }

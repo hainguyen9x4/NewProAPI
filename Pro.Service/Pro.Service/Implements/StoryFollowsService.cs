@@ -1,4 +1,5 @@
 using Pro.Common;
+using Pro.Common.Enum;
 using Pro.Data.Repositorys;
 using Pro.Model;
 using Pro.Service.Caching;
@@ -18,30 +19,40 @@ namespace Pro.Service.Implements
             _storyFollowsRepository = storyFollowsRepository;
             _cacheProvider = cacheProvider;
         }
-        public List<StoryFollow> GetAllStoryFollows(bool useCache = true)
+        public List<StoryFollow> GetAllStoryFollows(STATUS_FOLLOW status, bool useCache = true)
         {
-            try
+            switch (status)
             {
-                Func<List<StoryFollow>> fetchFunc = () =>
-                {
-                    return _storyFollowsRepository.GetAll().ToList();
-                };
+                case STATUS_FOLLOW.DISABLE:
+                    return _storyFollowsRepository.GetAll().Where(s => s.Status == status).OrderBy(s => s.Id).ToList();
+                case STATUS_FOLLOW.ALL:
+                    return _storyFollowsRepository.GetAll().OrderBy(s => s.Id).ToList();
+                case STATUS_FOLLOW.ENABLE:
+                    try
+                    {
+                        Func<List<StoryFollow>> fetchFunc = () =>
+                        {
+                            return _storyFollowsRepository.GetAll().Where(s => s.Status == STATUS_FOLLOW.ENABLE).OrderBy(s => s.Id).ToList();
+                        };
 
-                return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListStoryFollows), fetchFunc) : fetchFunc();
-            }
-            catch (Exception ex)
-            {
-                LogHelper.Error($"Error when get the lst follow story", ex);
-                return new List<StoryFollow>();
+                        return useCache ? _cacheProvider.Get(CacheKeys.GetCacheKey(CacheKeys.ScanGetData.ListStoryFollows), fetchFunc) : fetchFunc();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogHelper.Error($"Error when get the lst follow story", ex);
+                        return new List<StoryFollow>();
+                    }
+                default:
+                    return new List<StoryFollow>();
             }
         }
-        public bool UpdateStoryFollows(int id, string link)
+        public bool UpdateStoryFollows(int id, string link, STATUS_FOLLOW status)
         {
             try
             {
                 var storyFollow = _storyFollowsRepository.GetAll().Where(s => s.Id == id).First();
                 storyFollow.Link = link;
-                storyFollow.Status = 0;//OKE
+                storyFollow.Status = status;
                 _storyFollowsRepository.Update(id, storyFollow);
             }
             catch (Exception ex)

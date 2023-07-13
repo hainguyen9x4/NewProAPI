@@ -18,6 +18,12 @@
         NEW_STORY = 5,
         NEWEST_UPDATED = 6
     }
+    public enum STATUS_FOLLOW
+    {
+        ENABLE = 0,
+        DISABLE = -1,
+        ALL = 2,
+    }
     public enum IMAGE_STATUS
     {
         OK = 0,

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Pro.Common.Enum;
 using Pro.Model;
 using Pro.Service;
 using System.Collections.Generic;
@@ -27,13 +28,13 @@ namespace xStory.Controllers
 
         [HttpGet]
         [Route("GetStoryFollows")]
-        public ActionResult<List<StoryFollow>> GetStoryFollows() =>
-            _storyFollowsService.GetAllStoryFollows();
+        public ActionResult<List<StoryFollow>> GetStoryFollows(STATUS_FOLLOW status = STATUS_FOLLOW.ALL) =>
+            _storyFollowsService.GetAllStoryFollows(status);
 
         [HttpPost]
         [Route("UpdateStoryFollows")]
-        public ActionResult<bool> UpdateStoryFollows(int id, string link) =>
-            _storyFollowsService.UpdateStoryFollows(id, link);
+        public ActionResult<bool> UpdateStoryFollows(int id, string link, STATUS_FOLLOW status) =>
+            _storyFollowsService.UpdateStoryFollows(id, link, status);
 
         [HttpPost]
         [Route("DeleteStoryFollows")]
