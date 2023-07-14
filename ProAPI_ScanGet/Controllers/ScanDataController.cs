@@ -13,12 +13,15 @@ namespace xStory.Controllers
     {
         private readonly IScanDataService _scanDataService;
         private readonly IStoryFollowsService _storyFollowsService;
+        private readonly IFileStoryService _fileStoryService;
 
-        public ScanDataController(IScanDataService scanDataService,
-            IStoryFollowsService storyFollowsService)
+        public ScanDataController(IScanDataService scanDataService
+            , IStoryFollowsService storyFollowsService
+            , IFileStoryService fileStoryService)
         {
             _scanDataService = scanDataService;
             _storyFollowsService = storyFollowsService;
+            _fileStoryService = fileStoryService;
         }
 
         [HttpGet]
@@ -50,5 +53,30 @@ namespace xStory.Controllers
         [Route("AddStoryFollows")]
         public ActionResult<ResultAddNewStory> AddStoryFollows(string link) =>
             _storyFollowsService.AddStoryFollows(link);
+        //
+        [HttpGet]
+        [Route("GetAllFileStory")]
+        public ActionResult<List<FileStory>> GetAllFileStory() =>
+            _fileStoryService.GetAllFileStory();
+
+        [HttpPost]
+        [Route("UpdateFileStory")]
+        public ActionResult<bool> UpdateFileStory(int id, int chapStoredNewest) =>
+            _fileStoryService.UpdateFileStory(id, chapStoredNewest);
+
+        [HttpPost]
+        [Route("DeleteAFileStory")]
+        public ActionResult<bool> DeleteAFileStory(int id) =>
+            _fileStoryService.DeleteAFileStory(id);
+
+        [HttpPost]
+        [Route("AddTableFileStory")]
+        public ActionResult<bool> AddTableFileStory(List<ModelAddNewFileStory> datas) =>
+            _fileStoryService.AddTableFileStory(datas);
+
+        [HttpPost]
+        [Route("AddFileStory")]
+        public ActionResult<ResultAddNewFileStory> AddFileStory(ModelAddNewFileStory data) =>
+            _fileStoryService.AddFileStory(data);
     }
 }

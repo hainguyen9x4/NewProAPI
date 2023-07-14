@@ -15,6 +15,7 @@ namespace Pro.Model
         public string DatabaseName { get; set; }
         public int UseSettingGetSetNumber { get; set; }
         public string XStorysCollectionStoryType { get; set; }
+        public string XStorysCollectionFileStory { get; set; }
     }
 
     public interface IAppSettingData
@@ -26,6 +27,7 @@ namespace Pro.Model
         string XStorysCollectionUser { get; set; }
         string XStorysCollectionComment { get; set; }
         string XStorysCollectionStoryFollows { get; set; }
+        string XStorysCollectionFileStory { get; set; }
         string XStorysCollectionAppSetting { get; set; }
         string ConnectionStringAppSetting { get; set; }
         string ConnectionStringMain { get; set; }

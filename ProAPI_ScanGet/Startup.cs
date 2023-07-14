@@ -39,6 +39,7 @@ namespace xStory
             services.AddSingleton<IStoryTypeRepository, StoryTypeRepository>();
             services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
             services.AddScoped<IStoryFollowsRepository, StoryFollowsRepository>();
+            services.AddScoped<IFileStoryRepository, FileStoryRepository>();
             services.AddScoped<ICacheProvider, InMemoryCacheProvider>();
 
             services.AddScoped<IScanDataService, ScanDataService>();
@@ -53,6 +54,7 @@ namespace xStory
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<ICorrectInvalidDataService, CorrectInvalidDataService>();
             services.AddScoped<IStoryFollowsService, StoryFollowsService>();
+            services.AddScoped<IFileStoryService, FileStoryService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
