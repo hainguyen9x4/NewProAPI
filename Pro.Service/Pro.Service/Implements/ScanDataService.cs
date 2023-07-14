@@ -4,6 +4,7 @@ using Pro.Common;
 using Pro.Common.Const;
 using Pro.Common.Enum;
 using Pro.Model;
+using System;
 
 namespace Pro.Service.Implements
 {
@@ -127,12 +128,12 @@ namespace Pro.Service.Implements
                     //    FileReader.WriteDataToFile(fullFilePath2, new List<NewestChapModel>() { newestChapModels[index] }, 300);
                     //    Thread.Sleep(100);
                     //}
-                    var fullFilePath2 = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + ".json";
+                    var fullFilePath2 = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + $"_{Guid.NewGuid().ToString()}" + ".json";
                     FileReader.WriteDataToFile(fullFilePath2, newestChapModel, 300);
                 }
                 else
                 {
-                    var fullFilePath = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + $"_00000" + ".json";
+                    var fullFilePath = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + $"_{Guid.NewGuid().ToString()}" + ".json";
                     FileReader.WriteDataToFile(fullFilePath, newestChapModel, 300);
                 }
                 List<string> UpdateDeleteHomePage(List<string> urls)
@@ -219,7 +220,7 @@ namespace Pro.Service.Implements
             {
                 //string storyNameShow = "";
                 var fetchedData = GetStoryInfoWithChapByAPI(storyFollow.Link, urlBase);
-                if (fetchedData.ChapPluss.Any())
+                if (fetchedData.ChapPluss != null && fetchedData.ChapPluss.Any())
                 {
 
                     storyName = FileReader.GetStoryInfoFromUrlStory(storyFollow.Link);
