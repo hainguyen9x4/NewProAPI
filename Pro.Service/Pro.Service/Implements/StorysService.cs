@@ -172,8 +172,12 @@ namespace Pro.Service.Implements
                 return new TempGetAllStoryData();
             }
         }
-        public List<NewStory> GetAllStory()
+        public List<NewStory> GetAllStory(int call = 0)
         {
+            if (call == 2)
+            {
+                LogHelper.Info("Call from function!");
+            }
             var totalStorts = _cacheProvider.Get<List<NewStory>>(CacheKeys.ImageStoryData.ListAllStorys);
             if (totalStorts != null && totalStorts.Any())
             {
