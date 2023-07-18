@@ -10,7 +10,9 @@ namespace Pro.Model
             StoryName = storyName;
             ChapStoredNewest = chapStoredNewest;
         }
-
+        public FileStory()
+        {
+        }
         [BsonId]
         public int Id { get; set; }
 

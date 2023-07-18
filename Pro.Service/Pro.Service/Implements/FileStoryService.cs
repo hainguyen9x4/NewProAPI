@@ -14,10 +14,32 @@ namespace Pro.Service.Implements
         }
         public List<FileStory> GetAllFileStory()
         {
-
             return _fileStoryRepository.GetAll().OrderBy(s => s.Id).ToList();
-
         }
+
+        public bool UpdateAllFileStory(List<FileStory> datas)
+        {
+            try
+            {
+                foreach (var data in datas)
+                {
+                    if (data.Id != 0)
+                    {
+                        _fileStoryRepository.Update(data.Id, data);
+                    }
+                    else//new
+                    {
+                        _fileStoryRepository.Create(data);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public bool UpdateFileStory(int id, int chapStoredNewest)
         {
             try

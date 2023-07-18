@@ -13,6 +13,7 @@ namespace Pro.Service.Implements
         private readonly IApplicationSettingService _applicationSettingService;
         private readonly IStoryFollowsService _storyFollowsService;
         private readonly IStoryTypeService _storyTypeService;
+        private readonly IFileStoryService _fileStoryService;
 
         private readonly AppBuildDataSetting _setting;
         private readonly IAppSettingData _settingData;
@@ -20,18 +21,21 @@ namespace Pro.Service.Implements
         public ScanDataService(IApplicationSettingService applicationSettingService,
             IAppSettingData appSettingData,
             IStoryFollowsService storyFollowsService,
-            IStoryTypeService storyTypeService)
+            IStoryTypeService storyTypeService,
+            IFileStoryService fileStoryService)
         {
             _applicationSettingService = applicationSettingService;
             _settingData = appSettingData;
             _storyFollowsService = storyFollowsService;
             _storyTypeService = storyTypeService;
+            _fileStoryService = fileStoryService;
 
             var settings = _applicationSettingService.GetValueGetScan(ApplicationSettingKey.AppsettingsScanGet, useOtherSetting: _settingData.UseSettingGetSetNumber);
             _setting = JsonManager.StringJson2Object<AppBuildDataSetting>(settings);
             _storyTypeService = storyTypeService;
 #if DEBUG
             _setting.FolderSaveData = Constants.DEBUG_DATA_FOLDER;
+            _fileStoryService = fileStoryService;
 #endif
         }
 
@@ -56,7 +60,6 @@ namespace Pro.Service.Implements
                     if (orignalLstStoryForllows.Any(l => l.Id == lst.Id && l.Status != lst.Status))
                     {
                         _storyFollowsService.UpdateStoryFollows(lst.Id, lst.Link, lst.Status);
-
                     }
                 }
                 return true;
@@ -83,7 +86,8 @@ namespace Pro.Service.Implements
                     }
 
                     LogHelper.Info($"SCAN---lstStoryFollows(s):{lstStoryFollows.Count}");
-                    var allCurrentStoryListStores = FileReader.ReadListDataFromFile<StorySaveInfo>(fileStoreData);
+                    //var allCurrentStoryListStores = FileReader.ReadListDataFromFile<StorySaveInfo>(fileStoreData);
+                    var allCurrentStoryListStores = _fileStoryService.GetAllFileStory();
 
                     var all_rs_eachChaps = new List<string>();
                     foreach (var storyFollow in lstStoryFollows)
@@ -95,7 +99,10 @@ namespace Pro.Service.Implements
                             SaveDataToFile(filePathNewInChap, rs_eachChaps, dataNewestChap);
                         }
                     }
-                    FileReader.WriteDataToFile<StorySaveInfo>(fileStoreData, allCurrentStoryListStores);
+                    //FileReader.WriteDataToFile<StorySaveInfo>(fileStoreData, allCurrentStoryListStores);
+                    //Update to DB
+                    _fileStoryService.UpdateAllFileStory(allCurrentStoryListStores);
+
                     LogHelper.Info($"SCAN---Found CHAP newest:" + $"--:{""}");
 
                     statusScan = true;
@@ -211,7 +218,7 @@ namespace Pro.Service.Implements
 
             return true;
         }
-        private List<NewestChapModel> FindNewChapInStory(List<StorySaveInfo> allCurrentStoryListStores, StoryFollow storyFollow, ref List<string> rs_eachChaps, string urlBase = "")
+        private List<NewestChapModel> FindNewChapInStory(List<FileStory> allCurrentStoryListStores, StoryFollow storyFollow, ref List<string> rs_eachChaps, string urlBase = "")
         {
             var newestChapModel = new List<NewestChapModel>();
             var storyName = "";
@@ -238,7 +245,7 @@ namespace Pro.Service.Implements
                     if (!allNameStorySaved.Contains(storyName))//new story
                     {
                         allCurrentStoryListStores.Add(
-                            new StorySaveInfo()
+                            new FileStory()
                             {
                                 StoryName = storyName,
                                 ChapStoredNewest = fetchedData.ChapPluss.Any() ? fetchedData.ChapPluss.Select(t => t.ChapIndexNumber).Max() : 0,
@@ -271,6 +278,7 @@ namespace Pro.Service.Implements
                             }
                         }
                     }
+                    storyFollow.Status = STATUS_FOLLOW.ENABLE;
                 }
                 else//Cant get data from link
                 {
