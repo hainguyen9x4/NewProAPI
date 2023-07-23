@@ -236,7 +236,7 @@ namespace Pro.Service.Implements
         {
             try
             {
-                var storyInfor = GetAllStory().Where(s => s.ID == storyID).FirstOrDefault();
+                var storyInfor = _newStoryRepository.GetAll().Where(s => s.ID == storyID).FirstOrDefault();
                 if (storyInfor == null) return null;
 
                 var storyShortInfos = storyInfor.Chaps.Select(a => new ShortStoryInfo()
