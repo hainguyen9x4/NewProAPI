@@ -186,6 +186,10 @@ namespace Pro.Service.Implements
             else
             {
                 var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList();
+                foreach (var story in storys)
+                {
+                    story.Chaps = story.Chaps.OrderByDescending(c => c.ID).Take(3).ToList();
+                }
                 _cacheProvider.Set<List<NewStory>>(CacheKeys.ImageStoryData.ListAllStorys, storys, expiredTimeInSeconds: 60 * 6);
                 return storys;
             }
