@@ -68,9 +68,9 @@ namespace xStory.Controllers
 
         [Route("api/[controller]/GetAllStory")]
         [HttpGet]
-        public ActionResult<bool> GetAllStory()
+        public ActionResult<bool> GetAllStory([FromQuery] int call = 0)
         {
-            if (_storyService.GetAllStory().Count > 0) return true;
+            if (_storyService.GetAllStory(call).Count > 0) return true;
             return false;
         }
     }

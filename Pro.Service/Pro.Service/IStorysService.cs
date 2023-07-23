@@ -15,6 +15,6 @@ namespace Pro.Service
         TempGetAllStoryByTypeName GetAllStoryByTypeName(string typeName, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true);
         TempGetAllStoryByTypeName RateStory(RATE_TYPE type, int pageIndex = 0, int dataPerPage = 16);
         TempGetAllStoryByTypeName GetAllStoryByTypeIDs(List<int> typeIDs, int pageIndex = 0, int dataPerPage = 16, int numberStory = 10, bool useCache = true);
-        List<NewStory> GetAllStory();
+        List<NewStory> GetAllStory(int call = 0);
     }
 }

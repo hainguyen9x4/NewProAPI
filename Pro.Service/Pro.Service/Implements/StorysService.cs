@@ -172,8 +172,12 @@ namespace Pro.Service.Implements
                 return new TempGetAllStoryData();
             }
         }
-        public List<NewStory> GetAllStory()
+        public List<NewStory> GetAllStory(int call = 0)
         {
+            if (call == 2)
+            {
+                LogHelper.Info("Call from function!");
+            }
             var totalStorts = _cacheProvider.Get<List<NewStory>>(CacheKeys.ImageStoryData.ListAllStorys);
             if (totalStorts != null && totalStorts.Any())
             {
@@ -182,6 +186,10 @@ namespace Pro.Service.Implements
             else
             {
                 var storys = _newStoryRepository.GetAll().Where(s => s.StatusID != 0).ToList();
+                foreach (var story in storys)
+                {
+                    story.Chaps = story.Chaps.OrderByDescending(c => c.ID).Take(3).ToList();
+                }
                 _cacheProvider.Set<List<NewStory>>(CacheKeys.ImageStoryData.ListAllStorys, storys, expiredTimeInSeconds: 60 * 6);
                 return storys;
             }

@@ -8,12 +8,14 @@ namespace Pro.Model
         public string XStorysCollectionImage { get; set; }
         public string XStorysCollectionUser { get; set; }
         public string XStorysCollectionComment { get; set; }
+        public string XStorysCollectionStoryFollows { get; set; }
         public string XStorysCollectionAppSetting { get; set; }
         public string ConnectionStringAppSetting { get; set; }
         public string ConnectionStringMain { get; set; }
         public string DatabaseName { get; set; }
         public int UseSettingGetSetNumber { get; set; }
         public string XStorysCollectionStoryType { get; set; }
+        public string XStorysCollectionFileStory { get; set; }
     }
 
     public interface IAppSettingData
@@ -24,6 +26,8 @@ namespace Pro.Model
         string XStorysCollectionImage { get; set; }
         string XStorysCollectionUser { get; set; }
         string XStorysCollectionComment { get; set; }
+        string XStorysCollectionStoryFollows { get; set; }
+        string XStorysCollectionFileStory { get; set; }
         string XStorysCollectionAppSetting { get; set; }
         string ConnectionStringAppSetting { get; set; }
         string ConnectionStringMain { get; set; }

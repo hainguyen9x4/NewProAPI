@@ -228,6 +228,15 @@ namespace FileManager
             }
             return newUrls;
         }
+
+        public static string AddHomeUrlLink(string url, string homePage)
+        {
+            //https://www.nettruyenme.com/truyen-tranh/  +  vo-luyen-dinh-phong-176960
+            if (!string.IsNullOrEmpty(url))
+                return homePage + url;
+            else return url;
+        }
+
         public static string DeleteHomePage(string urlx)
         {
             try
