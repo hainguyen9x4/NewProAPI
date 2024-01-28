@@ -11,7 +11,7 @@ namespace Pro.Model
             Link = link;
             Status = status;
         }
-
+        public StoryFollow() { }
         [BsonId]
         public int Id { get; set; }
 

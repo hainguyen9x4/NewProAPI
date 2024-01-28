@@ -6,6 +6,7 @@
         {
             ChapLinks = new List<string>();
         }
+        public int StoryID { get; set; }
         public string StoryName { get; set; }
         public string StoryLink { get; set; }
         public string StoryNameShow { get; set; }

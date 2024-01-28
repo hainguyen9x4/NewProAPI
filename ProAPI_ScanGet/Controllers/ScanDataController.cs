@@ -37,7 +37,7 @@ namespace xStory.Controllers
         [HttpPost]
         [Route("UpdateStoryFollows")]
         public ActionResult<bool> UpdateStoryFollows(int id, string link, STATUS_FOLLOW status) =>
-            _storyFollowsService.UpdateStoryFollows(id, link, status);
+            _storyFollowsService.UpdateStoryFollows(id, status, link);
 
         [HttpPost]
         [Route("DeleteStoryFollows")]

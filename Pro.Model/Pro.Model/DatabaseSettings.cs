@@ -10,6 +10,7 @@ namespace Pro.Model
         public string XStorysCollectionComment { get; set; }
         public string XStorysCollectionStoryFollows { get; set; }
         public string XStorysCollectionAppSetting { get; set; }
+        public string XStorysCollectionResultScanData { get; set; }
         public string ConnectionStringAppSetting { get; set; }
         public string ConnectionStringMain { get; set; }
         public string DatabaseName { get; set; }
@@ -29,6 +30,7 @@ namespace Pro.Model
         string XStorysCollectionStoryFollows { get; set; }
         string XStorysCollectionFileStory { get; set; }
         string XStorysCollectionAppSetting { get; set; }
+        string XStorysCollectionResultScanData { get; set; }
         string ConnectionStringAppSetting { get; set; }
         string ConnectionStringMain { get; set; }
         string DatabaseName { get; set; }

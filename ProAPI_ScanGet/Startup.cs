@@ -10,6 +10,8 @@ using Pro.Data.Repositorys;
 using Pro.Data.Repositorys.Implements;
 using Pro.Model;
 using Pro.Service;
+using Pro.Service.WebData;
+using Pro.Service.WebData.Implements;
 using Pro.Service.Caching;
 using Pro.Service.Implement;
 using Pro.Service.Implements;
@@ -38,6 +40,7 @@ namespace xStory
             services.AddScoped<IImageRepository, ImageRepository>();
             services.AddSingleton<IStoryTypeRepository, StoryTypeRepository>();
             services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
+            services.AddScoped<IResultScanDataRepository, ResultScanDataRepository>();
             services.AddScoped<IStoryFollowsRepository, StoryFollowsRepository>();
             services.AddScoped<IFileStoryRepository, FileStoryRepository>();
             services.AddScoped<ICacheProvider, InMemoryCacheProvider>();
@@ -55,6 +58,7 @@ namespace xStory
             services.AddScoped<ICorrectInvalidDataService, CorrectInvalidDataService>();
             services.AddScoped<IStoryFollowsService, StoryFollowsService>();
             services.AddScoped<IFileStoryService, FileStoryService>();
+            services.AddScoped<IGetDataFromWebService, GetDataFromWebService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

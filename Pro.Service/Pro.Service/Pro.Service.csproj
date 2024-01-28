@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="CloudinaryDotNet" Version="1.20.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.57" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
     <PackageReference Include="MongoDB.Bson" Version="2.19.0" />

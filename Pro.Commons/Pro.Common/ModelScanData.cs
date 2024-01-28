@@ -10,5 +10,6 @@
         public string ChapLink { get; set; }
         public int ChapIndexNumber { get; set; }
         public string StoryNameShow { get; set; }
+        public string ChapName { get; set; }
     }
 }

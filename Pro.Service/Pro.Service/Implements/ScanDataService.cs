@@ -3,8 +3,9 @@ using MongoDB.Driver;
 using Pro.Common;
 using Pro.Common.Const;
 using Pro.Common.Enum;
+using Pro.Data.Repositorys;
 using Pro.Model;
-using System;
+using Pro.Service.WebData;
 
 namespace Pro.Service.Implements
 {
@@ -14,6 +15,8 @@ namespace Pro.Service.Implements
         private readonly IStoryFollowsService _storyFollowsService;
         private readonly IStoryTypeService _storyTypeService;
         private readonly IFileStoryService _fileStoryService;
+        private readonly IGetDataFromWebService _getDataFromWebService;
+        private readonly IResultScanDataRepository _resultScanDataRepository;
 
         private readonly AppBuildDataSetting _setting;
         private readonly IAppSettingData _settingData;
@@ -22,17 +25,21 @@ namespace Pro.Service.Implements
             IAppSettingData appSettingData,
             IStoryFollowsService storyFollowsService,
             IStoryTypeService storyTypeService,
-            IFileStoryService fileStoryService)
+            IFileStoryService fileStoryService,
+            IGetDataFromWebService getDataFromWebService,
+            IResultScanDataRepository resultScanDataRepository)
         {
             _applicationSettingService = applicationSettingService;
             _settingData = appSettingData;
             _storyFollowsService = storyFollowsService;
             _storyTypeService = storyTypeService;
             _fileStoryService = fileStoryService;
+            _getDataFromWebService = getDataFromWebService;
 
             var settings = _applicationSettingService.GetValueGetScan(ApplicationSettingKey.AppsettingsScanGet, useOtherSetting: _settingData.UseSettingGetSetNumber);
             _setting = JsonManager.StringJson2Object<AppBuildDataSetting>(settings);
             _storyTypeService = storyTypeService;
+            _resultScanDataRepository = resultScanDataRepository;
 #if DEBUG
             _setting.FolderSaveData = Constants.DEBUG_DATA_FOLDER;
             _fileStoryService = fileStoryService;
@@ -43,11 +50,13 @@ namespace Pro.Service.Implements
         {
             var fileStoryFollowPath = Path.Combine(_setting.FolderSaveData, _setting.DataStoryFollowsFile);
             //var lstStoryForllows = FileReader.ReadListDataFromFile<string>(fileStoryFollowPath);
-            var lstStoryForllows = _storyFollowsService.GetAllStoryFollows(STATUS_FOLLOW.ALL);
+            var lstStoryForllows = _storyFollowsService.GetAllStoryFollows(STATUS_FOLLOW.ENABLE, false);
             var orignalLstStoryForllows = new List<StoryFollow>();
             foreach (var lst in lstStoryForllows)
             {
-                var s = new StoryFollow(lst.Link, lst.Status);
+                var s = new StoryFollow();
+                s.Link = lst.Link;
+                s.Status = lst.Status;
                 s.Id = lst.Id;
                 orignalLstStoryForllows.Add(s);
             }
@@ -57,9 +66,10 @@ namespace Pro.Service.Implements
                 //Update flowStoryStatus
                 foreach (var lst in lstStoryForllows)
                 {
-                    if (orignalLstStoryForllows.Any(l => l.Id == lst.Id && l.Status != lst.Status))
+                    var originalItem = orignalLstStoryForllows.Where(ori => ori.Id == lst.Id && ori.Status != lst.Status).FirstOrDefault();
+                    if (originalItem != null)
                     {
-                        _storyFollowsService.UpdateStoryFollows(lst.Id, lst.Link, lst.Status);
+                        _storyFollowsService.UpdateStoryFollows(originalItem.Id, lst.Status, "");
                     }
                 }
                 return true;
@@ -90,18 +100,20 @@ namespace Pro.Service.Implements
                     var allCurrentStoryListStores = _fileStoryService.GetAllFileStory();
 
                     var all_rs_eachChaps = new List<string>();
+                    var storyIDsChange = new List<int>();
                     foreach (var storyFollow in lstStoryFollows)
                     {
                         var rs_eachChaps = new List<string>();
                         var dataNewestChap = FindNewChapInStory(allCurrentStoryListStores, storyFollow, ref rs_eachChaps, urlBase);
                         if (storyFollow.Status != STATUS_FOLLOW.DISABLE)
                         {
-                            SaveDataToFile(filePathNewInChap, rs_eachChaps, dataNewestChap);
+                            SaveDataToFile2DB(filePathNewInChap, rs_eachChaps, dataNewestChap);
                         }
+                        storyIDsChange = dataNewestChap.Select(s => s.StoryID).ToList();
                     }
                     //FileReader.WriteDataToFile<StorySaveInfo>(fileStoreData, allCurrentStoryListStores);
                     //Update to DB
-                    _fileStoryService.UpdateAllFileStory(allCurrentStoryListStores);
+                    _fileStoryService.UpdateAllFileStory(allCurrentStoryListStores.Where(a => storyIDsChange.Contains(a.Id)).ToList());
 
                     LogHelper.Info($"SCAN---Found CHAP newest:" + $"--:{""}");
 
@@ -143,6 +155,47 @@ namespace Pro.Service.Implements
                     var fullFilePath = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + $"_{Guid.NewGuid().ToString()}" + ".json";
                     FileReader.WriteDataToFile(fullFilePath, newestChapModel, 300);
                 }
+                List<string> UpdateDeleteHomePage(List<string> urls)
+                {
+                    var newUrls = new List<string>();
+                    foreach (var urlx in urls)
+                    {
+                        var str = FileReader.DeleteHomePage(urlx);
+                        str = DeleteNameTruyen(str);
+                        if (!String.IsNullOrEmpty(str)) newUrls.Add(str);
+                    }
+                    return newUrls;
+                }
+                string DeleteNameTruyen(string url)
+                {
+                    var urlShort = url.Replace(newestChapModel[0].StoryName, "");
+                    return urlShort;
+                }
+            }
+
+            return rs_eachChaps;
+        }
+        private List<string> SaveDataToFile2DB(string filePathNewInChap, List<string> rs_eachChaps, List<NewestChapModel> newestChapModel)
+        {
+            if (rs_eachChaps.Any())
+            {
+                rs_eachChaps = UpdateDeleteHomePage(rs_eachChaps);
+                newestChapModel[0].ChapLinks = rs_eachChaps;
+                var rsScanDatas = new List<ResultScanData>();
+                foreach (var chap in rs_eachChaps)
+                {
+                    rsScanDatas.Add(new ResultScanData()
+                    {
+                        StoryID = newestChapModel[0].StoryID,
+                        Status = 0,
+                        ChapLink = chap
+                    });
+                }
+                _resultScanDataRepository.Creates(rsScanDatas);
+                var fullFilePath = filePathNewInChap + $"_{newestChapModel[0].StoryName}" + $"_{Guid.NewGuid().ToString()}" + ".json";
+                FileReader.WriteDataToFile(fullFilePath, newestChapModel, 300);
+
+                //Local func.
                 List<string> UpdateDeleteHomePage(List<string> urls)
                 {
                     var newUrls = new List<string>();
@@ -235,6 +288,7 @@ namespace Pro.Service.Implements
                     //LogHelper.Info($"fetchedChaps: {JsonConvert.SerializeObject(fetchedChaps)}");
                     newestChapModel.Add(new NewestChapModel()
                     {
+                        StoryID = storyFollow.Id,
                         StoryName = storyName,
                         StoryLink = FileReader.DeleteHomePage(storyFollow.Link),
                         StoryNameShow = fetchedData.StoryName,
@@ -306,18 +360,11 @@ namespace Pro.Service.Implements
             }
             return rs;
         }
-
-        public class StoryInfoWithChaps
+        private Model.StoryInfoWithChaps GetStoryInfoWithChapByAPI(string textUrl, string urlBase)
         {
-            public List<ChapPlus> ChapPluss { get; set; }
-            public string StoryName { get; set; }
-            public string Description { get; set; }
-            public List<string> StoryTypes { get; set; }
-        }
-        private StoryInfoWithChaps GetStoryInfoWithChapByAPI(string textUrl, string urlBase)
-        {
-            var data = new ApiHelper().Post<StoryInfoWithChaps>($"/api/GetStoryInfoWithChaps?textUrl={textUrl}", null, urlBase);
-            return data == null ? new StoryInfoWithChaps() : data;
+            var data = _getDataFromWebService.GetStoryInfoWithChaps(textUrl);
+            //var data = new ApiHelper().Post<StoryInfoWithChaps>($"/api/GetStoryInfoWithChaps?textUrl={textUrl}", null, urlBase);
+            return data == null ? new Model.StoryInfoWithChaps() : data;
         }
 
         private List<string> FindNewStoryByAPI(int numberPage, string homeUrl, string urlBase)

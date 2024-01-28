@@ -46,12 +46,12 @@ namespace Pro.Service.Implements
                     return new List<StoryFollow>();
             }
         }
-        public bool UpdateStoryFollows(int id, string link, STATUS_FOLLOW status)
+        public bool UpdateStoryFollows(int id, STATUS_FOLLOW status, string link = "")
         {
             try
             {
                 var storyFollow = _storyFollowsRepository.GetAll().Where(s => s.Id == id).First();
-                storyFollow.Link = link;
+                if (!String.IsNullOrEmpty(link)) storyFollow.Link = link;
                 storyFollow.Status = status;
                 _storyFollowsRepository.Update(id, storyFollow);
             }

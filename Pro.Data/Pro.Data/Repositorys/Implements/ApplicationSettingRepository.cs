@@ -15,7 +15,7 @@ namespace Pro.Data.Repositorys.Implements
         }
         public IMongoQueryable<ApplicationSetting> GetAll()
         {
-            return _applicationSettings.AsQueryable().Where(applicationSetting => true);
+            return _applicationSettings.AsQueryable();
         }
 
         public ApplicationSetting GetById(int id) => _applicationSettings.Find(applicationSetting => applicationSetting.AppSettingId == id).FirstOrDefault();
