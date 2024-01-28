@@ -16,7 +16,15 @@ namespace Pro.Service.Implements
         {
             return _fileStoryRepository.GetAll().OrderBy(s => s.Id).ToList();
         }
-
+        public string GetStoryNameById(int Id)
+        {
+            var story = _fileStoryRepository.GetAll().Where(s => s.Id == Id).FirstOrDefault();
+            if (story != null)
+            {
+                return story.StoryName;
+            }
+            return "";
+        }
         public bool UpdateAllFileStory(List<FileStory> datas)
         {
             try

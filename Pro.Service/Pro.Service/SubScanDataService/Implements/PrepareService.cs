@@ -1,6 +1,7 @@
 ﻿using FileManager;
 using Pro.Common;
 using Pro.Common.Const;
+using Pro.Data.Repositorys;
 using Pro.Model;
 
 namespace Pro.Service.SubScanDataService.Implements
@@ -8,11 +9,15 @@ namespace Pro.Service.SubScanDataService.Implements
     public class PrepareService : IPrepareService
     {
         private readonly IApplicationSettingService _applicationSettingService;
+        private readonly IResultScanDataRepository _resultScanDataRepository;
+        private readonly IFileStoryService _fileStoryService;
         private readonly AppBuildDataSetting _setting;
         private readonly IAppSettingData _settingData;
 
         public PrepareService(IApplicationSettingService applicationSettingService,
-            IAppSettingData appSettingData)
+            IAppSettingData appSettingData,
+            IResultScanDataRepository resultScanDataRepository,
+            IFileStoryService fileStoryService)
         {
             _applicationSettingService = applicationSettingService;
             _settingData = appSettingData;
@@ -21,6 +26,8 @@ namespace Pro.Service.SubScanDataService.Implements
 #if DEBUG
             _setting.FolderSaveData = Constants.DEBUG_DATA_FOLDER;
 #endif
+            _resultScanDataRepository = resultScanDataRepository;
+            _fileStoryService = fileStoryService;
         }
 
         public NewestChapModel PrepareNewestChapDatas()
@@ -55,6 +62,48 @@ namespace Pro.Service.SubScanDataService.Implements
                 }
             }
             return resultDatas;
+        }
+        public NewStory PrepareNewestChapDatasFromDB()
+        {
+            var homeLinkWithSub = _applicationSettingService.GetValue(ApplicationSettingKey.HomePage) + _applicationSettingService.GetValue(ApplicationSettingKey.SubDataForHomePage);
+
+            var datas = _resultScanDataRepository.GetAll().OrderBy(s => s.StoryID).Take(100).ToList();
+            var rs = new NewStory();
+            rs.Chaps = new List<Chap>();
+            datas = datas.OrderBy(d => d.Id).ToList();
+            foreach (var data in datas)
+            {
+                if (rs.Chaps.Any() && rs.Chaps.Count == 1)
+                {
+                    if (data.StoryID != rs.ID)
+                    {
+                        break;
+                    }
+                }
+                rs.Chaps.Add(new Chap()
+                {
+                    Link = data.ChapLink,
+                });
+                rs.ID = data.StoryID;
+            }
+            //Update fullLink
+            if (rs.Chaps.Any())
+            {
+                var storyName = _fileStoryService.GetStoryNameById(rs.ID);
+                foreach (var chap in rs.Chaps)
+                {
+                    chap.Link = ConvertToFullLink(chap.Link, storyName, homeLinkWithSub);
+                }
+            }
+            return rs;
+        }
+
+        private string ConvertToFullLink(string chapLink, string storyName, string homeLinkWithSub)
+        {
+            var rs = "";
+            rs = FileReader.AddStoryNameToUrlLink1(chapLink, storyName);
+            rs = FileReader.AddHomeUrlLink(rs, homeLinkWithSub);
+            return rs;
         }
 
         public NewStory PrepareNewestChapDatasForNew(ref string localPath)
@@ -102,7 +151,7 @@ namespace Pro.Service.SubScanDataService.Implements
             var valid = rs.Any();
             if (isNotify && valid == false)
             {
-                SendEmailFunc.SendEmail(strMessage: $"Need check the HomePage: {homeUrl}, get no data","Warning-HomePage");
+                SendEmailFunc.SendEmail(strMessage: $"Need check the HomePage: {homeUrl}, get no data", "Warning-HomePage");
             }
             return valid;
         }

@@ -7,6 +7,7 @@ namespace Pro.Service.SubScanDataService
     {
         NewestChapModel PrepareNewestChapDatas();
         NewStory PrepareNewestChapDatasForNew(ref string localPath);
+        NewStory PrepareNewestChapDatasFromDB();
         bool IsValidHomePage(bool isNotify = false);
     }
 }

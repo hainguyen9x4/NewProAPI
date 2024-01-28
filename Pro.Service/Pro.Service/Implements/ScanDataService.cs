@@ -35,15 +35,13 @@ namespace Pro.Service.Implements
             _storyTypeService = storyTypeService;
             _fileStoryService = fileStoryService;
             _getDataFromWebService = getDataFromWebService;
-
             var settings = _applicationSettingService.GetValueGetScan(ApplicationSettingKey.AppsettingsScanGet, useOtherSetting: _settingData.UseSettingGetSetNumber);
             _setting = JsonManager.StringJson2Object<AppBuildDataSetting>(settings);
-            _storyTypeService = storyTypeService;
-            _resultScanDataRepository = resultScanDataRepository;
 #if DEBUG
             _setting.FolderSaveData = Constants.DEBUG_DATA_FOLDER;
-            _fileStoryService = fileStoryService;
 #endif
+            _storyTypeService = storyTypeService;
+            _resultScanDataRepository = resultScanDataRepository;
         }
 
         public bool StartScanData()
@@ -109,7 +107,7 @@ namespace Pro.Service.Implements
                         {
                             SaveDataToFile2DB(filePathNewInChap, rs_eachChaps, dataNewestChap);
                         }
-                        storyIDsChange = dataNewestChap.Select(s => s.StoryID).ToList();
+                        storyIDsChange.Add(dataNewestChap.Select(s => s.StoryID).First());
                     }
                     //FileReader.WriteDataToFile<StorySaveInfo>(fileStoreData, allCurrentStoryListStores);
                     //Update to DB

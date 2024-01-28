@@ -268,5 +268,10 @@ namespace FileManager
             }
             return tem;
         }
+
+        public static string AddStoryNameToUrlLink1(string chapLink, string storyName)
+        {
+            return storyName + chapLink;
+        }
     }
 }

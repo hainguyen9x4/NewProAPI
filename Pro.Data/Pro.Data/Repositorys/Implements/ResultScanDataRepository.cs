@@ -30,10 +30,10 @@ namespace Pro.Data.Repositorys.Implements
 
         public List<ResultScanData> Creates(List<ResultScanData> ResultScanDatas)
         {
-            var total = _resultScanData.AsQueryable().Max(s => s.Id);
-            for (int i = 1; i <= ResultScanDatas.Count; i++)
+            var total = 1 + _resultScanData.AsQueryable().Count();
+            for (int i = 0; i < ResultScanDatas.Count; i++)
             {
-                ResultScanDatas[i-1].Id = i + total;
+                ResultScanDatas[i].Id = i + total;
             }
             _resultScanData.InsertMany(ResultScanDatas);
             return ResultScanDatas;

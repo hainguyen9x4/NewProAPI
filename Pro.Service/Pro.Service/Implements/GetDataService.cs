@@ -44,7 +44,7 @@ namespace Pro.Service.Implements
                     string localPath = "";
                     if (_prepareService.IsValidHomePage(true))
                     {
-                        var newestChapDatas = _prepareService.PrepareNewestChapDatasForNew(ref localPath);
+                        var newestChapDatas = _prepareService.PrepareNewestChapDatasFromDB();
                         if (newestChapDatas.Chaps != null && newestChapDatas.Chaps.Any())
                         {
                             if (_getRawDataService.GetRawDatasForNew(newestChapDatas))
